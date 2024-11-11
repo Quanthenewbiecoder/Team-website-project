@@ -93,6 +93,20 @@ class BasketItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
 
+class Wishlist(db.Model):
+    __tablename__ = 'wishlists'
+    wishlist_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    items = db.relationship('WishlistItem', backref='wishlist', lazy=True)
+
+class WishlistItem(db.Model):
+    __tablename__ = 'wishlist_items'
+    wishlist_item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    wishlist_id = db.Column(db.Integer, db.ForeignKey('wishlists.wishlist_id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 class Order(db.Model):
     __tablename__ = 'orders'
