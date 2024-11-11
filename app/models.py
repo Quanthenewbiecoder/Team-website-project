@@ -11,8 +11,8 @@ class User(db.Model):
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
     profile_picture = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Timestamp when created
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
 
     baskets = db.relationship('Basket', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
@@ -44,8 +44,8 @@ class Product(db.Model):
     image_url = db.Column(db.String(255))
     product_type = db.Column(db.String(50), nullable=False)  # e.g., Necklace, Ring
     SKU = db.Column(db.String(100), unique=True, nullable=False)  # Unique identifier for each product
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Timestamp when created
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
 
     customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
     care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
@@ -78,8 +78,8 @@ class Basket(db.Model):
 
     basket_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Timestamp when created
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
 
     items = db.relationship('BasketItem', backref='basket', lazy=True)
 
