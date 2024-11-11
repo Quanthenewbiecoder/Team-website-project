@@ -176,6 +176,22 @@ class Admin(db.Model):
     password = db.Column(db.String(255), nullable=False)
 
 
+class Supplier(db.Model):
+    __tablename__ = 'suppliers'
+    supplier_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    contact_info = db.Column(db.String(255))
+    address = db.Column(db.String(255))
+
+class ProductInventory(db.Model):
+    __tablename__ = 'product_inventory'
+    inventory_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=True)
+    quantity = db.Column(db.Integer, nullable=False, default=0)
+    restock_date = db.Column(db.DateTime)
+
+
 class Payment(db.Model):
     __tablename__ = 'payments'
 
