@@ -16,6 +16,20 @@ class User(db.Model):
 
     baskets = db.relationship('Basket', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
+    addresses = db.relationship('Address', backref='user', lazy=True)
+
+
+class Address(db.Model):
+    __tablename__ = 'addresses'
+
+    address_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    address_type = db.Column(db.String(50), nullable=False)  # e.g., 'Shipping', 'Billing'
+    street = db.Column(db.String(255), nullable=False)
+    city = db.Column(db.String(100), nullable=False)
+    state = db.Column(db.String(100))
+    postal_code = db.Column(db.String(20), nullable=False)
+    country = db.Column(db.String(50), nullable=False)
 
 
 class Product(db.Model):
@@ -107,9 +121,13 @@ class Payment(db.Model):
 
     payment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'), nullable=False)
-    payment_method = db.Column(db.String(50), nullable=False)
+    payment_method = db.Column(db.String(50), nullable=False)  # e.g., 'Credit Card', 'Direct Debit'
+    billing_address_id = db.Column(db.Integer, db.ForeignKey('addresses.address_id'))
     payment_status = db.Column(db.String(50), default='Pending')
-    transaction_id = db.Column(db.String(255))
+    transaction_id = db.Column(db.String(255), unique=True, nullable=False)
+    payment_reference = db.Column(db.String(255), unique=True)  # reference from payment gateway
+
+    billing_address = db.relationship('Address', foreign_keys=[billing_address_id])
 
 
 class Discount(db.Model):
