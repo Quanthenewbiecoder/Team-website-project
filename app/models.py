@@ -190,7 +190,7 @@ class ProductInventory(db.Model):
     supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=0)
     restock_date = db.Column(db.DateTime)
-
+    
 
 class Payment(db.Model):
     __tablename__ = 'payments'
@@ -211,16 +211,29 @@ class Discount(db.Model):
 
     discount_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     code = db.Column(db.String(50), unique=True, nullable=False)
-    percentage = db.Column(db.Numeric(5, 2), nullable=False)  # e.g., 10.00 for 10%
-    start_date = db.Column(db.DateTime)
-    end_date = db.Column(db.DateTime)
-    minimum_purchase = db.Column(db.Numeric(10, 2))
+    
+    # Type of discount, e.g., 'Percentage' or 'Flat'
+    discount_type = db.Column(db.String(50), nullable=False, default="Percentage")
+    
+    # Discount amounts
+    percentage = db.Column(db.Numeric(5, 2), nullable=True)   # For percentage-based discounts (e.g., 10.00 for 10%)
+    flat_amount = db.Column(db.Numeric(10, 2), nullable=True)  # For flat discounts (e.g., $10.00)
 
-    # Order-Level Discount: One discount can apply to many orders
-    orders = db.relationship('Order', backref='discount', lazy=True)
+    # Validity and restrictions
+    start_date = db.Column(db.DateTime, nullable=True)
+    end_date = db.Column(db.DateTime, nullable=True)
+    minimum_purchase = db.Column(db.Numeric(10, 2), nullable=True)  # Minimum amount required to apply discount
+    usage_limit = db.Column(db.Integer, default=None)  # Max number of times discount can be used overall
+    usage_per_user = db.Column(db.Integer, default=None)  # Max number of times per user
 
-    # Product-Level Discount: One discount can apply to many products
-    products = db.relationship('Product', backref='discount', lazy=True)
+    # Scope of applicability
+    applicable_to_order = db.Column(db.Boolean, default=True)  # True if discount applies to the whole order
+    applicable_to_product = db.Column(db.Boolean, default=False)  # True if discount applies to specific products
+    applicable_category = db.Column(db.String(50), nullable=True)  # Optional: category this discount applies to
+
+    # Relationships
+    orders = db.relationship('Order', backref='discount', lazy=True)  # Order-level relationship
+    products = db.relationship('Product', backref='discount', lazy=True)  # Product-level relationship
 
 
 class Invoice(db.Model):
