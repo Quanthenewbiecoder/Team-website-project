@@ -63,6 +63,32 @@ class ProductSize(db.Model):
     additional_price = db.Column(db.Numeric(10, 2), nullable=True)  # Optional: Price difference for size variations
 
 
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+class ProductTag(db.Model):
+    __tablename__ = 'product_tags'
+    product_tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
+
+
+class Bundle(db.Model):
+    __tablename__ = 'bundles'
+    bundle_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    discount_percentage = db.Column(db.Numeric(5, 2))  # Optional: discount for the bundle
+
+class BundleItem(db.Model):
+    __tablename__ = 'bundle_items'
+    bundle_item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    bundle_id = db.Column(db.Integer, db.ForeignKey('bundles.bundle_id'), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+
+
 class CustomizationOption(db.Model):
     __tablename__ = 'customization_options'
 
