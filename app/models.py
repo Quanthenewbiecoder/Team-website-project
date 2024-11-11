@@ -139,3 +139,15 @@ class Discount(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     minimum_purchase = db.Column(db.Numeric(10, 2))
+
+class Invoice(db.Model):
+    __tablename__ = 'invoices'
+
+    invoice_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'), nullable=False)
+    issue_date = db.Column(db.DateTime, default=datetime.utcnow)
+    due_date = db.Column(db.DateTime)
+    total_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    paid = db.Column(db.Boolean, default=False)
+
+    order = db.relationship('Order', backref='invoice')
