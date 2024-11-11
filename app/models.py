@@ -44,6 +44,9 @@ class Product(db.Model):
     image_url = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    
+    # Foreign key to Discount table for product-specific discounts
+    discount_id = db.Column(db.Integer, db.ForeignKey('discounts.discount_id'), nullable=True)
 
     customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
     care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
@@ -83,12 +86,16 @@ class Order(db.Model):
 
     order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    
+    # Foreign key to Discount table for order-level discounts
+    discount_id = db.Column(db.Integer, db.ForeignKey('discounts.discount_id'), nullable=True)
+    
     total_price = db.Column(db.Numeric(10, 2), nullable=False)
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default='Pending')
 
     items = db.relationship('OrderItem', backref='order', lazy=True)
-
+    
 
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
@@ -139,6 +146,45 @@ class Discount(db.Model):
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
     minimum_purchase = db.Column(db.Numeric(10, 2))
+
+    # Order-Level Discount: One discount can apply to many orders
+    orders = db.relationship('Order', backref='discount', lazy=True)
+
+    # Product-Level Discount: One discount can apply to many products
+    products = db.relationship('Product', backref='discount', lazy=True)
+
+
+class Product(db.Model):
+    __tablename__ = 'products'
+
+    product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Numeric(10, 2), nullable=False)
+    material = db.Column(db.String(50))
+    category = db.Column(db.String(50))
+    image_url = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
+    care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+
+    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    
+    # Foreign key to Discount table for order-level discounts
+    discount_id = db.Column(db.Integer, db.ForeignKey('discounts.discount_id'), nullable=True)
+    
+    total_price = db.Column(db.Numeric(10, 2), nullable=False)
+    order_date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), default='Pending')
+
+    items = db.relationship('OrderItem', backref='order', lazy=True)
+
 
 class Invoice(db.Model):
     __tablename__ = 'invoices'
