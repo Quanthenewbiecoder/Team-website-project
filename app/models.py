@@ -42,14 +42,25 @@ class Product(db.Model):
     material = db.Column(db.String(50))
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(255))
+    product_type = db.Column(db.String(50), nullable=False)  # e.g., Necklace, Ring
+    SKU = db.Column(db.String(100), unique=True, nullable=False)  # Unique identifier for each product
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-    
-    # Foreign key to Discount table for product-specific discounts
-    discount_id = db.Column(db.Integer, db.ForeignKey('discounts.discount_id'), nullable=True)
 
     customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
     care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
+    sizes = db.relationship('ProductSize', backref='product', lazy=True)  # Link to sizes
+
+
+class ProductSize(db.Model):
+    __tablename__ = 'product_sizes'
+
+    size_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    size_name = db.Column(db.String(50), nullable=False)  # Size description (e.g., "Small", "16 inches")
+    size_value = db.Column(db.String(50), nullable=True)  # Numeric value if needed (e.g., "18")
+    stock_quantity = db.Column(db.Integer, nullable=False, default=0)  # Optional: Track quantity by size
+    additional_price = db.Column(db.Numeric(10, 2), nullable=True)  # Optional: Price difference for size variations
 
 
 class CustomizationOption(db.Model):
@@ -60,6 +71,7 @@ class CustomizationOption(db.Model):
     option_type = db.Column(db.String(50), nullable=False)
     option_value = db.Column(db.String(50), nullable=False)
     additional_price = db.Column(db.Numeric(10, 2))
+
 
 class Basket(db.Model):
     __tablename__ = 'baskets'
@@ -79,6 +91,7 @@ class BasketItem(db.Model):
     basket_id = db.Column(db.Integer, db.ForeignKey('baskets.basket_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
+
 
 
 class Order(db.Model):
@@ -152,53 +165,6 @@ class Discount(db.Model):
 
     # Product-Level Discount: One discount can apply to many products
     products = db.relationship('Product', backref='discount', lazy=True)
-
-
-class Product(db.Model):
-    __tablename__ = 'products'
-
-    product_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
-    price = db.Column(db.Numeric(10, 2), nullable=False)
-    material = db.Column(db.String(50))
-    category = db.Column(db.String(50))
-    image_url = db.Column(db.String(255))
-    product_type = db.Column(db.String(50), nullable=False)  # e.g., Necklace, Ring
-    SKU = db.Column(db.String(100), unique=True, nullable=False)  # Unique identifier for each product
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
-    customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
-    care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
-    sizes = db.relationship('ProductSize', backref='product', lazy=True)  # Link to sizes
-
-
-class ProductSize(db.Model):
-    __tablename__ = 'product_sizes'
-
-    size_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
-    size_name = db.Column(db.String(50), nullable=False)  # Size description (e.g., "Small", "16 inches")
-    size_value = db.Column(db.String(50), nullable=True)  # Numeric value if needed (e.g., "18")
-    stock_quantity = db.Column(db.Integer, nullable=False, default=0)  # Optional: Track quantity by size
-    additional_price = db.Column(db.Numeric(10, 2), nullable=True)  # Optional: Price difference for size variations
-
-
-class Order(db.Model):
-    __tablename__ = 'orders'
-
-    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    
-    # Foreign key to Discount table for order-level discounts
-    discount_id = db.Column(db.Integer, db.ForeignKey('discounts.discount_id'), nullable=True)
-    
-    total_price = db.Column(db.Numeric(10, 2), nullable=False)
-    order_date = db.Column(db.DateTime, default=datetime.utcnow)
-    status = db.Column(db.String(50), default='Pending')
-
-    items = db.relationship('OrderItem', backref='order', lazy=True)
 
 
 class Invoice(db.Model):
