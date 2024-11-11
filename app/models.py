@@ -164,11 +164,26 @@ class Product(db.Model):
     material = db.Column(db.String(50))
     category = db.Column(db.String(50))
     image_url = db.Column(db.String(255))
+    product_type = db.Column(db.String(50), nullable=False)  # e.g., Necklace, Ring
+    SKU = db.Column(db.String(100), unique=True, nullable=False)  # Unique identifier for each product
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
     care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
+    sizes = db.relationship('ProductSize', backref='product', lazy=True)  # Link to sizes
+
+
+class ProductSize(db.Model):
+    __tablename__ = 'product_sizes'
+
+    size_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    size_name = db.Column(db.String(50), nullable=False)  # Size description (e.g., "Small", "16 inches")
+    size_value = db.Column(db.String(50), nullable=True)  # Numeric value if needed (e.g., "18")
+    stock_quantity = db.Column(db.Integer, nullable=False, default=0)  # Optional: Track quantity by size
+    additional_price = db.Column(db.Numeric(10, 2), nullable=True)  # Optional: Price difference for size variations
+
 
 class Order(db.Model):
     __tablename__ = 'orders'
