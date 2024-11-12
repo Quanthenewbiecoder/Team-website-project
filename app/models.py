@@ -13,6 +13,7 @@ class User(db.Model):
     profile_picture = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Timestamp when created
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
+    user_role = db.Column(db.String(50), nullable=False, default='user')  # Possible values: 'admin', 'staff', 'user'
 
     baskets = db.relationship('Basket', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
