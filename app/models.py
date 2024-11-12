@@ -5,6 +5,7 @@ from datetime import datetime
 class User(db.Model):
     __tablename__ = 'users'
 
+    # Basic user attributes, including unique user ID, email, password, names, and timestamps
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
@@ -15,11 +16,12 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
     user_role = db.Column(db.String(50), nullable=False, default='user')  # Possible values: 'admin', 'staff', 'user'
 
+    # Relationships: A user can have multiple baskets, orders, and addresses
     baskets = db.relationship('Basket', backref='user', lazy=True)
     orders = db.relationship('Order', backref='user', lazy=True)
     addresses = db.relationship('Address', backref='user', lazy=True)
 
-
+# Address model represents user address details, like street and city
 class Address(db.Model):
     __tablename__ = 'addresses'
 
@@ -32,7 +34,7 @@ class Address(db.Model):
     postal_code = db.Column(db.String(20), nullable=False)
     country = db.Column(db.String(50), nullable=False)
 
-
+# Product model stores information about each product, including name, price, and category
 class Product(db.Model):
     __tablename__ = 'products'
 
@@ -48,11 +50,12 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # Timestamp when created
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False) # Timestamp for updates
 
+    # Relationships: Customizations, care instructions, and sizes
     customizations = db.relationship('CustomizationOption', backref='product', lazy=True)
     care_instructions = db.relationship('CareInstruction', backref='product', lazy=True)
     sizes = db.relationship('ProductSize', backref='product', lazy=True)  # Link to sizes
 
-
+# ProductSize model defines size options for a product with possible additional prices
 class ProductSize(db.Model):
     __tablename__ = 'product_sizes'
 
@@ -63,19 +66,20 @@ class ProductSize(db.Model):
     stock_quantity = db.Column(db.Integer, nullable=False, default=0)  # Optional: Track quantity by size
     additional_price = db.Column(db.Numeric(10, 2), nullable=True)  # Optional: Price difference for size variations
 
-
+# Tag model allows for adding descriptive tags for products
 class Tag(db.Model):
     __tablename__ = 'tags'
     tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
 
+# ProductTag links products with tags for categorization
 class ProductTag(db.Model):
     __tablename__ = 'product_tags'
     product_tag_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
 
-
+# Bundle represents a collection of products offered together at a discount
 class Bundle(db.Model):
     __tablename__ = 'bundles'
     bundle_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -83,13 +87,14 @@ class Bundle(db.Model):
     description = db.Column(db.Text)
     discount_percentage = db.Column(db.Numeric(5, 2))  # Optional: discount for the bundle
 
+# BundleItem links individual products with a bundle
 class BundleItem(db.Model):
     __tablename__ = 'bundle_items'
     bundle_item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     bundle_id = db.Column(db.Integer, db.ForeignKey('bundles.bundle_id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
 
-
+# CustomizationOption model represents customization choices for products
 class CustomizationOption(db.Model):
     __tablename__ = 'customization_options'
 
@@ -99,7 +104,7 @@ class CustomizationOption(db.Model):
     option_value = db.Column(db.String(50), nullable=False)
     additional_price = db.Column(db.Numeric(10, 2))
 
-
+# Basket model represents a shopping basket for a user
 class Basket(db.Model):
     __tablename__ = 'baskets'
 
@@ -110,7 +115,7 @@ class Basket(db.Model):
 
     items = db.relationship('BasketItem', backref='basket', lazy=True)
 
-
+# BasketItem represents items in a user's shopping basket
 class BasketItem(db.Model):
     __tablename__ = 'basket_items'
 
@@ -119,7 +124,7 @@ class BasketItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
-
+# Wishlist model represents a user's list of saved products for later purchase
 class Wishlist(db.Model):
     __tablename__ = 'wishlists'
     wishlist_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -127,6 +132,7 @@ class Wishlist(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     items = db.relationship('WishlistItem', backref='wishlist', lazy=True)
 
+# WishlistItem represents an item in the user's wishlist
 class WishlistItem(db.Model):
     __tablename__ = 'wishlist_items'
     wishlist_item_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -134,7 +140,7 @@ class WishlistItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-
+# Order model represents a purchase order for a user
 class Order(db.Model):
     __tablename__ = 'orders'
 
@@ -150,7 +156,7 @@ class Order(db.Model):
 
     items = db.relationship('OrderItem', backref='order', lazy=True)
     
-
+# OrderItem represents individual items within an order
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
 
@@ -160,7 +166,7 @@ class OrderItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
 
-
+# CareInstruction stores product care instructions
 class CareInstruction(db.Model):
     __tablename__ = 'care_instructions'
 
@@ -168,7 +174,7 @@ class CareInstruction(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
     care_instruction = db.Column(db.Text, nullable=False)
 
-
+# Admin model stores admin users with unique email addresses
 class Admin(db.Model):
     __tablename__ = 'admins'
 
@@ -184,6 +190,7 @@ class Supplier(db.Model):
     contact_info = db.Column(db.String(255))
     address = db.Column(db.String(255))
 
+
 class ProductInventory(db.Model):
     __tablename__ = 'product_inventory'
     inventory_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -192,21 +199,22 @@ class ProductInventory(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     restock_date = db.Column(db.DateTime)
     
-
+# Payment model represents payment transactions related to orders
 class Payment(db.Model):
     __tablename__ = 'payments'
 
     payment_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.order_id'), nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)  # e.g., 'Credit Card', 'Direct Debit'
-    billing_address_id = db.Column(db.Integer, db.ForeignKey('addresses.address_id'))
-    payment_status = db.Column(db.String(50), default='Pending')
-    transaction_id = db.Column(db.String(255), unique=True, nullable=False)
+    billing_address_id = db.Column(db.Integer, db.ForeignKey('addresses.address_id')) 
+    payment_status = db.Column(db.String(50), default='Pending') # Status (e.g., Pending, Completed)
+    transaction_id = db.Column(db.String(255), unique=True, nullable=False) 
     payment_reference = db.Column(db.String(255), unique=True)  # reference from payment gateway
 
+    # Relationship to access the order directly from the payment
     billing_address = db.relationship('Address', foreign_keys=[billing_address_id])
 
-
+# Discount model represents promotional discounts that can be applied to orders
 class Discount(db.Model):
     __tablename__ = 'discounts'
 
@@ -248,3 +256,42 @@ class Invoice(db.Model):
     paid = db.Column(db.Boolean, default=False)
 
     order = db.relationship('Order', backref='invoice')
+
+# Review model allows customers to provide reviews for products
+class Review(db.Model):
+    __tablename__ = 'reviews'
+
+    review_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # Rating (e.g., 1-5 stars)
+    comment = db.Column(db.Text, nullable=True)  # User's review comment
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships for accessing user and product directly from a review
+    user = db.relationship('User', backref='reviews')
+    product = db.relationship('Product', backref='reviews')
+
+# Inventory model to manage stock levels for products
+class Inventory(db.Model):
+    __tablename__ = 'inventory'
+
+    inventory_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('products.product_id'), nullable=False)
+    stock_level = db.Column(db.Integer, nullable=False)  # Current stock level
+    restock_date = db.Column(db.DateTime, nullable=True)  # Next scheduled restock date
+
+    # Relationship to access product directly from inventory
+    product = db.relationship('Product', backref='inventory')
+
+# Feedback model allows users to submit feedback on their shopping experience
+class Feedback(db.Model):
+    __tablename__ = 'feedback'
+
+    feedback_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
+    message = db.Column(db.Text, nullable=False)  # Feedback message from user
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship to access the user directly from feedback, if available
+    user = db.relationship('User', backref='feedbacks')
