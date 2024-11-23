@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="./assets/images/necklace.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <title>Contect Us | The Divine Jewelers | Jewelry That Sparkles with Grace</title>
+</head>
+<body>
+    
+
+
+    <nav class="navbar">
+        <a href="#" class="logo">The Divine</a>
+        <ul class="menu">
+          <li><a href="index.html">About </a></li>
+          <li><a href="contact.html">Contact </a></li>
+        </ul>
+        <div class="hamburger" onclick="toggleMenu(event)">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </nav>
+
+      <header class="contact-header">
+        <div class="header-content">
+          <h1>Contact Us</h1>
+          
+        </div>
+      </header>
+
+
+<!-- Contact Us Section -->
+<section class="contact-us-section" style=" padding-top: 60px;">
+    <!-- Map Container -->
+    <div class="map-container">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.1474889022247!2d-122.41941508468108!3d37.77492977975906!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064a8f8e3b3%3A0x4e469f4cf2c8a3e9!2sSan%20Francisco!5e0!3m2!1sen!2sus!4v1699885800651!5m2!1sen!2sus" 
+        allowfullscreen="" 
+        loading="lazy">
+      </iframe>
+    </div>
+
+    <!-- Cards Container -->
+    <div class="cards-container">
+      <!-- Card 1 -->
+      <div class="card">
+        <i class="fas fa-phone-alt"></i>
+        <h4>Phone</h4>
+        <p>+1 234 567 890</p>
+      </div>
+      <!-- Card 2 -->
+      <div class="card">
+        <i class="fas fa-envelope"></i>
+        <h4>Email</h4>
+        <p>contact@example.com</p>
+      </div>
+      <!-- Card 3 -->
+      <div class="card">
+        <i class="fas fa-map-marker-alt"></i>
+        <h4>Address</h4>
+        <p>123 Main Street, San Francisco, CA</p>
+      </div>
+      <!-- Card 4 -->
+      <div class="card">
+        <i class="fas fa-clock"></i>
+        <h4>Hours</h4>
+        <p>Mon-Fri: 9am - 6pm</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Contact Us Section -->
+  <h2 style="text-align: center; font-size: 35px; padding-top: 60px;"> Get In <span style="color:#f49418;">Touch </span></h2>
+  <section class="form-contact-us-section">
+    <!-- Image Section -->
+    <div class="contact-image">
+      <img src="./assets/images/background/form.jpg" alt="Contact Us">
+    </div>
+
+    <!-- Form Section -->
+    <div class="contact-form-container">
+      <form class="contact-form" action="email.php" method="post">
+        <div>
+          <!-- <label for="name">Your Name</label> -->
+          <input type="text" id="name" name="name" placeholder="Enter your name" required>
+        </div>
+        <div>
+          <!-- <label for="email">Your Email</label> -->
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+        <div>
+          <!-- <label for="subject">Subject</label> -->
+          <input type="text" id="subject" name="subject" placeholder="Enter subject" required>
+        </div>
+        <div>
+          <!-- <label for="message">Your Message</label> -->
+          <textarea id="message" name="message" placeholder="Write your message here" required></textarea>
+        </div>
+        <div>
+          <button type="submit">Send Message</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+
+
+
+      <footer class="footer">
+        <div class="footer-column large">
+          <h3>The Divine</h3>
+          <p>Discover timeless pieces crafted with elegance and sophistication. JewelryCo brings you the finest selection of jewelry to add sparkle to any occasion.</p>
+        </div>
+    
+        <div class="footer-column small">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="index.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+    
+        <div class="footer-column small">
+          <h3>Categories</h3>
+          <ul>
+            <li>Luxury</li>
+            <li>Handcrafted</li>
+            <li>Timeless</li>
+          </ul>
+        </div>
+      </footer>
+    
+
+
+
+
+
+    <script src="./assets/js/script.js"></script>
+</body>
+</html>
