@@ -1,0 +1,55 @@
+<button id="addToCartButton">Add to Basket</button>
+
+<div id="popup" style="display: none;">
+    <p>Your item has been added to the basket!</p>
+    <ul id="itemsAdded"></ul>
+    <p id="totalPrice">Total Price: £0.00</p>
+    <p id="totalQuantity">Total Quantity: 0</p>
+    <button id="closePopup">Close</button>
+</div>
+
+<script>
+    let timeoutId;
+    let totalPrice = 0;
+    let totalQuantity = 0;
+
+    function updatePopup(item_name, item_price, quantity) {
+        const itemsAdded = document.getElementById('itemsAdded');
+        const newItem = document.createElement('li');
+        newItem.textContent = `- ${item_name} (${item_price}) x ${quantity}`;
+        itemsAdded.appendChild(newItem);
+
+        totalPrice += item_price * quantity;
+        totalQuantity += quantity;
+
+        document.getElementById('totalPrice').textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+        document.getElementById('totalQuantity').textContent = `Total Quantity: ${totalQuantity}`;
+
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            document.getElementById('popup').style.display = 'none';
+        }, 5000);
+    }
+
+    document.getElementById('addToCartButton').addEventListener('click', function() {
+     
+        updatePopup(item_name, item_price, quantity);
+
+        document.getElementById('popup').style.display = 'block';
+    });
+
+    document.getElementById('closePopup').addEventListener('click', function() {
+     
+        document.getElementById('popup').style.display = 'none';
+    });
+
+    document.getElementById('popup').addEventListener('mouseover', function() {
+        clearTimeout(timeoutId);
+    });
+
+    document.getElementById('popup').addEventListener('mouseout', function() {
+        timeoutId = setTimeout(() => {
+            document.getElementById('popup').style.display = 'none';
+        }, 5000);
+    });
+</script>
