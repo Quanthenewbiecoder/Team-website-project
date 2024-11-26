@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - The Divine</title>
+
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: linear-gradient(to bottom, #fff7e6, #f9f3ea);
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      border-bottom: 3px solid #e0c097;
+    }
+
+    .header img {
+      max-height: 80px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+
+    .footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #f8f8f8;
+      border-top: 3px solid #e0c097;
+    }
+
+    .Product {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      width: 15%;
+      display: inline-block;
+      text-align: center;
+      margin: 7.5%;
+      font-family: arial,serif;
+      background-color: #B5B7BB;
+
+    }
+  </style>
+</head>
+<body style="justify-content: center">
+<div class="header">
+  <img src="team_project_logo.png" alt="The Divine Logo">
+  <h1>All Products</h1>
+</div>
+<form>
+  <fieldset>
+    <legend> Sort By: </legend>
+    <input type="radio" id="A-Z" name="sort" value="A-Z" checked="checked">
+    <label for="A-Z">Sort A-Z</label>
+    <input type="radio" id="HighLow" name="sort" value="HighLow">
+    <label for="HighLow">Sort by Price High to Low</label>
+    <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+    <label for="LowHigh">Sort by Price Low to High</label>
+  </fieldset>
+</form>
+
+<form>
+  <fieldset>
+    <legend> Filter Search </legend>
+    <input type="checkbox" id="InStock" name="Filter1" value="InStock">
+    <label for="InStock">In Stock</label>
+    <input type="checkbox" id="New" name="Filter2" value="New">
+    <label for="New">New</label>
+    <input type="checkbox" id="OnSale" name="Filter3" value="OnSale">
+    <label for="OnSale">On Sale</label>
+  </fieldset>
+</form>
+
+<form>
+  <fieldset>
+    <legend> Product Type </legend>
+    <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets" checked="checked">
+    <label for="Bracelets">Bracelets</label>
+    <input type="checkbox" id="Earrings" name="Earrings" value="Earrings" checked="checked">
+    <label for="Earrings">Earrings</label>
+    <input type="checkbox" id="Rings" name="Rings" value="Rings" checked="checked">
+    <label for="Rings">Rings</label>
+    <input type="checkbox" id="Watches" name="Watches" value="Watches" checked="checked">
+    <label for="Watches">Watches</label>
+    <input type="checkbox" id="Other" name="Other" value="Other" checked="checked">
+    <label for="Other">Other</label>
+  </fieldset>
+</form>
+
+<div class="Product">
+  <img src="sample-image.jpg" alt="sample1" style="width:100%">
+  <h1>Product Name</h1>
+  <p>Basic description</p>
+  <p class="price">£10,000</p>
+  <p><button>Add to Cart</button></p>
+</div>
+
+<div class="Product">
+  <img src="sample-image.jpg" alt="sample1" style="width:100%">
+  <h1>Product Name</h1>
+  <p>Basic description</p>
+  <p class="price">£10,000</p>
+  <p><button>Add to Cart</button></p>
+</div>
+
+<div class="Product">
+  <img src="sample-image.jpg" alt="sample1" style="width:100%">
+  <h1>Product Name</h1>
+  <p>Basic description</p>
+  <p class="price">£10,000</p>
+  <p><button>Add to Cart</button></p>
+</div>
+
+<br>
+
+
+
+</body>
+</html>
