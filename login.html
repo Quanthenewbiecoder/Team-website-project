@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login & Register</title>
+    <title>Login or Register - The Divine</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="left-column">
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="left-column d-flex flex-column justify-content-between" style="flex: 1; margin-right: 20px;">
             <h2 class="section-title">Already Registered?</h2>
-            <p>If you are already registered with The Devine, log in here:</p>
+            <p>If you are already registered with The Divine, log in here:</p>
             <form action="#" method="post" class="login-form">
-                <label for="email">Email address *</label>
-                <input type="email" id="email" name="email" required>
-                <ul></ul>
-                <label for="password">Password *</label>
-                <input type="password" id="password" name="password" required>
-                <ul></ul>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Address *</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password *</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
                 <div class="form-footer">
                     <a href="#">Forgot your password?</a> 
-                    <ul></ul>
                     <p class="privacy-note">For further information about how we use your personal information, <br>
-                        please see our <a href="#">Privacy Policy</a>
-                        <ul></ul>
-                <button type="submit" class="button">
-                <div class="blob1"></div>
-                <div class="blob2"></div>
-                <div class="inner">Log in</div>
-                </button>
+                        please see our <a href="#">Privacy Policy</a>.
+                    </p>
                 </div>
+                <button type="submit" class="btn btn-primary w-100">Log in</button>
             </form>
         </div>
-        <div class="right-column">
+        <div class="right-column d-flex flex-column justify-content-between" style="flex: 1; margin-left: 20px;">
             <h2 class="section-title">Create Your Account</h2>
             <p>Register now and make the most of our services:</p>
             <ul>
@@ -42,10 +39,15 @@
                 <li>Check your orders</li>
                 <li>Manage your Collection and service orders</li>
             </ul>
-            <button class="create-account-btn">Create My Account</button>
-            <img src="img src=c&g wings.jpg">
+            <button class="btn btn-primary w-100 mt-3" href="registration.html">Create My Account</button>
+            <img src="TPI/logo.png" alt="The Divine Logo" class="account-logo">
         </div>
     </div>
+
+    <div class="footer">
+        <p>© 2024 The Divine - Crafted with a passion for elegance.</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
