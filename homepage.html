@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Divine - Exquisite Handcrafted Jewelry for Every Occasion">
+    <title>The Divine Jewelry</title>
+    <!-- Link to Google Fonts for stylish typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: #fff;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;  /* Adjust to make sure logo fits within the width */
+        }
+
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #fff;
+            padding: 10px 0;
+            border-top: 1px solid #ddd; /* Adds a line under the header image */
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center; /* Center the navigation items */
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .nav-links a:hover {
+            color: #ffd700; /* Change color on hover */
+        }
+
+        /* Hero Banner Section */
+        .hero-banner {
+            background-image: url('images/hero-banner.jpg');
+            background-size: cover;
+            background-position: center;
+            padding: 40px 0; /* Reduced top and bottom padding */
+            text-align: center;
+            color: #fff;
+        }
+
+        .hero-banner h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .hero-banner p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .about-section p {
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Featured Collections */
+        .collections-section {
+            padding: 60px 0;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        .collections-section h2 {
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .collections-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .collection-item {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .collection-item img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .collection-item h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .collection-item p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .collection-item .cta-button {
+            background-color: #ffd700;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 16px;
+            color: #333;
+            border-radius: 5px;
+        }
+
+        /* Contact Section */
+        .contact-section {
+            padding: 60px 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .contact-section p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            font-size: 16px;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section with Image Logo -->
+    <header>
+        <div class="container">
+            <div class="logo">
+                <!-- Replace the text with an image of the logo -->
+                <a href="#"><img src="hpic.png" alt="The Divine Logo"></a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar Below the Header -->
+    <nav>
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="#about">Watches</a></li>
+                <li><a href="#collections">Chain & necklaces</a></li>
+                <li><a href="#shop">Earrings</a></li>
+                <li><a href="#contact">Rings</a></li>
+                <li><a href="#bracelts">Bracelets</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Banner Section -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h2>Discover Exquisite Jewelry, Crafted to Perfection</h2>
+            <p>Embrace elegance and luxury with The Divine's handcrafted pieces</p>
+            <!-- Replaced "Shop Now" button with an image (j.png) -->
+            <a href="#shop">
+                <img src="j.png" alt="Shop Jewelry" style="max-width: 100%; height: auto; border-radius: 20px; object-fit: contain;">
+            </a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>About The Divine</h2>
+            <p>At The Divine, we believe that jewelry is more than just an accessory. It is an expression of individuality, elegance, and beauty. Our pieces are carefully crafted with high-quality materials, designed to enhance your inner radiance.</p>
+            <p>Each piece is handmade by skilled artisans who bring passion and attention to detail into every design. Whether you're looking for something timeless, bold, or unique, you'll find something truly divine here.</p>
+        </div>
+    </section>
+
+    <!-- Featured Collections -->
+    <section id="collections" class="collections-section">
+        <div class="container">
+            <h2>Featured Collections</h2>
+            <div class="collections-grid">
+                <div class="collection-item">
+                    <img src="images/collection1.jpg" alt="Luxury Rings">
+                    <h3>Luxury Rings</h3>
+                    <p>Elegant designs for every occasion</p>
+                    <a href="#shop" class="cta-button">Shop Now</a>
+                </div>
+                <div class="collection-item">
+                    <img src="images/collection2.jpg" alt="Necklaces & Pendants">
+                    <h3>Necklaces & Pendants</h3>
+                    <p>Timeless elegance, handcrafted for you</p>
+                    <a href="#shop" class="cta-button">Shop Now</a>
+                </div>
+                <div class="collection-item">
+                    <img src="images/collection3.jpg" alt="Bracelets & Bangles">
+                    <h3>Bracelets & Bangles</h3>
+                    <p>Elegant pieces to elevate your style</p>
+                    <a href="#shop" class="cta-button">Shop Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>If you have any questions, feel free to reach out to us. We're here to help!</p>
+            <div class="contact-info">
+                <p>Email: <a href="mailto:info@thedivine.com">info@thedivine.com</a></p>
+                <p>Phone: +44 800-123-457</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer Section -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 The Divine Jewelry. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
