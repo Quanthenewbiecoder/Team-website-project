@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Divine - Pearl Collection Jewelry">
+    <title>Pearl Collection - The Divine Jewelry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet"> 
+    <style>
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-image: url('pearlhead.jpg'); 
+            background-size: cover;
+            background-position: center;
+            padding: 0;
+            text-align: center;
+            color: white;
+        }
+
+        .header-content {
+            padding: 100px 0; 
+        }
+
+        .header-content h1 {
+            font-size: 60px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .header-content p {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        nav {
+            background-color: #e6accc;
+            padding: 5px 0; 
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-links li {
+            margin-left: 15px; 
+            margin-right: 15px; 
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px; 
+        }
+
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+
+        .hero-section {
+            background-image: url('pearl-background.jpg'); 
+            background-size: cover;
+            background-position: center;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #f1cde6; 
+        }
+
+        .hero-section h1 {
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            padding: 0 20px;
+            font-family: 'Dancing Script', cursive; 
+        }
+
+        .collection-section {
+            padding: 60px 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .collection-section h2 {
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .collection-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .collection-item {
+            width: 30%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        .collection-item img {
+            width: 100%;
+            height: auto;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .collection-item h3 {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .collection-item p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            padding: 0 20px;
+        }
+
+        .collection-item .price {
+            font-size: 20px;
+            color: #442711;
+            margin-bottom: 20px;
+        }
+
+        .collection-item button {
+            background-color: #442711;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .collection-item button:hover {
+            background-color: #ffd700;
+        }
+
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 100%;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .slide-images {
+            display: none;
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            padding: 16px;
+            margin-top: -22px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .prev {
+            left: 0;
+        }
+
+        .next {
+            right: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Pearl Collection</h1>
+            <p>Elegance redefined with the timeless beauty of pearls. Discover our luxurious pearl jewelry pieces.</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="homepage.html">HOME</a></li>
+                <li><a href="shop">SHOP OUR PRODUCTS</a></li>
+                <li><a href="#about">ABOUT US</a></li>
+                <li><a href="#contact">CONTACT</a></li>
+                <li><a href="#bracelets">LOG IN</a></li>
+                <li><a href="#bracelets">SIGN UP</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <h1>Our Pearl Collection captures the timeless elegance and purity of nature's most precious gem. Each piece is crafted with care to celebrate the understated beauty and luster of pearls, from delicate necklaces to sophisticated earrings. Embrace the luxury of pearls and make every moment extraordinary with these classic and refined designs.</h1>
+    </section>
+
+    <section class="collection-section">
+        <div class="container">
+            <h2>Discover Our Pearl Collection</h2>
+            <div class="collection-grid">
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="pearl ring 1.webp" alt="Pearl Ring">
+                        <img class="slide-images" src="pearl ring 2.webp" alt="Pearl Ring">
+                        <img class="slide-images" src="pearl ring 3.jpg" alt="Pearl Ring">
+                        <button class="prev" onclick="changeSlide(0, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(0, 1)">&#10095;</button>
+                    </div>
+                    <h3>Pearl Ring</h3>
+                    <p>A beautiful and timeless pearl ring, perfect for any occasion.</p>
+                    <div class="price">$220.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="pearl necklace 1.webp" alt="Pearl Necklace">
+                        <img class="slide-images" src="pearl necklace 2.webp" alt="Pearl Necklace">
+                        <img class="slide-images" src="pearl necklace 4.jpg" alt="Pearl Necklace">
+                        <button class="prev" onclick="changeSlide(1, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(1, 1)">&#10095;</button>
+                    </div>
+                    <h3>Pearl Necklace</h3>
+                    <p>A stunning necklace featuring lustrous pearls for an elegant look.</p>
+                    <div class="price">$250.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="pearl earring 1.avif" alt="Pearl Earrings">
+                        <img class="slide-images" src="pearl earring 2.jpeg" alt="Pearl Earrings">
+                        <img class="slide-images" src="pearl earring 3.jpg" alt="Pearl Earrings">
+                        <button class="prev" onclick="changeSlide(2, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(2, 1)">&#10095;</button>
+                    </div>
+                    <h3>Pearl Earrings</h3>
+                    <p>Elegant pearl earrings that add a touch of sophistication to your look.</p>
+                    <div class="price">$180.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="pearl bracelet 1.jpg" alt="Pearl Bracelet">
+                        <img class="slide-images" src="pearl bracelet 2.jpg" alt="Pearl Bracelet">
+                        <img class="slide-images" src="pearl bracelet 3.jpg" alt="Pearl Bracelet">
+                        <button class="prev" onclick="changeSlide(3, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(3, 1)">&#10095;</button>
+                    </div>
+                    <h3>Pearl Bracelet</h3>
+                    <p>A beautiful pearl bracelet, perfect for adding elegance to your wrist.</p>
+                    <div class="price">$180.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+  
+    <footer>
+        <p>&copy; 2024 The Divine Jewelry. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // JavaScript for the slideshow functionality
+        let slideIndex = [0, 0, 0, 0]; 
+        let slideContainers = document.getElementsByClassName("slideshow-container");
+
+        function showSlides(productIndex) {
+            let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
+            if (slideIndex[productIndex] >= slides.length) {
+                slideIndex[productIndex] = 0;
+            }
+            if (slideIndex[productIndex] < 0) {
+                slideIndex[productIndex] = slides.length - 1;
+            }
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";  
+            }
+            slides[slideIndex[productIndex]].style.display = "block";  
+        }
+
+        function changeSlide(productIndex, n) {
+            slideIndex[productIndex] += n;
+            showSlides(productIndex);
+        }
+
+        for (let i = 0; i < slideContainers.length; i++) {
+            showSlides(i);
+        }
+    </script>
+</body>
+</html>
