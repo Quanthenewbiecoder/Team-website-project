@@ -98,25 +98,26 @@
   </fieldset>
 </form>
 
-<div class="Product">
-  <img src="sample-image.jpg" alt="sample1" style="width:100%">
-  <h1>Product Name</h1>
-  <p>Basic description</p>
-  <p class="price">£10,000</p>
-  <form action="/products.html">
-    <input type="hidden" name="name" value="Product Name" />
-    <input type="hidden" name="cost" value="£10,000" />
-    <label for="size">Select Size:</label>
-    <select name="size" id="size">
-      <option value="Small">Small</option>
-      <option value="Medium">Medium</option>
-      <option value="Large">Large</option>
-      <option value="Extra Large">Extra Large</option>
-    </select>
-    <br><br>
-    <input type="submit" value="Add to Cart">
-  </form>
-</div>
+{% for product in products %}
+  <div class="Product">
+    <img src="{{ url_for('static', filename='images/' ~ product.image_url) }}" alt="{{ product.name }}" style="width:100%">
+    <h1>{{ product.name }}</h1>
+    <p>{{ product.description }}</p>
+    <p class="price">£{{ product.price }}</p>
+    <form action="/add_to_cart" method="post">
+      <input type="hidden" name="product_id" value="{{ product.id }}" />
+      <label for="size">Select Size:</label>
+      <select name="size" id="size">
+        <option value="Small">Small</option>
+        <option value="Medium">Medium</option>
+        <option value="Large">Large</option>
+        <option value="Extra Large">Extra Large</option>
+      </select>
+      <br><br>
+      <input type="submit" value="Add to Cart">
+    </form>
+  </div>
+  {% endfor %}
 
 <div class="Product">
   <img src="sample-image.jpg" alt="sample1" style="width:100%">
