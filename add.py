@@ -1,4 +1,13 @@
 import os
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from config import Config
+from models import User, Product, Collection, Order, OrderDetails
+
+app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+
 
 # Directory where your template files are located
 template_dir = './app/templates'
