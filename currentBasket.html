@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Devine - Jewelry Store</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <img src="devine-logo.png" alt="The Devine Logo">
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="Search">
+      <button class="btn-primary">Search</button>
+    </div>
+    <div class="cart">
+      <a href="#" id="cart-link">My Cart (0 Items)</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="left-column">
+      <h2 class="section-title">Our Products</h2>
+      <div class="product-details">
+        <img src="leaf ring 1.webp" alt="Elegant leaf design to enhance your style. Crafted with precision and care.">
+        <h2>Elegant leaf design to enhance your style. Crafted with precision and care.</h2>
+        <p>$150.00</p>
+        <button class="btn-primary" onclick="addToCart('Elegant leaf design to enhance your style. Crafted with precision and care.', 150.00)">Add to Cart</button>
+      </div>
+
+      <div class="product-details">
+        <img src="crystal ring 1.jpg" alt="Exquisite crystal ring designed to catch the light with every angle.">
+        <h2>Exquisite crystal ring designed to catch the light with every angle.</h2>
+        <p>£180.00</p>
+        <button class="btn-primary" onclick="addToCart('Exquisite crystal ring designed to catch the light with every angle.', 180.00)">Add to Cart</button>
+      </div>
+
+      <div class="product-details">
+        <img src="pearl necklace 1.webp" alt="Pearl Necklace">
+        <h2>A stunning necklace featuring lustrous pearls for an elegant look.</h2>
+        <p>£250.00</p>
+        <button class="btn-primary" onclick="addToCart('Pearl Necklace', 250.00)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <h2 class="section-title">Order Summary</h2>
+      <ul id="order-summary-list"></ul>
+      <p id="order-total"><strong>Total: £0.00</strong></p>
+      <button class="btn-primary">Checkout</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; The Devine 2024</p>
+  </footer>
+
+  <script>
+    let cartItems = [];
+    let totalAmount = 0;
+
+    function addToCart(itemName, itemPrice) {
+      cartItems.push({ name: itemName, price: itemPrice });
+      totalAmount += itemPrice;
+
+      document.getElementById("cart-link").innerText = `My Cart (${cartItems.length} Items)`;
+      updateOrderSummary();
+    }
+
+    function updateOrderSummary() {
+      const orderSummaryList = document.getElementById("order-summary-list");
+      const orderTotal = document.getElementById("order-total");
+
+      orderSummaryList.innerHTML = "";
+      cartItems.forEach((item) => {
+        const listItem = document.createElement("li");
+        listItem.innerText = `${item.name} - £${item.price}`;
+        orderSummaryList.appendChild(listItem);
+      });
+
+      orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
+    }
+  </script>
+</body>
+</html>

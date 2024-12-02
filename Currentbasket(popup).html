@@ -1,55 +1,69 @@
-<button id="addToCartButton">Add to Basket</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Bag</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS -->
+</head>
+<body>
+    <button id="addToCartButton" class="button">Add to Basket</button>
 
-<div id="popup" style="display: none;">
-    <p>Your item has been added to the basket!</p>
-    <ul id="itemsAdded"></ul>
-    <p id="totalPrice">Total Price: £0.00</p>
-    <p id="totalQuantity">Total Quantity: 0</p>
-    <button id="closePopup">Close</button>
-</div>
+    <div id="shopping-bag">
+        <button id="close-bag">X</button>
+        <h2>Shopping Bag (<span id="item-count">0</span>)</h2>
+        <ul id="items-added"></ul>
+        <div class="subtotal">
+            <h4>Subtotal</h4>
+            <p id="subtotal-amount">£0.00 (incl. VAT)</p>
+        </div>
+        <button class="proceed-button">Proceed to Checkout</button>
+        <button class="paypal-button">Check out with PayPal</button>
+    </div>
 
-<script>
-    let timeoutId;
-    let totalPrice = 0;
-    let totalQuantity = 0;
+    <script>
+        let totalItems = 0;
+        let subtotal = 0;
 
-    function updatePopup(item_name, item_price, quantity) {
-        const itemsAdded = document.getElementById('itemsAdded');
-        const newItem = document.createElement('li');
-        newItem.textContent = `- ${item_name} (${item_price}) x ${quantity}`;
-        itemsAdded.appendChild(newItem);
+        const exampleItems = [
+            { name: "LOVE bracelet, 10 diamonds", price: 17500, details: "White gold, diamonds, Size 20 cm" },
+            { name: "LOVE necklace, 2 diamonds", price: 2510, details: "Yellow gold, diamonds" }
+        ];
 
-        totalPrice += item_price * quantity;
-        totalQuantity += quantity;
+        function addItemToBag(item) {
+            totalItems++;
+            subtotal += item.price;
 
-        document.getElementById('totalPrice').textContent = `Total Price: £${totalPrice.toFixed(2)}`;
-        document.getElementById('totalQuantity').textContent = `Total Quantity: ${totalQuantity}`;
+            const itemsAdded = document.getElementById('items-added');
+            const newItem = document.createElement('li');
+            newItem.innerHTML = `
+                <div class="item-image"></div>
+                <div class="item-details">
+                    <h3>${item.name}</h3>
+                    <p>${item.details}</p>
+                    <p>£${item.price.toLocaleString()}</p>
+                </div>
+            `;
+            itemsAdded.appendChild(newItem);
 
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            document.getElementById('popup').style.display = 'none';
-        }, 5000);
-    }
+            updateShoppingBag();
+        }
 
-    document.getElementById('addToCartButton').addEventListener('click', function() {
-     
-        updatePopup(item_name, item_price, quantity);
+        function updateShoppingBag() {
+            document.getElementById('item-count').textContent = totalItems;
+            document.getElementById('subtotal-amount').textContent = `£${subtotal.toLocaleString()} (incl. VAT)`;
+        }
 
-        document.getElementById('popup').style.display = 'block';
-    });
+        document.getElementById('addToCartButton').addEventListener('click', () => {
+            const shoppingBag = document.getElementById('shopping-bag');
+            shoppingBag.style.display = 'block';
 
-    document.getElementById('closePopup').addEventListener('click', function() {
-     
-        document.getElementById('popup').style.display = 'none';
-    });
+            exampleItems.forEach(item => addItemToBag(item));
+        });
 
-    document.getElementById('popup').addEventListener('mouseover', function() {
-        clearTimeout(timeoutId);
-    });
-
-    document.getElementById('popup').addEventListener('mouseout', function() {
-        timeoutId = setTimeout(() => {
-            document.getElementById('popup').style.display = 'none';
-        }, 5000);
-    });
-</script>
+        document.getElementById('close-bag').addEventListener('click', () => {
+            document.getElementById('shopping-bag').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
