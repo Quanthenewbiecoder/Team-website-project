@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Enter Payment Card Details">
+    <title>Enter Payment Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <header>
+        <img src="logo.png" alt="Logo">
+        <h1>ENTER YOUR PAYMENT DETAILS</h1>
+    </header>
+
+    <section class="payment-form-container">
+        <form class="payment-form" action="paymentsuccessful.html" method="POST">
+            <h2>Enter Your Payment Details</h2>
+
+            <div class="form-group">
+                <label for="cardholder-name">Cardholder Name</label>
+                <input type="text" id="cardholder-name" name="cardholder_name" required placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="card-number">Card Number</label>
+                <input type="text" id="card-number" name="card_number" required placeholder="1234 5678 9012 3456" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}">
+            </div>
+
+            <div class="form-group card-info">
+                <div>
+                    <label for="expiration-date">Expiration Date</label>
+                    <input type="month" id="expiration-date" name="expiration_date" required>
+                </div>
+                <div>
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" name="cvv" required placeholder="123" maxlength="3" pattern="\d{3}">
+                </div>
+            </div>
+
+            <button type="submit" class="payment-button">Pay Now</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 The Divine Jewelry </p>
+    </footer>
+
+</body>
+
+</html>
