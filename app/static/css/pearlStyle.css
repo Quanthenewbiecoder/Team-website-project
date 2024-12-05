@@ -1,3 +1,4 @@
+/* Reset and base styles */
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -5,23 +6,38 @@ body {
     box-sizing: border-box;
 }
 
+/* Header styles */
 header {
-    background-image: url('pearlhead.jpg'); 
+    background-image: url('../images/pearlhead.jpg');
     background-size: cover;
     background-position: center;
     padding: 0;
     text-align: center;
     color: white;
+    position: relative;
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
 }
 
 .header-content {
-    padding: 100px 0; 
+    padding: 100px 0;
+    position: relative;
+    z-index: 1;
 }
 
 .header-content h1 {
     font-size: 60px;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    margin: 0;
 }
 
 .header-content p {
@@ -31,9 +47,10 @@ header {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 
+/* Navigation Override */
 nav {
-    background-color: #e6accc;
-    padding: 5px 0; 
+    background-color: #e6accc !important;
+    padding: 5px 0;
 }
 
 .nav-links {
@@ -43,23 +60,23 @@ nav {
 }
 
 .nav-links li {
-    margin-left: 15px; 
-    margin-right: 15px; 
+    margin: 0 15px;
 }
 
 .nav-links a {
     text-decoration: none;
-    color: #fff;
+    color: #fff !important;
     font-weight: 600;
-    font-size: 16px; 
+    font-size: 16px;
 }
 
 .nav-links a:hover {
-    color: #ffd700;
+    color: #ffd700 !important;
 }
 
+/* Hero section styles */
 .hero-section {
-    background-image: url('pearl-background.jpg'); 
+    background-image: url('../images/pearl-background.jpg');
     background-size: cover;
     background-position: center;
     height: 200px;
@@ -67,25 +84,35 @@ nav {
     justify-content: center;
     align-items: center;
     text-align: center;
-    color: #f1cde6; 
+    color: #f1cde6;
 }
 
 .hero-section h1 {
     font-size: 24px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    font-family: 'Dancing Script', cursive;
     padding: 0 20px;
-    font-family: 'Dancing Script', cursive; 
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
+/* Collection section styles */
 .collection-section {
     padding: 60px 0;
     background-color: #f4f4f4;
     text-align: center;
 }
 
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
 .collection-section h2 {
     font-size: 36px;
     margin-bottom: 40px;
+    color: #e6accc;
 }
 
 .collection-grid {
@@ -102,61 +129,12 @@ nav {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     text-align: center;
-    position: relative;
 }
 
-.collection-item img {
-    width: 100%;
-    height: auto;
-    border-bottom: 2px solid #ddd;
-}
-
-.collection-item h3 {
-    font-size: 24px;
-    margin: 20px 0;
-}
-
-.collection-item p {
-    font-size: 16px;
-    margin-bottom: 20px;
-    padding: 0 20px;
-}
-
-.collection-item .price {
-    font-size: 20px;
-    color: #442711;
-    margin-bottom: 20px;
-}
-
-.collection-item button {
-    background-color: #442711;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-}
-
-.collection-item button:hover {
-    background-color: #ffd700;
-}
-
-footer {
-    background-color: #333;
-    color: #fff;
-    padding: 20px 0;
-    text-align: center;
-}
-
-footer p {
-    margin: 0;
-}
-
+/* Slideshow styles */
 .slideshow-container {
     position: relative;
-    max-width: 100%;
+    width: 100%;
     height: 300px;
     overflow: hidden;
 }
@@ -164,28 +142,98 @@ footer p {
 .slide-images {
     display: none;
     width: 100%;
-    height: 300px;
+    height: 100%;
     object-fit: cover;
 }
 
 .prev, .next {
+    cursor: pointer;
     position: absolute;
     top: 50%;
+    transform: translateY(-50%);
     padding: 16px;
-    margin-top: -22px;
-    color: #fff;
-    font-size: 18px;
+    color: white;
     font-weight: bold;
     background-color: rgba(0, 0, 0, 0.5);
     border: none;
-    cursor: pointer;
     border-radius: 50%;
+    transition: 0.3s ease;
 }
 
 .prev {
-    left: 0;
+    left: 10px;
 }
 
 .next {
-    right: 0;
+    right: 10px;
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Product details styles */
+.collection-item h3 {
+    font-size: 24px;
+    margin: 20px 0;
+    color: #e6accc;
+}
+
+.collection-item p {
+    font-size: 16px;
+    margin: 0 20px 20px;
+    color: #666;
+}
+
+.collection-item .price {
+    font-size: 20px;
+    color: #e6accc;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.collection-item button {
+    background-color: #e6accc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.collection-item button:hover {
+    background-color: #f1cde6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .collection-grid {
+        flex-direction: column;
+    }
+
+    .collection-item {
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto 20px;
+    }
+
+    .header-content h1 {
+        font-size: 40px;
+    }
+
+    .nav-links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-links li {
+        margin: 5px 0;
+    }
+
+    .hero-section h1 {
+        font-size: 20px;
+    }
 }

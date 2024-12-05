@@ -1,139 +1,120 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The Divine - Leaf Collection Jewelry">
-    <title>Leaf Collection - The Divine Jewelry</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="leafStyle.css">
-</head>
+{% block title %}Leaf Collection - The Divine Jewelry{% endblock %}
 
-<body>
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/leafStyle.css') }}">
+{% endblock %}
 
-    <header>
-        <div class="header-content">
-            <h1>Leaf Collection</h1>
-            <p>Experience the elegance and beauty of nature's design in our unique jewelry pieces.</p>
+{% block content %}
+<header>
+    <div class="header-content">
+        <h1>Leaf Collection</h1>
+        <p>Experience the elegance and beauty of nature's design in our unique jewelry pieces.</p>
+    </div>
+</header>
+
+<section class="hero-section">
+    <h1>The Leaf Jewelry Collection draws inspiration from the delicate beauty of nature, transforming the intricate shapes and veins of leaves into stunning pieces of jewelry. Each design celebrates the elegance of the natural world, blending organic forms with refined craftsmanship.</h1>
+</section>
+
+<section class="collection-section">
+    <h2>Discover Our Leaf Collection</h2>
+    <div class="collection-grid">
+        <div class="collection-item">
+            <div class="slideshow-container">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 1.webp') }}" alt="Leaf Ring">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 3.jpg') }}" alt="Leaf Ring">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 4.jpg') }}" alt="Leaf Ring">
+                <button class="prev" onclick="changeSlide(0, -1)">❮</button>
+                <button class="next" onclick="changeSlide(0, 1)">❯</button>
+            </div>
+            <h3>Leaf Ring</h3>
+            <p>Elegant leaf design to enhance your style. Crafted with precision and care.</p>
+            <div class="price">$150.00</div>
+            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=4) }}'">Shop Now</button>
         </div>
-    </header>
 
-    <nav>
-        <div class="container1">
-            <ul class="nav-links">
-                <li><a href="homepage.html">HOME</a></li>
-                <li><a href="products.html">SHOP OUR PRODUCTS</a></li>
-                <li><a href="#about-homepage.html">ABOUT US</a></li>
-                <li><a href="#contact-homepage.html">CONTACT US</a></li>
-                <li><a href="currentBasket.html">BASKET</a></li>
-                <li><a href="login.html">LOG IN</a></li>
-                <li><a href="registration.html">REGISTRATION</a></li>
-            </ul>
+        <div class="collection-item">
+            <div class="slideshow-container">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 1.jpg') }}" alt="Leaf Necklace">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 2.webp') }}" alt="Leaf Necklace">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 3.webp') }}" alt="Leaf Necklace">
+                <button class="prev" onclick="changeSlide(1, -1)">❮</button>
+                <button class="next" onclick="changeSlide(1, 1)">❯</button>
+            </div>
+            <h3>Leaf Necklace</h3>
+            <p>Delicate leaf pendant necklace, a symbol of nature's grace.</p>
+            <div class="price">$120.00</div>
+            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=5) }}'">Shop Now</button>
         </div>
-    </nav>
 
-    <section class="hero-section">
-        <h1>The Leaf Jewelry Collection draws inspiration from the delicate beauty of nature, transforming the intricate shapes and veins of leaves into stunning pieces of jewelry. Each design celebrates the elegance of the natural world, blending organic forms with refined craftsmanship. From graceful pendants to intricately detailed earrings and bracelets, every piece in the collection captures the timeless allure of leaves, offering a unique and sophisticated way to embrace nature’s beauty. Perfect for those who cherish both nature and luxury, this collection brings the elegance of leaves to life in every exquisite design.</h1>
-    </section>
-
-    <section class="collection-section">
-        <h2>Discover Our Leaf Collection</h2>
-        <div class="collection-grid">
-
-            <div class="collection-item">
-                <div class="slideshow-container">
-                    <img class="slide-images" src="leaf ring 1.webp" alt="Leaf Ring">
-                    <img class="slide-images" src="leaf ring 3.jpg" alt="Leaf Ring">
-                    <img class="slide-images" src="leaf ring 4.jpg" alt="Leaf Ring">
-                    <button class="prev" onclick="changeSlide(0, -1)">&#10094;</button>
-                    <button class="next" onclick="changeSlide(0, 1)">&#10095;</button>
-                </div>
-                <h3>Leaf Ring</h3>
-                <p>Elegant leaf design to enhance your style. Crafted with precision and care.</p>
-                <div class="price">$150.00</div>
-                <button>Shop Now</button>
+        <div class="collection-item">
+            <div class="slideshow-container">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 1.jpg') }}" alt="Leaf Earrings">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 2.jpg') }}" alt="Leaf Earrings">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 3.avif') }}" alt="Leaf Earrings">
+                <button class="prev" onclick="changeSlide(2, -1)">❮</button>
+                <button class="next" onclick="changeSlide(2, 1)">❯</button>
             </div>
-
-            <div class="collection-item">
-                <div class="slideshow-container">
-                    <img class="slide-images" src="leaf necklace 1.jpg" alt="Leaf Necklace">
-                    <img class="slide-images" src="leaf necklace 2.webp" alt="Leaf Necklace Alternate View">
-                    <img class="slide-images" src="leaf necklace 3.webp" alt="Leaf Necklace Third View">
-                    <button class="prev" onclick="changeSlide(1, -1)">&#10094;</button>
-                    <button class="next" onclick="changeSlide(1, 1)">&#10095;</button>
-                </div>
-                <h3>Leaf Necklace</h3>
-                <p>Delicate leaf pendant necklace, a symbol of nature’s grace.</p>
-                <div class="price">$120.00</div>
-                <button>Shop Now</button>
-            </div>
-
-            <div class="collection-item">
-                <div class="slideshow-container">
-                    <img class="slide-images" src="leaf earring 1.jpg" alt="Leaf Earrings">
-                    <img class="slide-images" src="leaf earring 2.jpg" alt="Leaf Earrings Alternate View">
-                    <img class="slide-images" src="leaf earring 3.avif" alt="Leaf Earrings Third View">
-                    <button class="prev" onclick="changeSlide(2, -1)">&#10094;</button>
-                    <button class="next" onclick="changeSlide(2, 1)">&#10095;</button>
-                </div>
-                <h3>Leaf Earrings</h3>
-                <p>Chic earrings featuring the elegant shape of leaves, perfect for any occasion.</p>
-                <div class="price">$85.00</div>
-                <button>Shop Now</button>
-            </div>
-
-
-            <div class="collection-item">
-                <div class="slideshow-container">
-                    <img class="slide-images" src="leaf bracelet 1.webp" alt="Leaf Bracelet">
-                    <img class="slide-images" src="leaf bracelet 2.webp" alt="Leaf Bracelet Alternate View">
-                    <img class="slide-images" src="leaf bracelet 3.webp" alt="Leaf Bracelet Third View">
-                    <button class="prev" onclick="changeSlide(3, -1)">&#10094;</button>
-                    <button class="next" onclick="changeSlide(3, 1)">&#10095;</button>
-                </div>
-                <h3>Leaf Bracelet</h3>
-                <p>Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.</p>
-                <div class="price">$135.00</div>
-                <button>Shop Now</button>
-            </div>
-
+            <h3>Leaf Earrings</h3>
+            <p>Chic earrings featuring the elegant shape of leaves, perfect for any occasion.</p>
+            <div class="price">$85.00</div>
+            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=6) }}'">Shop Now</button>
         </div>
-    </section>
 
-    <footer>
-        <p>&copy; 2024 The Divine Jewelry. All rights reserved.</p>
-    </footer>
+        <div class="collection-item">
+            <div class="slideshow-container">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 1.webp') }}" alt="Leaf Bracelet">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 2.webp') }}" alt="Leaf Bracelet">
+                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 3.webp') }}" alt="Leaf Bracelet">
+                <button class="prev" onclick="changeSlide(3, -1)">❮</button>
+                <button class="next" onclick="changeSlide(3, 1)">❯</button>
+            </div>
+            <h3>Leaf Bracelet</h3>
+            <p>Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.</p>
+            <div class="price">$135.00</div>
+            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=7) }}'">Shop Now</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
 
-    <script>
-        // JavaScript for the slideshow functionality
-        let slideIndex = [0, 0, 0, 0]; 
-        let slideContainers = document.getElementsByClassName("slideshow-container");
+{% block scripts %}
+<script>
+    let slideIndex = [0, 0, 0, 0];
+    let slideContainers = document.getElementsByClassName("slideshow-container");
 
-        function showSlides(productIndex) {
-            let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
-            if (slideIndex[productIndex] >= slides.length) {
-                slideIndex[productIndex] = 0;
-            }
-            if (slideIndex[productIndex] < 0) {
-                slideIndex[productIndex] = slides.length - 1;
-            }
-            for (let i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";  
-            }
-            slides[slideIndex[productIndex]].style.display = "block"; 
+    function showSlides(productIndex) {
+        let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
+        if (slideIndex[productIndex] >= slides.length) {
+            slideIndex[productIndex] = 0;
         }
-
-        function changeSlide(productIndex, n) {
-            slideIndex[productIndex] += n;
-            showSlides(productIndex);
+        if (slideIndex[productIndex] < 0) {
+            slideIndex[productIndex] = slides.length - 1;
         }
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        slides[slideIndex[productIndex]].style.display = "block";
+    }
 
+    function changeSlide(productIndex, n) {
+        slideIndex[productIndex] += n;
+        showSlides(productIndex);
+    }
+
+    // Initialize all slideshows
+    for (let i = 0; i < slideContainers.length; i++) {
+        showSlides(i);
+    }
+
+    // Auto-advance slides every 5 seconds
+    setInterval(function() {
         for (let i = 0; i < slideContainers.length; i++) {
-            showSlides(i);
+            changeSlide(i, 1);
         }
-    </script>
-</body>
-
-</html>
+    }, 5000);
+</script>
+{% endblock %}
