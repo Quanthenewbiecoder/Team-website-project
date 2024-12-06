@@ -146,47 +146,6 @@ nav {
     margin-top: 15px;
 }
 
-/*NAV BAR DRAFT*/
-/* Navbar */
-.bg-brown {
-    background-color: #5a4634; /* Brown background for the navbar */
-}
-
-.navbar-nav .nav-link {
-    color: #fff;
-    font-weight: bold;
-}
-
-.navbar-nav .nav-link:hover {
-    color: #f0d78c; /* Golden hover effect */
-}
-
-/* Text Colors */
-.text-golden {
-    color: #d4af37; /* Gold text */
-}
-
-/* Card Styles */
-.card {
-    border: none;
-    border-radius: 10px;
-    background: #fff;
-}
-
-.card h2 {
-    font-family: 'Georgia', serif;
-    font-weight: bold;
-}
-
-.card .btn-primary {
-    background-color: #d4af37; /* Gold button */
-    border: none;
-}
-
-.card .btn-primary:hover {
-    background-color: #b9972f; /* Darker gold hover */
-}
-
 /* Shopping Bag Popup */
 #shopping-bag {
     background-color: #fff;

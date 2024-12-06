@@ -33,7 +33,7 @@ def home():
 # Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    return render_template('login.html')
+    return render_template('login.html', now=datetime.now())
 
 @routes_bp.route('/logout')
 @login_required
@@ -73,7 +73,7 @@ def crystalcollection():
 
 @routes_bp.route('/product')
 def product():
-    return render_template('product.html')
+    return render_template('products.html')
 
 @routes_bp.route('/leafcollection')
 def leafcollection():
@@ -208,3 +208,8 @@ def customize_product(product_id):
 @routes_bp.route('/test')
 def test():
     return "Test route working!"
+
+# Payment
+@routes_bp.route('/privacy_policy')
+def privacy_policy():
+    return render_template('privacy_policy.html')
