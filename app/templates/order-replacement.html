@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Replacement - The Divine</title>
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="Css styles/styles.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <img src="logo.png" alt="The Divine Logo">
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="container1">
+            <ul class="nav-links">
+                <li><a href="homepage.html">HOME</a></li>
+                <li><a href="products.html">SHOP OUR PRODUCTS</a></li>
+                <li><a href="about-homepage.html">ABOUT US</a></li>
+                <li><a href="contact-homepage.html">CONTACT US</a></li>
+                <li><a href="currentBasket.html">BASKET</a></li>
+                <li><a href="login.html">LOG IN</a></li>
+                <li><a href="registration.html">REGISTRATION</a></li>
+                <li><a href="order-replacement.html">ORDER REPLACEMENT</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Order Replacement Form Section -->
+    <div class="container">
+        <h2>Order Replacement</h2>
+        <p>If you need to replace an item from your order, please fill out the form below, and we will process your request as soon as possible.</p>
+
+        <!-- Order Replacement Form -->
+        <form>
+            <div class="mb-3">
+                <label for="order-id" class="form-label">Order ID *</label>
+                <input type="text" id="order-id" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="item-name" class="form-label">Item Name *</label>
+                <input type="text" id="item-name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="reason" class="form-label">Reason for Replacement *</label>
+                <textarea id="reason" class="form-control" rows="4" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="condition" class="form-label">Condition of the Item *</label>
+                <select id="condition" class="form-select" required>
+                    <option value="" disabled selected>Select condition</option>
+                    <option value="Damaged">Damaged</option>
+                    <option value="Wrong Item">Wrong Item</option>
+                    <option value="Defective">Defective</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="replacement" class="form-label">Replacement Request *</label>
+                <select id="replacement" class="form-select" required>
+                    <option value="" disabled selected>Select replacement type</option>
+                    <option value="Same Item">Same Item</option>
+                    <option value="Different Item">Different Item</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="comments" class="form-label">Additional Comments</label>
+                <textarea id="comments" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary w-100">Submit Replacement Request</button>
+            </div>
+        </form>
+
+        <div class="info-section mt-3">
+            <p>By submitting the form, you agree to our <a href="#">Terms & Conditions</a>.</p>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>© 2024 The Divine - Crafted with Passion for Elegance</p>
+    </div>
+
+    <!-- Bootstrap JS (Optional for interactivity) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
