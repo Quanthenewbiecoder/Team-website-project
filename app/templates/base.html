@@ -22,23 +22,28 @@
         </div>
     </header>
 
-    <nav>
-        <div class="container1">
-            <ul class="nav-links">
-                <li><a href="{{ url_for('routes.home') }}">HOME</a></li>
-                <li><a href="{{ url_for('routes.product') }}">SHOP OUR PRODUCTS</a></li>
-                <li><a href="#about">ABOUT US</a></li>
-                <li><a href="#contact">CONTACT US</a></li>
-                {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('routes.basket') }}">BASKET</a></li>
-                <li><a href="{{ url_for('routes.logout') }}">LOGOUT</a></li>
-                {% else %}
-                <li><a href="{{ url_for('routes.login') }}">LOG IN</a></li>
-                <li><a href="{{ url_for('routes.register') }}">SIGN UP</a></li>
-                {% endif %}
-            </ul>
+    <nav class="navbar navbar_bg">
+        <ul class="menu">
+          <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+          <li><a href="{{ url_for('routes.product') }}">Shop Our Products</a></li>  
+          <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+          <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+          <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+        </ul>
+    
+        <div class="search-bar">
+          <input type="text" placeholder="Search..." />
+          <button type="button" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-    </nav>
+    
+        <div class="hamburger" onclick="toggleMenu(event)">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </nav>
 
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}

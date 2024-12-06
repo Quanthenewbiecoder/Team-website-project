@@ -45,6 +45,11 @@ def logout():
 def register():
     return render_template('register.html')
 
+@routes_bp.route('/order-replacement', methods=['GET', 'POST'])
+@login_required
+def order_replacement():
+    return render_template('order-replacement.html')
+
 @routes_bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     return render_template('forgot_password.html')
@@ -55,9 +60,9 @@ def password_change():
     return render_template('password_change.html')
 
 
-@routes_bp.route('/about_us')
+@routes_bp.route('/aboutus')
 def about_us():
-    return render_template('about_us.html')
+    return render_template('aboutus.html')
 
 @routes_bp.route('/contact')
 def contact():
