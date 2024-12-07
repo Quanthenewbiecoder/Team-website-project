@@ -76,8 +76,8 @@ def crystalcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
 
-@routes_bp.route('/product')
-def product():
+@routes_bp.route('/products')
+def products():
     return render_template('products.html')
 
 @routes_bp.route('/leafcollection')
