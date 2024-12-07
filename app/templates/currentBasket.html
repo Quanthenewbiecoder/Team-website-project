@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Devine - Jewelry Store</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="basketStyle.css">
 </head>
-
+<body>
   <header>
     <div class="logo">
       <img src="TPI/logo.png" alt="The Devine Logo">
@@ -28,34 +28,34 @@
     <div class="search-bar">
       <input type="text" placeholder="Search">
       <button class="btn-primary">Search</button>
+    </div>
   </nav>
 
-  <body>
-  </div>
   <div class="cart">
     <a href="#" id="cart-link">My Cart (0 Items)</a>
   </div>
+
   <main class="container">
     <div class="left-column">
       <h2 class="section-title">Recommended Products:</h2>
       <div class="product-grid">
         <div class="product-details">
-          <img src="TPI/leaf ring 1.webp" alt="Elegant leaf design">
+          <img src="TPI/leaf_ring_1.webp" alt="Elegant leaf design">
           <h2>Elegant leaf design</h2>
           <p>£150.00</p>
-          <button class="btn-primary" onclick="addToCart('Elegant leaf design', 150.00)">Add to Cart</button>
+          <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
         </div>
         <div class="product-details">
-          <img src="TPI/crystal ring 1.jpg" alt="Crystal ring">
+          <img src="TPI/crystal_ring_1.jpg" alt="Crystal ring">
           <h2>Crystal ring</h2>
           <p>£180.00</p>
-          <button class="btn-primary" onclick="addToCart('Crystal ring', 180.00)">Add to Cart</button>
+          <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
         </div>
         <div class="product-details">
-          <img src="TPI/pearl necklace 1.webp" alt="Pearl necklace">
+          <img src="TPI/pearl_necklace_1.webp" alt="Pearl necklace">
           <h2>Pearl necklace</h2>
           <p>£250.00</p>
-          <button class="btn-primary" onclick="addToCart('Pearl necklace', 250.00)">Add to Cart</button>
+          <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
         </div>
       </div>
     </div>
@@ -66,6 +66,7 @@
         <li>Basket is empty</li>
       </ul>
       <p id="order-total"><strong>Total: £0.00</strong></p>
+      <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
       <button class="btn-primary">Checkout</button>
     </div>
   </main>
@@ -74,72 +75,91 @@
     <p>&copy; The Devine 2024</p>
   </footer>
 
-  <!-- Promo Code Popup -->
-  <div id="promo-popup" class="popup">
+  <div id="promo-popup" class="popup hidden">
     <span id="close-popup" class="close">&times;</span>
     <h2>Enter Promo Code</h2>
     <input type="text" id="promo-code-input" placeholder="Enter code">
     <button class="btn-primary" onclick="applyPromoCode()">Apply</button>
   </div>
 
-  <!-- Success/Failure Popups -->
-  <div id="success-popup" class="popup">Congratulations! 20% off!</div>
-  <div id="error-popup" class="popup">Mmm... not quite!</div>
+  <div id="success-popup" class="popup hidden">Congratulations! 20% off!</div>
+  <div id="error-popup" class="popup hidden">Mmm... not quite!</div>
 
   <script>
     let cartItems = [];
-    let totalAmount = 0;
+let totalAmount = 0;
 
-    function addToCart(itemName, itemPrice) {
-      cartItems.push({ name: itemName, price: itemPrice });
-      totalAmount += itemPrice;
+function addToCart(itemName, itemPrice) {
+  cartItems.push({ name: itemName, price: itemPrice });
+  totalAmount += itemPrice;
+  updateCart();
+  updateOrderSummary();
+}
 
-      document.getElementById("cart-link").innerText = `My Cart (${cartItems.length} Items)`;
-      updateOrderSummary();
-    }
+function updateCart() {
+  document.getElementById("cart-link").innerText = `My Cart (${cartItems.length} Items)`;
+}
 
-    function updateOrderSummary() {
-      const orderSummaryList = document.getElementById("order-summary-list");
-      const orderTotal = document.getElementById("order-total");
+function updateOrderSummary() {
+  const orderSummaryList = document.getElementById("order-summary-list");
+  const orderTotal = document.getElementById("order-total");
 
-      orderSummaryList.innerHTML = cartItems.length ? "" : "<li>Basket is empty</li>";
-      cartItems.forEach((item) => {
-        const listItem = document.createElement("li");
-        listItem.innerText = `${item.name} - £${item.price.toFixed(2)}`;
-        orderSummaryList.appendChild(listItem);
-      });
+  orderSummaryList.innerHTML = cartItems.length ? "" : "<li>Basket is empty</li>";
+  cartItems.forEach((item, index) => {
+    const listItem = document.createElement("li");
+    listItem.innerHTML = `
+      ${item.name} - £${item.price.toFixed(2)}
+      <button onclick="removeFromCart(${index})">Remove</button>`;
+    orderSummaryList.appendChild(listItem);
+  });
 
-      orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
-    }
+  orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
+}
 
-    function showPromoPopup() {
-      document.getElementById("promo-popup").style.display = "block";
-    }
+function removeFromCart(index) {
+  totalAmount -= cartItems[index].price;
+  cartItems.splice(index, 1);
+  updateCart();
+  updateOrderSummary();
+}
 
-    function closePopup() {
-      document.getElementById("promo-popup").style.display = "none";
-    }
+function showPromoPopup() {
+  document.getElementById("promo-popup").classList.remove("hidden");
+}
 
-    function applyPromoCode() {
-      const code = document.getElementById("promo-code-input").value;
-      if (code === "SAVE20") {
-        showMessage("success-popup");
-        totalAmount *= 0.8;
-        updateOrderSummary();
-      } else {
-        showMessage("error-popup");
-      }
-    }
+function closePopup() {
+  document.getElementById("promo-popup").classList.add("hidden");
+}
 
-    function showMessage(popupId) {
-      const popup = document.getElementById(popupId);
-      popup.style.display = "block";
-      setTimeout(() => {
-        popup.style.display = "none";
-      }, 10000);
-    }
+function applyPromoCode() {
+  const code = document.getElementById("promo-code-input").value;
+  if (code === "TEAM20") {
+    showMessage("success-popup");
+    totalAmount *= 0.8;
+    updateOrderSummary();
+  } else {
+    showMessage("error-popup");
+  }
+}
 
-    document.getElementById("close-popup").addEventListener("click", closePopup);
+function showMessage(popupId) {
+  const popup = document.getElementById(popupId);
+  popup.classList.remove("hidden");
+  setTimeout(() => {
+    popup.classList.add("hidden");
+  }, 6000);
+}
+
+document.getElementById("close-popup").addEventListener("click", closePopup);
+
+
+document.querySelectorAll(".add-btn").forEach((btn) =>
+  btn.addEventListener("click", (event) => {
+    const name = event.target.dataset.name;
+    const price = parseFloat(event.target.dataset.price);
+    addToCart(name, price);
+  })
+);
   </script>
 </body>
 </html>
