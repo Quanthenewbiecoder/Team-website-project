@@ -36,60 +36,60 @@ header {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 15px 20px;
+    padding: 8px 20px; 
     z-index: 1000;
     background: transparent;
     transition: background-color 0.3s, backdrop-filter 0.3s;
- }
- 
- .navbar_bg {
+}
+
+.navbar_bg {
     background-color: #2f1c0e;
- }
- 
- .menu {
+}
+
+.menu {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     list-style-type: none;
- }
- 
- .menu li {
-    margin: 0 20px;
- }
- 
- .menu li a {
+}
+
+.menu li {
+    margin: 0 15px; 
+}
+
+.menu li a {
     color: #fff;
     text-decoration: none;
-    font-size: 1em;
+    font-size: 0.9em; 
     transition: color 0.3s, transform 0.3s;
-    padding: 5px;
- }
- 
- .menu li a:hover {
+    padding: 3px 5px; 
+}
+
+.menu li a:hover {
     color: #f5900d;
     transform: scale(1.1);
- }
- 
- .search-bar {
+}
+
+.search-bar {
     display: flex;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
-    padding: 5px 10px;
+    border-radius: 4px; 
+    padding: 3px 8px; 
     transition: background-color 0.3s, border 0.3s;
     margin-left: auto;
- }
- 
- .search-bar input {
+}
+
+.search-bar input {
     border: none;
     background: transparent;
     color: #fff;
-    font-size: 1em;
+    font-size: 0.9em; 
     outline: none;
     width: 150px;
- }
+}
  
  .search-bar button {
     background: none;

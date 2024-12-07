@@ -1,5 +1,5 @@
 from functools import wraps
-from datetime import datetime  # Added datetime import
+from datetime import datetime 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
@@ -43,7 +43,7 @@ def logout():
 
 @routes_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html')
+    return render_template('register.html', now=datetime.now())
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
@@ -78,7 +78,7 @@ def crystalcollection():
 
 @routes_bp.route('/products')
 def products():
-    return render_template('products.html')
+    return render_template('products.html', now=datetime.now())
 
 @routes_bp.route('/leafcollection')
 def leafcollection():
