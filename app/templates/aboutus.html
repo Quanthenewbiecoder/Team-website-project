@@ -26,7 +26,7 @@
   <nav class="navbar navbar_bg">
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-      <li><a href="{{ url_for('routes.product') }}">Shop Our Products</a></li>  
+      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
       <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
       <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
       <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
@@ -246,7 +246,7 @@
       <h3>Quick Links</h3>
       <ul>
         <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-        <li><a href="{{ url_for('routes.product') }}">Shop Our Products</a></li>  
+        <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
         <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
         <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
         <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
@@ -265,7 +265,5 @@
     </div>
   </footer>
 
-  <script src="./assets/js/scriptaboutandcontact.js"></script>
-</body>
-
+  <script src="{{ url_for('static', filename='js/scriptaboutandcontact.js') }}"></script>
 </html>

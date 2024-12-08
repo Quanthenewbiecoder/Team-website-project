@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="shortcut icon" href="./assets/images/necklace.png" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='`images/necklace.png') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
       rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -25,7 +25,7 @@
   <nav class="navbar navbar_bg">
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-      <li><a href="{{ url_for('routes.product') }}">Shop Our Products</a></li>  
+      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
       <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
       <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
       <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
@@ -92,7 +92,7 @@
   <section class="form-contact-us-section">
 
     <div class="contact-image">
-      <img src="{{ url_for('static', filename='images/background/form.jpg') }}" alt="Contact Us">
+      <img src="{{ url_for('static', filename='images/form.jpg') }}" alt="Contact Us">
     </div>
 
     <div class="contact-form-container">
@@ -134,7 +134,7 @@
           <h3>Quick Links</h3>
           <ul>
             <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-            <li><a href="{{ url_for('routes.product') }}">Shop Our Products</a></li>
+            <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
             <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
             <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
             <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
@@ -153,6 +153,6 @@
         </div>
       </footer>
 
-    <script src="./assets/js/scriptaboutandcontact.js"></script>
-</body>
+      <script src="{{ url_for('static', filename='js/scriptaboutandcontact.js') }}"></script>
+    </body>
 </html>
