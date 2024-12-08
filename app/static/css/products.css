@@ -6,9 +6,8 @@ body {
 }
 
 header {
-    background-color: white;
+    background-color: #442711;
     padding: 20px 0;
-    border-bottom: 1px solid #ddd;
 }
 
 .headercontainer {

@@ -7,15 +7,16 @@
 }
 
 header {
-    background-color: #f6f2e9;
-    padding: 0;
+    background-color: #442711;
+    padding: 20px 0;
 }
   
 .logo img {
     width: 100%;
+    max-width: 300px;
     height: auto;
-    display: block; 
-    margin: 0 auto; 
+    display: block;
+    margin: 0 auto;
 }
 
 .navbar {
