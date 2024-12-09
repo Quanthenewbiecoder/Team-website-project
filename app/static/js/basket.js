@@ -1,8 +1,13 @@
 let cartItems = [];
 let totalAmount = 0;
 
-function addToCart(itemName, itemPrice) {
-    cartItems.push({ name: itemName, price: itemPrice });
+function addToCart(itemName, itemPrice, itemImage) {
+    const existingItemIndex = cartItems.findIndex((item) => item.name === itemName);
+    if (existingItemIndex !== -1) {
+        cartItems[existingItemIndex].quantity += 1;
+    } else {
+        cartItems.push({ name: itemName, price: itemPrice, image: itemImage, quantity: 1 });
+    }
     totalAmount += itemPrice;
     updateCart();
     updateOrderSummary();
@@ -17,21 +22,37 @@ function updateOrderSummary() {
     const orderTotal = document.getElementById("order-total");
 
     orderSummaryList.innerHTML = cartItems.length ? "" : "<li>Basket is empty</li>";
+
     cartItems.forEach((item, index) => {
         const listItem = document.createElement("li");
         listItem.innerHTML = `
-            ${item.name} - £${item.price.toFixed(2)}
-            <button onclick="removeFromCart(${index})">Remove</button>`;
+            <img src="${item.image}" alt="${item.name}" class="basket-item-img">
+            <span>${item.name} - £${(item.price * item.quantity).toFixed(2)}</span>
+            <div class="quantity-controls">
+                <button onclick="decreaseQuantity(${index})">-</button>
+                <span class="item-quantity">${item.quantity}</span>
+                <button onclick="increaseQuantity(${index})">+</button>
+            </div>`;
         orderSummaryList.appendChild(listItem);
     });
 
     orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
 }
 
-function removeFromCart(index) {
-    totalAmount -= cartItems[index].price;
-    cartItems.splice(index, 1);
-    updateCart();
+function increaseQuantity(index) {
+    cartItems[index].quantity += 1;
+    totalAmount += cartItems[index].price;
+    updateOrderSummary();
+}
+
+function decreaseQuantity(index) {
+    if (cartItems[index].quantity > 1) {
+        cartItems[index].quantity -= 1;
+        totalAmount -= cartItems[index].price;
+    } else {
+        totalAmount -= cartItems[index].price;
+        cartItems.splice(index, 1);
+    }
     updateOrderSummary();
 }
 
@@ -68,6 +89,7 @@ document.querySelectorAll(".add-btn").forEach((btn) =>
     btn.addEventListener("click", (event) => {
         const name = event.target.dataset.name;
         const price = parseFloat(event.target.dataset.price);
-        addToCart(name, price);
+        const image = event.target.closest(".product-card").querySelector("img").src;
+        addToCart(name, price, image);
     })
 );
