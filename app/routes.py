@@ -1,12 +1,9 @@
 from functools import wraps
-from datetime import datetime  # Added datetime import
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from datetime import datetime 
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
-from app.models import (
-    User, Address, Product, ProductSize, Tag, ProductTag,
-    Bundle, Basket, Wishlist, Order, Admin, Supplier, Payment
-)
+from app.models import *
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -43,7 +40,12 @@ def logout():
 
 @routes_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html')
+    return render_template('register.html', now=datetime.now())
+
+@routes_bp.route('/order-replacement', methods=['GET', 'POST'])
+@login_required
+def order_replacement():
+    return render_template('order-replacement.html')
 
 @routes_bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -55,9 +57,9 @@ def password_change():
     return render_template('password_change.html')
 
 
-@routes_bp.route('/about_us')
+@routes_bp.route('/aboutus')
 def about_us():
-    return render_template('about_us.html')
+    return render_template('aboutus.html')
 
 @routes_bp.route('/contact')
 def contact():
@@ -71,9 +73,38 @@ def crystalcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
 
-@routes_bp.route('/product')
-def product():
-    return render_template('products.html')
+# ---------------- Review Functionality ----------------
+# In-memory storage for reviews, using product_id as keys
+reviews = {}
+
+@routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET', 'POST'])
+@routes_bp.route('/products/<int:product_id>', methods=['GET', 'POST'])
+def products(product_id):
+    if product_id is None:
+        # Handle case where no product_id is provided (list all products)
+        all_products = ["Product 1", "Product 2", "Product 3"]  # Example product list
+        return render_template('all_products.html', products=all_products, now=datetime.now())
+    
+    # Handle case for a specific product
+    product_reviews = reviews.get(product_id, [])
+    
+    if request.method == 'POST':
+        review = request.form.get('review')
+        rating = request.form.get('rating')
+
+        # Basic validation
+        if not review or not rating:
+            flash('Review and rating are required.', 'error')
+            return redirect(url_for('routes.products', product_id=product_id))
+        
+        # Add new review
+        if product_id not in reviews:
+            reviews[product_id] = []
+        reviews[product_id].append({'review': review, 'rating': rating})
+        flash('Review added successfully!', 'success')
+
+    return render_template('products.html', product_id=product_id, reviews=product_reviews)
+
 
 @routes_bp.route('/leafcollection')
 def leafcollection():
@@ -99,39 +130,45 @@ def product_detail(product_id):
 def product_care_instructions(product_id):
     return render_template('care_instructions.html', product_id=product_id)
 
-@routes_bp.route('/bundles')
-def bundles():
-    return render_template('bundles.html')
+# Basket Functionality
+basket = {}
 
-@routes_bp.route('/bundle/<int:bundle_id>')
-def bundle_detail(bundle_id):
-    return render_template('bundle_detail.html', bundle_id=bundle_id)
-
-# Shopping Cart and Wishlist
-@routes_bp.route('/basket')
-@login_required
+@routes_bp.route('/basket', methods=['GET'])
 def basket():
-    return render_template('basket.html')
+    """View the current basket."""
+    return render_template('currentbasket.html', now=datetime.utcnow(), basket=basket)
 
-@routes_bp.route('/add_to_basket/<int:product_id>', methods=['POST'])
-@login_required
-def add_to_basket(product_id):
-    return redirect(url_for('routes.basket'))
+@routes_bp.route('/basket/add', methods=['POST'])
+def add_to_basket():
+    """Add a product to the basket."""
+    data = request.json
+    product_id = data.get('product_id')
+    product_name = data.get('product_name')
+    quantity = int(data.get('quantity', 1))
 
-@routes_bp.route('/wishlist')
-@login_required
-def wishlist():
-    return render_template('wishlist.html')
+    if not product_id or not product_name:
+        return jsonify({'error': 'Product ID and name are required'}), 400
 
-@routes_bp.route('/add_to_wishlist/<int:product_id>', methods=['POST'])
-@login_required
-def add_to_wishlist(product_id):
-    return redirect(url_for('routes.wishlist'))
+    if product_id in basket:
+        basket[product_id]['quantity'] += quantity
+    else:
+        basket[product_id] = {'product_name': product_name, 'quantity': quantity}
 
-@routes_bp.route('/remove_from_wishlist/<int:product_id>', methods=['POST'])
-@login_required
-def remove_from_wishlist(product_id):
-    return redirect(url_for('routes.wishlist'))
+    return jsonify({'message': 'Product added to basket', 'basket': basket}), 201
+
+@routes_bp.route('/basket/remove/<int:product_id>', methods=['DELETE'])
+def remove_from_basket(product_id):
+    """Remove a product from the basket."""
+    if product_id in basket:
+        del basket[product_id]
+        return jsonify({'message': 'Product removed from basket', 'basket': basket}), 200
+    return jsonify({'error': 'Product not found in basket'}), 404
+
+@routes_bp.route('/basket/clear', methods=['POST'])
+def clear_basket():
+    """Clear all products from the basket."""
+    basket.clear()
+    return jsonify({'message': 'Basket cleared', 'basket': basket}), 200
 
 # Checkout and Orders
 @routes_bp.route('/checkout', methods=['GET', 'POST'])
@@ -212,4 +249,39 @@ def test():
 # Payment
 @routes_bp.route('/privacy_policy')
 def privacy_policy():
-    return render_template('privacy_policy.html')
+    now = datetime.utcnow()
+    return render_template('privacy_policy.html', now = now)
+
+# Subscriptions Functionality
+subscriptions = []
+
+@routes_bp.route('/subscriptions', methods=['GET'])
+def view_subscriptions():
+    """View all subscriptions."""
+    return jsonify({'subscriptions': subscriptions}), 200
+
+@routes_bp.route('/subscriptions/add', methods=['POST'])
+def add_subscription():
+    """Add a new subscription."""
+    data = request.json
+    email = data.get('email')
+
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    if email in subscriptions:
+        return jsonify({'message': 'Email is already subscribed'}), 200
+
+    subscriptions.append(email)
+    return jsonify({'message': 'Subscription added', 'subscriptions': subscriptions}), 201
+
+@routes_bp.route('/subscriptions/remove', methods=['POST'])
+def remove_subscription():
+    """Remove a subscription."""
+    data = request.json
+    email = data.get('email')
+
+    if email in subscriptions:
+        subscriptions.remove(email)
+        return jsonify({'message': 'Subscription removed', 'subscriptions': subscriptions}), 200
+    return jsonify({'error': 'Email not found in subscriptions'}), 404

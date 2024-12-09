@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='`images/necklace.png') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/styleaboutcontact.css') }}">
+    <title>Contact Us | The Divine Jewelers</title>
+</head>
+
+<header>
+  <div class="logo">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
+  </div>
+</header>
+
+<body>
+  <nav class="navbar navbar_bg">
+    <ul class="menu">
+      <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
+      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+      <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+      <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+      <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+    </ul>
+
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." />
+      <button type="button" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <div class="hamburger" onclick="toggleMenu(event)">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+  </nav>
+
+      <header class="contact-header">
+        <div class="header-content">
+          <h1>Contact Us</h1>
+          
+        </div>
+      </header>
+
+<section class="contact-us-section" style=" padding-top: 60px;">
+    <div class="map-container">
+      <iframe 
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2429.581440026034!2d-1.8882478000000074!3d52.486713800000004!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4870bc9ae4f2e4b3%3A0x9a670ba18e08a084!2sAston%20University!5e0!3m2!1sen!2suk!4v1733168969812!5m2!1sen!2suk" 
+      width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+
+      </iframe>
+    </div>
+
+    <div class="cards-container">
+      <div class="card">
+        <i class="fas fa-phone-alt"></i>
+        <h4>Phone</h4>
+        <p>+44 7473 613 241</p>
+      </div>
+
+      <div class="card">
+        <i class="fas fa-envelope"></i>
+        <h4>Email</h4>
+        <p>support@thedivinejewelry.com</p>
+      </div>
+    
+      <div class="card">
+        <i class="fas fa-map-marker-alt"></i>
+        <h4>Address</h4>
+        <p>Aston University, Birmingham</p>
+      </div>
+    
+      <div class="card">
+        <i class="fas fa-clock"></i>
+        <h4>Hours</h4>
+        <p>Mon-Fri: 9am - 6pm</p>
+      </div>
+    </div>
+  </section>
+
+  <h2 style="text-align: center; font-size: 35px; padding-top: 60px; background: #f6f2e9;"> Get In <span style="color:#f49418;">Touch </span></h2>
+  <section class="form-contact-us-section">
+
+    <div class="contact-image">
+      <img src="{{ url_for('static', filename='images/form.jpg') }}" alt="Contact Us">
+    </div>
+
+    <div class="contact-form-container">
+      <form class="contact-form" action="email.php" method="post">
+
+        <div>
+          <input type="text" id="name" name="name" placeholder="Enter your name" required>
+        </div>
+        <div>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+        </div>
+
+        <div>
+          <input type="text" id="subject" name="subject" placeholder="Enter subject" required>
+        </div>
+
+        <div>
+          <textarea id="message" name="message" placeholder="Write your message here" required></textarea>
+        </div>
+
+        <div>
+          <button type="submit">Send Message</button>
+        </div>
+
+      </form>
+    </div>
+  </section>
+
+      <footer class="footer">
+        <div class="footer-column large">
+          <h3>The Divine</h3>
+          <p>Your destination for timeless elegance. We curate a collection of exquisite jewelry, each piece handcrafted with meticulous attention to detail. Discover the perfect accessory to elevate your style.
+          </p>
+          <br>
+          <p>Browse our collection now and indulge in affordable luxury! 
+          </p>
+        </div>
+        <div class="footer-column small">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+            <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
+            <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+            <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+            <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+            <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+            <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+          </ul>
+        </div>
+  
+        <div class="footer-column small">
+          <h3>Collections</h3>
+          <ul>
+            <li><a href="{{ url_for('routes.leafcollection') }}">Leaf</a></li>
+            <li><a href="{{ url_for('routes.crystalcollection') }}">Crystal</a></li>
+            <li><a href="{{ url_for('routes.pearlcollection') }}">Pearl</a></li>
+          </ul>
+        </div>
+      </footer>
+
+      <script src="{{ url_for('static', filename='js/scriptaboutandcontact.js') }}"></script>
+    </body>
+</html>

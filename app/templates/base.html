@@ -3,44 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Divine - Exquisite Handcrafted Jewelry">
     <title>{% block title %}The Divine Jewelry{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <header>
-        <div class="container">
+        <div class="container1">
             <div class="logo">
                 <a href="{{ url_for('routes.home') }}">
-                    <img src="{{ url_for('static', filename='images/hpic.png') }}" alt="The Divine Logo">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
                 </a>
             </div>
         </div>
     </header>
 
-    <nav>
-        <div class="container">
-            <ul class="nav-links">
-                <li><a href="{{ url_for('routes.home') }}">HOME</a></li>
-                <li><a href="{{ url_for('routes.product') }}">SHOP OUR PRODUCTS</a></li>
-                <li><a href="#about">ABOUT US</a></li>
-                <li><a href="#contact">CONTACT US</a></li>
-                <li><a href="{{ url_for('routes.login') }}">LOG IN</a></li>
-                <li><a href="{{ url_for('routes.register') }}">SIGN UP</a></li>
-            </ul>
+    <nav class="navbar navbar_bg">
+        <ul class="menu">
+          <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+          <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
+          <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+          <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+          <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+        </ul>
+    
+        <div class="search-bar">
+          <input type="text" placeholder="Search..." />
+          <button type="button" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-    </nav>
+    
+        <div class="hamburger" onclick="toggleMenu(event)">
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </nav>
 
     <main>
-        {% block content %}
-        {% endblock %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
     </main>
 
     <footer>
-        <p>&copy; {{ now.year }} The Divine Jewelry. All rights reserved.</p>
+        <div class="footer">
+            <section id="contact" class="contact-section">
+                <div class="container1">
+                    <h2>Contact Us</h2>
+                    <p>Have any questions or need assistance? Reach out to us!</p>
+                    <div class="contact-info">
+                        <p>Email: support@thedivinejewelry.com</p>
+                        <p>Phone: +44 7473 613 241</p>
+                    </div>
+                </div>
+            </section>
+            <p>&copy; {{ now.year }} The Divine Jewelry. All rights reserved.</p>
+        </div>
     </footer>
 
     {% block scripts %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

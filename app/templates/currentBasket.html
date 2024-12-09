@@ -1,145 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Devine - Jewelry Store</title>
-  <link rel="stylesheet" href="style.css">
-</head>
+{% extends 'base.html' %}
 
-  <header>
-    <div class="logo">
-      <img src="TPI/logo.png" alt="The Devine Logo">
-    </div>
-  </header>
+{% block title %}Basket - The Divine Jewelry{% endblock %}
 
-  <nav>
-    <div class="container1">
-      <ul class="nav-links">
-        <li><a href="homepage.html">HOME</a></li>
-        <li><a href="products.html">SHOP OUR PRODUCTS</a></li>
-        <li><a href="#about-homepage.html">ABOUT US</a></li>
-        <li><a href="#contact-homepage.html">CONTACT US</a></li>
-        <li><a href="currentBasket.html">BASKET</a></li>
-        <li><a href="login.html">LOG IN</a></li>
-        <li><a href="registration.html">REGISTRATION</a></li>
-      </ul>
-    </div>
-    <div class="search-bar">
-      <input type="text" placeholder="Search">
-      <button class="btn-primary">Search</button>
-  </nav>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/basketStyle.css') }}">
 
-  <body>
-  </div>
-  <div class="cart">
-    <a href="#" id="cart-link">My Cart (0 Items)</a>
-  </div>
-  <main class="container">
+<div class="cart">
+    <a href="{{ url_for('routes.basket') }}" id="cart-link">My Cart (0 Items)</a>
+</div>
+
+<main class="container">
     <div class="left-column">
-      <h2 class="section-title">Recommended Products:</h2>
-      <div class="product-grid">
-        <div class="product-details">
-          <img src="TPI/leaf ring 1.webp" alt="Elegant leaf design">
-          <h2>Elegant leaf design</h2>
-          <p>£150.00</p>
-          <button class="btn-primary" onclick="addToCart('Elegant leaf design', 150.00)">Add to Cart</button>
+        <h2 class="section-title">Recommended Products:</h2>
+        <div class="product-grid">
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Elegant leaf design">
+                <h2>Elegant leaf design</h2>
+                <p>£150.00</p>
+                <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+            </div>
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal ring">
+                <h2>Crystal ring</h2>
+                <p>£180.00</p>
+                <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
+            </div>
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/pearl_necklace_1.webp') }}" alt="Pearl necklace">
+                <h2>Pearl necklace</h2>
+                <p>£250.00</p>
+                <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
+            </div>
         </div>
-        <div class="product-details">
-          <img src="TPI/crystal ring 1.jpg" alt="Crystal ring">
-          <h2>Crystal ring</h2>
-          <p>£180.00</p>
-          <button class="btn-primary" onclick="addToCart('Crystal ring', 180.00)">Add to Cart</button>
-        </div>
-        <div class="product-details">
-          <img src="TPI/pearl necklace 1.webp" alt="Pearl necklace">
-          <h2>Pearl necklace</h2>
-          <p>£250.00</p>
-          <button class="btn-primary" onclick="addToCart('Pearl necklace', 250.00)">Add to Cart</button>
-        </div>
-      </div>
     </div>
 
     <div class="right-column">
-      <h2 class="section-title">Order Summary</h2>
-      <ul id="order-summary-list">
-        <li>Basket is empty</li>
-      </ul>
-      <p id="order-total"><strong>Total: £0.00</strong></p>
-      <button class="btn-primary">Checkout</button>
+        <h2 class="section-title">Order Summary</h2>
+        <ul id="order-summary-list">
+            <li>Basket is empty</li>
+        </ul>
+        <p id="order-total"><strong>Total: £0.00</strong></p>
+        <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
+        <a href="{{ url_for('routes.payment') }}" class="btn-primary">Checkout</a>
     </div>
-  </main>
+</main>
 
-  <footer class="footer">
-    <p>&copy; The Devine 2024</p>
-  </footer>
-
-  <!-- Promo Code Popup -->
-  <div id="promo-popup" class="popup">
+<div id="promo-popup" class="popup hidden">
     <span id="close-popup" class="close">&times;</span>
     <h2>Enter Promo Code</h2>
     <input type="text" id="promo-code-input" placeholder="Enter code">
     <button class="btn-primary" onclick="applyPromoCode()">Apply</button>
-  </div>
+</div>
 
-  <!-- Success/Failure Popups -->
-  <div id="success-popup" class="popup">Congratulations! 20% off!</div>
-  <div id="error-popup" class="popup">Mmm... not quite!</div>
+<div id="success-popup" class="popup hidden">Congratulations! 20% off!</div>
+<div id="error-popup" class="popup hidden">Mmm... not quite!</div>
 
-  <script>
-    let cartItems = [];
-    let totalAmount = 0;
-
-    function addToCart(itemName, itemPrice) {
-      cartItems.push({ name: itemName, price: itemPrice });
-      totalAmount += itemPrice;
-
-      document.getElementById("cart-link").innerText = `My Cart (${cartItems.length} Items)`;
-      updateOrderSummary();
-    }
-
-    function updateOrderSummary() {
-      const orderSummaryList = document.getElementById("order-summary-list");
-      const orderTotal = document.getElementById("order-total");
-
-      orderSummaryList.innerHTML = cartItems.length ? "" : "<li>Basket is empty</li>";
-      cartItems.forEach((item) => {
-        const listItem = document.createElement("li");
-        listItem.innerText = `${item.name} - £${item.price.toFixed(2)}`;
-        orderSummaryList.appendChild(listItem);
-      });
-
-      orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
-    }
-
-    function showPromoPopup() {
-      document.getElementById("promo-popup").style.display = "block";
-    }
-
-    function closePopup() {
-      document.getElementById("promo-popup").style.display = "none";
-    }
-
-    function applyPromoCode() {
-      const code = document.getElementById("promo-code-input").value;
-      if (code === "SAVE20") {
-        showMessage("success-popup");
-        totalAmount *= 0.8;
-        updateOrderSummary();
-      } else {
-        showMessage("error-popup");
-      }
-    }
-
-    function showMessage(popupId) {
-      const popup = document.getElementById(popupId);
-      popup.style.display = "block";
-      setTimeout(() => {
-        popup.style.display = "none";
-      }, 10000);
-    }
-
-    document.getElementById("close-popup").addEventListener("click", closePopup);
-  </script>
-</body>
-</html>
+<script src="{{ url_for('static', filename='js/basket.js') }}"></script>
+{% endblock %}
