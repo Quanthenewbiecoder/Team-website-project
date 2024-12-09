@@ -22,11 +22,7 @@ header {
 .navbar {
     display: flex;
     position: absolute;
-<<<<<<< HEAD
     justify-content: space-between;
-=======
-    justify-content: space-between;8
->>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
     align-items: center;
     width: 100%;
     padding: 15px 20px;
@@ -1477,8 +1473,4 @@ background-color: #f6f2e9;
         opacity: 1;
         transform: translateY(0);
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d

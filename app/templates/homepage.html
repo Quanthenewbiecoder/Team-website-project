@@ -3,6 +3,8 @@
 {% block title %}Homepage - The Divine Jewelry{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+
 <section class="slider">
     <div class="slider-images">
         <img src="{{ url_for('static', filename='images/slide1.webp') }}" alt="Jewelry 1">

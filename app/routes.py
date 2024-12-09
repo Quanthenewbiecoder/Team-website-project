@@ -1,6 +1,6 @@
 from functools import wraps
-from datetime import datetime  # Added datetime import
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session
+from datetime import datetime 
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import *
@@ -73,9 +73,38 @@ def crystalcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
 
-@routes_bp.route('/product')
-def product():
-    return render_template('products.html')
+# ---------------- Review Functionality ----------------
+# In-memory storage for reviews, using product_id as keys
+reviews = {}
+
+@routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET', 'POST'])
+@routes_bp.route('/products/<int:product_id>', methods=['GET', 'POST'])
+def products(product_id):
+    if product_id is None:
+        # Handle case where no product_id is provided (list all products)
+        all_products = ["Product 1", "Product 2", "Product 3"]  # Example product list
+        return render_template('all_products.html', products=all_products, now=datetime.now())
+    
+    # Handle case for a specific product
+    product_reviews = reviews.get(product_id, [])
+    
+    if request.method == 'POST':
+        review = request.form.get('review')
+        rating = request.form.get('rating')
+
+        # Basic validation
+        if not review or not rating:
+            flash('Review and rating are required.', 'error')
+            return redirect(url_for('routes.products', product_id=product_id))
+        
+        # Add new review
+        if product_id not in reviews:
+            reviews[product_id] = []
+        reviews[product_id].append({'review': review, 'rating': rating})
+        flash('Review added successfully!', 'success')
+
+    return render_template('products.html', product_id=product_id, reviews=product_reviews)
+
 
 @routes_bp.route('/leafcollection')
 def leafcollection():
