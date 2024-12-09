@@ -1,95 +1,101 @@
-let cartItems = [];
-let totalAmount = 0;
+const addToCart = async (name, price, image) => {
+    const productId = btoa(name).slice(0, 10);
+    const data = {
+        product_id: productId,
+        product_name: name,
+        price: price,
+        quantity: 1,
+        image: image
+    };
 
-function addToCart(itemName, itemPrice, itemImage) {
-    const existingItemIndex = cartItems.findIndex((item) => item.name === itemName);
-    if (existingItemIndex !== -1) {
-        cartItems[existingItemIndex].quantity += 1;
-    } else {
-        cartItems.push({ name: itemName, price: itemPrice, image: itemImage, quantity: 1 });
+    try {
+        const response = await fetch('/basket/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            updateCartDisplay(result.basket);
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
-    totalAmount += itemPrice;
-    updateCart();
-    updateOrderSummary();
-}
+};
 
-function updateCart() {
-    document.getElementById("cart-link").innerText = `My Cart (${cartItems.length} Items)`;
-}
-
-function updateOrderSummary() {
+const updateCartDisplay = (basket) => {
     const orderSummaryList = document.getElementById("order-summary-list");
     const orderTotal = document.getElementById("order-total");
+    let total = 0;
 
-    orderSummaryList.innerHTML = cartItems.length ? "" : "<li>Basket is empty</li>";
+    orderSummaryList.innerHTML = Object.keys(basket).length ? "" : "<li>Basket is empty</li>";
 
-    cartItems.forEach((item, index) => {
+    Object.entries(basket).forEach(([id, item]) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
         const listItem = document.createElement("li");
         listItem.innerHTML = `
-            <img src="${item.image}" alt="${item.name}" class="basket-item-img">
-            <span>${item.name} - £${(item.price * item.quantity).toFixed(2)}</span>
+            <img src="${item.image}" alt="${item.product_name}" class="basket-item-img">
+            <span>${item.product_name} - £${itemTotal.toFixed(2)}</span>
             <div class="quantity-controls">
-                <button onclick="decreaseQuantity(${index})">-</button>
+                <button onclick="updateQuantity('${id}', ${item.quantity - 1})">-</button>
                 <span class="item-quantity">${item.quantity}</span>
-                <button onclick="increaseQuantity(${index})">+</button>
+                <button onclick="updateQuantity('${id}', ${item.quantity + 1})">+</button>
             </div>`;
         orderSummaryList.appendChild(listItem);
     });
 
-    orderTotal.innerHTML = `<strong>Total: £${totalAmount.toFixed(2)}</strong>`;
-}
+    orderTotal.innerHTML = `<strong>Total: £${total.toFixed(2)}</strong>`;
+    document.getElementById("cart-link").innerText = 
+        `My Cart (${Object.keys(basket).length} Items)`;
+};
 
-function increaseQuantity(index) {
-    cartItems[index].quantity += 1;
-    totalAmount += cartItems[index].price;
-    updateOrderSummary();
-}
-
-function decreaseQuantity(index) {
-    if (cartItems[index].quantity > 1) {
-        cartItems[index].quantity -= 1;
-        totalAmount -= cartItems[index].price;
-    } else {
-        totalAmount -= cartItems[index].price;
-        cartItems.splice(index, 1);
+const updateQuantity = async (productId, newQuantity) => {
+    if (newQuantity < 1) {
+        try {
+            const response = await fetch(`/basket/remove/${productId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                const result = await response.json();
+                updateCartDisplay(result.basket);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+        return;
     }
-    updateOrderSummary();
-}
 
-function showPromoPopup() {
-    document.getElementById("promo-popup").classList.remove("hidden");
-}
+    try {
+        const response = await fetch('/basket/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: newQuantity
+            })
+        });
 
-function closePopup() {
-    document.getElementById("promo-popup").classList.add("hidden");
-}
-
-function applyPromoCode() {
-    const code = document.getElementById("promo-code-input").value;
-    if (code === "TEAM20") {
-        showMessage("success-popup");
-        totalAmount *= 0.8;
-        updateOrderSummary();
-    } else {
-        showMessage("error-popup");
+        if (response.ok) {
+            const result = await response.json();
+            updateCartDisplay(result.basket);
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
-}
+};
 
-function showMessage(popupId) {
-    const popup = document.getElementById(popupId);
-    popup.classList.remove("hidden");
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 6000);
-}
-
-document.getElementById("close-popup").addEventListener("click", closePopup);
-
-document.querySelectorAll(".add-btn").forEach((btn) =>
-    btn.addEventListener("click", (event) => {
+document.querySelectorAll(".add-btn").forEach(btn => {
+    btn.addEventListener("click", event => {
         const name = event.target.dataset.name;
         const price = parseFloat(event.target.dataset.price);
         const image = event.target.closest(".product-card").querySelector("img").src;
         addToCart(name, price, image);
-    })
-);
+    });
+});

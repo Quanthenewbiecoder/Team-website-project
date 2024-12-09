@@ -22,6 +22,10 @@ def role_required(*roles):
         return decorated_function
     return wrapper
 
+@routes_bp.context_processor
+def utility_processor():
+    return dict(now=datetime.now())
+
 # General Pages
 @routes_bp.route('/')
 def home():
@@ -135,10 +139,27 @@ shopping_basket = {}
 
 @routes_bp.route('/basket', methods=['GET'])
 def basket():
-    """View the current basket."""
-    return render_template('currentbasket.html', now=datetime.utcnow(), basket=shopping_basket)
+    cart_items = []
+    total_amount = 0
+    
+    if shopping_basket:
+        for product_id, item in shopping_basket.items():
+            price = float(item.get('price', 0))
+            quantity = int(item.get('quantity', 0))
+            cart_items.append({
+                'id': product_id,
+                'name': item['product_name'],
+                'quantity': quantity,
+                'price': price,
+                'total': price * quantity,
+                'image': item.get('image', '')
+            })
+            total_amount += price * quantity
 
-shopping_basket = {}
+    return render_template('currentbasket.html', 
+                         cart_items=cart_items,
+                         total_amount=total_amount)
+
 
 @routes_bp.route('/payment', methods=['GET', 'POST'])
 def payment():
@@ -151,23 +172,21 @@ def payment():
             quantity = int(item.get('quantity', 0))
             cart_items.append({
                 'id': product_id,
-                'name': item.get('product_name'),
+                'name': item['product_name'],
                 'quantity': quantity,
                 'price': price,
                 'total': price * quantity,
                 'image': item.get('image', '')
             })
             total_amount += price * quantity
-        
+
     if request.method == 'POST':
-        # Process payment
         shopping_basket.clear()
         return redirect(url_for('routes.payment_success'))
-        
+
     return render_template('payment.html', 
                          cart_items=cart_items,
-                         total_amount=total_amount,
-                         now=datetime.now())
+                         total_amount=total_amount)
 
 @routes_bp.route('/payment/success')
 def payment_success():
@@ -180,14 +199,11 @@ def payment_success():
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
     data = request.json
-    product_id = data.get('product_id')
+    product_id = str(data.get('product_id', ''))
     product_name = data.get('product_name')
     price = float(data.get('price', 0))
     quantity = int(data.get('quantity', 1))
     image = data.get('image', '')
-
-    if not product_id or not product_name:
-        return jsonify({'error': 'Product ID and name are required'}), 400
 
     if product_id in shopping_basket:
         shopping_basket[product_id]['quantity'] += quantity
@@ -202,7 +218,7 @@ def add_to_basket():
     return jsonify({
         'message': 'Product added to basket',
         'basket': shopping_basket
-    }), 201
+    })
 
 @routes_bp.route('/basket/update', methods=['POST'])
 def update_basket():
