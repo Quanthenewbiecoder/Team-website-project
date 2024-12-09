@@ -6,43 +6,51 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/basketStyle.css') }}">
 
 <div class="cart">
-    <a href="{{ url_for('routes.basket') }}" id="cart-link">My Cart (0 Items)</a>
+    <a href="#" id="cart-link">My Cart (0 Items)</a>
 </div>
 
-<main class="container">
-    <div class="left-column">
-        <h2 class="section-title">Recommended Products:</h2>
+<main class="basket-page">
+    <section class="recommended-section">
+        <h2 class="section-title">Recommended Products</h2>
         <div class="product-grid">
-            <div class="product-details">
+            <div class="product-card">
                 <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Elegant leaf design">
-                <h2>Elegant leaf design</h2>
-                <p>£150.00</p>
-                <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+                <div class="product-info">
+                    <h3>Elegant leaf design</h3>
+                    <p class="product-price">£150.00</p>
+                    <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+                </div>
             </div>
-            <div class="product-details">
+            
+            <div class="product-card">
                 <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal ring">
-                <h2>Crystal ring</h2>
-                <p>£180.00</p>
-                <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
+                <div class="product-info">
+                    <h3>Crystal ring</h3>
+                    <p class="product-price">£180.00</p>
+                    <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
+                </div>
             </div>
-            <div class="product-details">
+            
+            <div class="product-card">
                 <img src="{{ url_for('static', filename='images/pearl_necklace_1.webp') }}" alt="Pearl necklace">
-                <h2>Pearl necklace</h2>
-                <p>£250.00</p>
-                <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
+                <div class="product-info">
+                    <h3>Pearl necklace</h3>
+                    <p class="product-price">£250.00</p>
+                    <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="right-column">
+    <aside class="order-summary">
         <h2 class="section-title">Order Summary</h2>
         <ul id="order-summary-list">
             <li>Basket is empty</li>
         </ul>
         <p id="order-total"><strong>Total: £0.00</strong></p>
         <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
-        <a href="{{ url_for('routes.payment') }}" class="btn-primary">Checkout</a>
-    </div>
+        <a href="{{ url_for('routes.payment') }}" class="btn-primary checkout-btn">Checkout</a>
+    </aside>
 </main>
 
 <div id="promo-popup" class="popup hidden">
@@ -52,8 +60,8 @@
     <button class="btn-primary" onclick="applyPromoCode()">Apply</button>
 </div>
 
-<div id="success-popup" class="popup hidden">Congratulations! 20% off!</div>
-<div id="error-popup" class="popup hidden">Mmm... not quite!</div>
+<div id="success-popup" class="popup hidden success-message">Congratulations! 20% off!</div>
+<div id="error-popup" class="popup hidden error-message">Mmm... not quite!</div>
 
 <script src="{{ url_for('static', filename='js/basket.js') }}"></script>
 {% endblock %}

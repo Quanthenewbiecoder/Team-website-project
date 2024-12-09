@@ -22,6 +22,10 @@ def role_required(*roles):
         return decorated_function
     return wrapper
 
+@routes_bp.context_processor
+def utility_processor():
+    return dict(now=datetime.now())
+
 # General Pages
 @routes_bp.route('/')
 def home():
@@ -131,44 +135,122 @@ def product_care_instructions(product_id):
     return render_template('care_instructions.html', product_id=product_id)
 
 # Basket Functionality
-basket = {}
+shopping_basket = {}
 
 @routes_bp.route('/basket', methods=['GET'])
 def basket():
-    """View the current basket."""
-    return render_template('currentbasket.html', now=datetime.utcnow(), basket=basket)
+    cart_items = []
+    total_amount = 0
+    
+    if shopping_basket:
+        for product_id, item in shopping_basket.items():
+            price = float(item.get('price', 0))
+            quantity = int(item.get('quantity', 0))
+            cart_items.append({
+                'id': product_id,
+                'name': item['product_name'],
+                'quantity': quantity,
+                'price': price,
+                'total': price * quantity,
+                'image': item.get('image', '')
+            })
+            total_amount += price * quantity
+
+    return render_template('currentbasket.html', 
+                         cart_items=cart_items,
+                         total_amount=total_amount)
+
+
+@routes_bp.route('/payment', methods=['GET', 'POST'])
+def payment():
+    cart_items = []
+    total_amount = 0
+    
+    if shopping_basket:
+        for product_id, item in shopping_basket.items():
+            price = float(item.get('price', 0))
+            quantity = int(item.get('quantity', 0))
+            cart_items.append({
+                'id': product_id,
+                'name': item['product_name'],
+                'quantity': quantity,
+                'price': price,
+                'total': price * quantity,
+                'image': item.get('image', '')
+            })
+            total_amount += price * quantity
+
+    if request.method == 'POST':
+        shopping_basket.clear()
+        return redirect(url_for('routes.payment_success'))
+
+    return render_template('payment.html', 
+                         cart_items=cart_items,
+                         total_amount=total_amount)
+
+@routes_bp.route('/payment/success')
+def payment_success():
+    return render_template('payment.html', 
+                         payment_status='success',
+                         cart_items=[],
+                         total_amount=0,
+                         now=datetime.now())
 
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
-    """Add a product to the basket."""
+    data = request.json
+    product_id = str(data.get('product_id', ''))
+    product_name = data.get('product_name')
+    price = float(data.get('price', 0))
+    quantity = int(data.get('quantity', 1))
+    image = data.get('image', '')
+
+    if product_id in shopping_basket:
+        shopping_basket[product_id]['quantity'] += quantity
+    else:
+        shopping_basket[product_id] = {
+            'product_name': product_name,
+            'quantity': quantity,
+            'price': price,
+            'image': image
+        }
+
+    return jsonify({
+        'message': 'Product added to basket',
+        'basket': shopping_basket
+    })
+
+@routes_bp.route('/basket/update', methods=['POST'])
+def update_basket():
     data = request.json
     product_id = data.get('product_id')
-    product_name = data.get('product_name')
     quantity = int(data.get('quantity', 1))
 
-    if not product_id or not product_name:
-        return jsonify({'error': 'Product ID and name are required'}), 400
+    if product_id in shopping_basket:
+        shopping_basket[product_id]['quantity'] = quantity
+        return jsonify({
+            'message': 'Quantity updated',
+            'basket': shopping_basket
+        }), 200
+    return jsonify({'error': 'Product not found'}), 404
 
-    if product_id in basket:
-        basket[product_id]['quantity'] += quantity
-    else:
-        basket[product_id] = {'product_name': product_name, 'quantity': quantity}
-
-    return jsonify({'message': 'Product added to basket', 'basket': basket}), 201
-
-@routes_bp.route('/basket/remove/<int:product_id>', methods=['DELETE'])
+@routes_bp.route('/basket/remove/<product_id>', methods=['DELETE'])
 def remove_from_basket(product_id):
-    """Remove a product from the basket."""
-    if product_id in basket:
-        del basket[product_id]
-        return jsonify({'message': 'Product removed from basket', 'basket': basket}), 200
-    return jsonify({'error': 'Product not found in basket'}), 404
+    if product_id in shopping_basket:
+        del shopping_basket[product_id]
+        return jsonify({
+            'message': 'Product removed',
+            'basket': shopping_basket
+        }), 200
+    return jsonify({'error': 'Product not found'}), 404
 
 @routes_bp.route('/basket/clear', methods=['POST'])
 def clear_basket():
-    """Clear all products from the basket."""
-    basket.clear()
-    return jsonify({'message': 'Basket cleared', 'basket': basket}), 200
+    shopping_basket.clear()
+    return jsonify({
+        'message': 'Basket cleared',
+        'basket': shopping_basket
+    }), 200
 
 # Checkout and Orders
 @routes_bp.route('/checkout', methods=['GET', 'POST'])
@@ -229,11 +311,6 @@ def add_product():
 @role_required('admin', 'staff')
 def reports():
     return render_template('reports.html')
-
-# Payment
-@routes_bp.route('/payment')
-def payment():
-    return render_template('payment.html')
 
 # Product Customization
 @routes_bp.route('/product/<int:product_id>/customize', methods=['GET', 'POST'])
