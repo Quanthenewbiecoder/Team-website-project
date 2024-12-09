@@ -97,7 +97,7 @@
       <p style=" margin-bottom:30px;">
         Our team is passionate and driven, always looking for ways to innovate and improve. We believe in building lasting relationships with our clients and are committed to upholding our values of integrity, excellence, and responsibility.
       </p>
-      <a class="contact-btn contactq-btn" href="contact.html" style="text-decoration:none;">Contact Us</a>
+      <a class="contact-btn contactq-btn" href="{{ url_for('routes.contact') }}" style="text-decoration:none;">Contact Us</a>
     </div>
   </section>
 
@@ -116,7 +116,7 @@
           <p class="price">£4500</p>
         </div>
           <div class="card">
-            <img src="{{ url_for('static', filename='images/leaf ring 1.webp') }}" alt="Item 2" onclick="openPopup(this)">
+            <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Item 2" onclick="openPopup(this)">
             <h3>Leaf ring</h3>
             <p class="price">£1200</p>
           </div>

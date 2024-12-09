@@ -1,43 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Devine - Jewelry Store</title>
-  <link rel="stylesheet" href="login.css">
-  <link rel="stylesheet" href="basketStyle.css">
-</head>
-<body>
-  <header>
-    <div class="logo">
-      <img src="Images/hpic.png" alt="The Devine Logo">
-    </div>
-  </header>
-  <nav class="navbar navbar_bg">
-    <ul class="menu">
-      <li><a href="homepage.html">Home</a></li>
-      <li><a href="products.html">Shop Our Products</a></li>  
-      <li><a href="aboutus.html">About Us</a></li>
-      <li><a href="contact.html">Contact Us</a></li>
-      <li><a href="currentBasket.html">Basket</a></li>
-      <li><a href="login.html">Login</a></li>
-      <li><a href="register.html">Registration</a></li>
-    </ul>
+{% extends 'base.html' %}
 
-    <div class="search-bar">
-      <input type="text" placeholder="Search..." />
-      <button type="button" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
+{% block title %}Basket - The Divine Jewelry{% endblock %}
 
-    <div class="hamburger" onclick="toggleMenu(event)">
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
-  </nav>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/basketStyle.css') }}">
 
   <div class="cart">
-    <a href="Payment.html" id="cart-link">My Cart (0 Items)</a>
+    <a href="#" id="cart-link">My Cart (0 Items)</a>
   </div>
 
   <main class="container basket-page">
@@ -50,46 +19,53 @@
       <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
       <button class="btn-primary">Checkout</button>
     </div>
-  <br>
+  
     <div class="recommended-products">
       <h2 class="section-title">Recommended Products:</h2>
-      <div class="product-grid">
-        <div class="product-details">
-          <img src="Images/leaf ring 1.webp" alt="Elegant leaf design">
-          <h2>Elegant leaf design</h2>
-          <p>£150.00</p>
-          <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+        <div class="product-grid">
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Elegant leaf design">
+                <h2>Elegant leaf design</h2>
+                <p>£150.00</p>
+                <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+            </div>
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal ring">
+                <h2>Crystal ring</h2>
+                <p>£180.00</p>
+                <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
+            </div>
+            <div class="product-details">
+                <img src="{{ url_for('static', filename='images/pearl_necklace_1.webp') }}" alt="Pearl necklace">
+                <h2>Pearl necklace</h2>
+                <p>£250.00</p>
+                <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
+            </div>
         </div>
-        <div class="product-details">
-          <img src="Images/crystal_ring_1.jpg" alt="Crystal ring">
-          <h2>Crystal ring</h2>
-          <p>£180.00</p>
-          <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
-        </div>
-        <div class="product-details">
-          <img src="Images/pearl necklace 1.webp" alt="Pearl necklace">
-          <h2>Pearl necklace</h2>
-          <p>£250.00</p>
-          <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
-        </div>
+    </div>
+
+    <div class="right-column">
+        <h2 class="section-title">Order Summary</h2>
+        <ul id="order-summary-list">
+            <li>Basket is empty</li>
+        </ul>
+        <p id="order-total"><strong>Total: £0.00</strong></p>
+        <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
+        <a href="{{ url_for('routes.payment') }}" class="btn-primary">Checkout</a>
+    </div>
       </div>
     </div>
   </main>
-  
 
-  <footer class="footer">
-    <p>&copy; The Devine 2024</p>
-  </footer>
-
-  <div id="promo-popup" class="popup hidden">
+<div id="promo-popup" class="popup hidden">
     <span id="close-popup" class="close">&times;</span>
     <h2>Enter Promo Code</h2>
     <input type="text" id="promo-code-input" placeholder="Enter code">
     <button class="btn-primary" onclick="applyPromoCode()">Apply</button>
-  </div>
+</div>
 
-  <div id="success-popup" class="popup hidden">Congratulations! 20% off!</div>
-  <div id="error-popup" class="popup hidden">Mmm... not quite!</div>
+<div id="success-popup" class="popup hidden">Congratulations! 20% off!</div>
+<div id="error-popup" class="popup hidden">Mmm... not quite!</div>
 
   <script>
 let cartItems = [];

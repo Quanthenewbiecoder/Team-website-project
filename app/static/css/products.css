@@ -1,3 +1,4 @@
+/* General Body Styling */
 body {
     font-family: 'Times New Roman', Times, serif;
     background: #fff7e6;
@@ -5,9 +6,11 @@ body {
     padding: 0;
 }
 
+/* Header Styling */
 header {
-    background-color: #442711;
+    background-color: white;
     padding: 20px 0;
+    border-bottom: 1px solid #ddd;
 }
 
 .headercontainer {
@@ -23,6 +26,7 @@ header {
     margin: 0 auto;
 }
 
+/* Navigation Styling */
 nav {
     background-color: white;
     padding: 10px 0;
@@ -42,12 +46,14 @@ nav {
     text-decoration: none;
     color: #333;
     font-weight: bold;
+    transition: color 0.3s;
 }
 
 .nav-links a:hover {
     color: #836953;
 }
 
+/* Form Styling */
 form {
     width: 90%;
     max-width: 1200px;
@@ -55,7 +61,7 @@ form {
     background: white;
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 fieldset {
@@ -68,6 +74,7 @@ fieldset {
 legend {
     font-weight: bold;
     padding: 0 10px;
+    color: #333;
 }
 
 input[type="search"] {
@@ -84,6 +91,7 @@ input[type="checkbox"] {
 
 label {
     margin-right: 15px;
+    color: #333;
 }
 
 input[type="submit"] {
@@ -94,14 +102,16 @@ input[type="submit"] {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
+    transition: background-color 0.3s;
 }
 
 input[type="submit"]:hover {
     background-color: #6d563f;
 }
 
+/* Product Card Styling */
 .Product {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 250px;
     margin: 15px;
     padding: 15px;
@@ -109,6 +119,12 @@ input[type="submit"]:hover {
     background-color: white;
     border-radius: 8px;
     text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.Product:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .Product img {
@@ -120,6 +136,7 @@ input[type="submit"]:hover {
 .Product h1 {
     font-size: 1.2em;
     margin: 10px 0;
+    color: #333;
 }
 
 .Product .price {
@@ -136,6 +153,7 @@ input[type="submit"]:hover {
     border-radius: 4px;
 }
 
+/* Product Containers */
 #Container_Bracelet,
 #Container_Earrings,
 #Container_Rings,
@@ -149,4 +167,32 @@ input[type="submit"]:hover {
     margin: 20px auto;
     width: 90%;
     max-width: 1200px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .Product {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    form {
+        padding: 15px;
+    }
+
+    input[type="search"] {
+        width: 100%;
+    }
+
+    .Product {
+        width: 100%;
+        max-width: 100%;
+    }
 }

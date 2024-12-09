@@ -77,40 +77,6 @@
     <div id="Container_Watches"></div>
     <div id="Container_Necklaces"></div>
     <div id="Container_Collections"></div>
-
-    <!-- Review Section -->
-    <div class="reviews-container">
-        <h2>Product {{ product_id }}</h2>
-        <h3>Reviews</h3>
-        {% if reviews %}
-            <ul>
-                {% for review in reviews %}
-                    <li>
-                        <strong>Rating:</strong> {{ review['rating'] }}/5<br>
-                        <strong>Review:</strong> {{ review['review'] }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No reviews yet. Be the first to review this product!</p>
-        {% endif %}
-
-        <h3>Add a Review</h3>
-        <form action="{{ url_for('product_page', product_id=product_id) }}" method="POST">
-            <textarea name="review" placeholder="Your review" required></textarea><br>
-            <label for="rating">Rating:</label>
-            <select name="rating" required>
-                <option value="" disabled selected>Select a rating</option>
-                <option value="1">1 - Poor</option>
-                <option value="2">2 - Fair</option>
-                <option value="3">3 - Good</option>
-                <option value="4">4 - Very Good</option>
-                <option value="5">5 - Excellent</option>
-            </select><br>
-            <button type="submit">Submit Review</button>
-        </form>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
