@@ -8,8 +8,8 @@
 
 {% block content %}
 <div class="products-container">
-    <!-- Existing Product Filter and Search Form -->
-    <form action="/products.html" id="Form" method="post">
+    <!-- Product Filter and Search Form -->
+    <form id="Form">
         <!-- Search Section -->
         <fieldset>
             <legend>Search:</legend>
@@ -67,7 +67,7 @@
             <label for="Crystal">Crystal Collection</label>
         </fieldset>
 
-        <input type="submit" name="Submit" value="Apply Filters">
+        <input type="submit" value="Apply Filters">
     </form>
 
     <!-- Product Display Containers -->
@@ -76,9 +76,21 @@
     <div id="Container_Rings"></div>
     <div id="Container_Watches"></div>
     <div id="Container_Necklaces"></div>
-    <div id="Container_Collections"></div>
+</div>
 {% endblock %}
 
 {% block scripts %}
+<script>
+    // Pass the image URLs dynamically from Flask to JavaScript
+    const imagePaths = {
+        bracelet: "{{ url_for('static', filename='Images/crystal_bracelet.jpg') }}",
+        earring: "{{ url_for('static', filename='Images/leaf_earring_1.jpg') }}",
+        ring: "{{ url_for('static', filename='Images/pearl ring 1.webp') }}",
+        watch: "{{ url_for('static', filename='Images/Watch3.jpg') }}",
+        necklace: "{{ url_for('static', filename='Images/leaf necklace 3.webp') }}",
+
+    };
+</script>
+
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock %}

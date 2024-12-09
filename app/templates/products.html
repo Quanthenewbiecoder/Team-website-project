@@ -8,8 +8,8 @@
 
 {% block content %}
 <div class="products-container">
-    <!-- Existing Product Filter and Search Form -->
-    <form action="/products.html" id="Form" method="post">
+    <!-- Product Filter and Search Form -->
+    <form id="Form">
         <!-- Search Section -->
         <fieldset>
             <legend>Search:</legend>
@@ -67,7 +67,7 @@
             <label for="Crystal">Crystal Collection</label>
         </fieldset>
 
-        <input type="submit" name="Submit" value="Apply Filters">
+        <input type="submit" value="Apply Filters">
     </form>
 
     <!-- Product Display Containers -->
@@ -76,43 +76,54 @@
     <div id="Container_Rings"></div>
     <div id="Container_Watches"></div>
     <div id="Container_Necklaces"></div>
-    <div id="Container_Collections"></div>
-
-    <!-- Review Section -->
-    <div class="reviews-container">
-        <h2>Product {{ product_id }}</h2>
-        <h3>Reviews</h3>
-        {% if reviews %}
-            <ul>
-                {% for review in reviews %}
-                    <li>
-                        <strong>Rating:</strong> {{ review['rating'] }}/5<br>
-                        <strong>Review:</strong> {{ review['review'] }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No reviews yet. Be the first to review this product!</p>
-        {% endif %}
-
-        <h3>Add a Review</h3>
-        <form action="{{ url_for('product_page', product_id=product_id) }}" method="POST">
-            <textarea name="review" placeholder="Your review" required></textarea><br>
-            <label for="rating">Rating:</label>
-            <select name="rating" required>
-                <option value="" disabled selected>Select a rating</option>
-                <option value="1">1 - Poor</option>
-                <option value="2">2 - Fair</option>
-                <option value="3">3 - Good</option>
-                <option value="4">4 - Very Good</option>
-                <option value="5">5 - Excellent</option>
-            </select><br>
-            <button type="submit">Submit Review</button>
-        </form>
-    </div>
 </div>
+
+<!-- Review Section -->
+<div class="reviews-container">
+    <h2>Product {{ product_id }}</h2>
+    <h3>Reviews</h3>
+    {% if reviews %}
+        <ul>
+            {% for review in reviews %}
+                <li>
+                    <strong>Rating:</strong> {{ review['rating'] }}/5<br>
+                    <strong>Review:</strong> {{ review['review'] }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No reviews yet. Be the first to review this product!</p>
+    {% endif %}
+
+    <h3>Add a Review</h3>
+    <form action="{{ url_for('product_page', product_id=product_id) }}" method="POST">
+        <textarea name="review" placeholder="Your review" required></textarea><br>
+        <label for="rating">Rating:</label>
+        <select name="rating" required>
+            <option value="" disabled selected>Select a rating</option>
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+        </select><br>
+        <button type="submit">Submit Review</button>
+    </form>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
+<script>
+    // Pass the image URLs dynamically from Flask to JavaScript
+    const imagePaths = {
+        bracelet: "{{ url_for('static', filename='Images/crystal_bracelet.jpg') }}",
+        earring: "{{ url_for('static', filename='Images/leaf_earring_1.jpg') }}",
+        ring: "{{ url_for('static', filename='Images/pearl ring 1.webp') }}",
+        watch: "{{ url_for('static', filename='Images/Watch3.jpg') }}",
+        necklace: "{{ url_for('static', filename='Images/leaf necklace 3.webp') }}",
+    };
+</script>
+
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock %}
