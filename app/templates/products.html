@@ -8,15 +8,20 @@
 
 {% block content %}
 <div class="products-container">
+<<<<<<< HEAD
     <!-- Existing Product Filter and Search Form -->
     <form action="/products.html" id="Form" method="post">
         <!-- Search Section -->
+=======
+    <form action="/products.html" id="Form" method="post">
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
         <fieldset>
             <legend>Search:</legend>
             <label for="Search">Search:</label>
             <input type="search" id="Search" name="Search">
         </fieldset>
 
+<<<<<<< HEAD
         <!-- Sort By Section -->
         <fieldset>
             <legend>Sort By:</legend>
@@ -29,6 +34,18 @@
         </fieldset>
 
         <!-- Filter Section -->
+=======
+        <fieldset>
+            <legend>Sort By:</legend>
+            <input type="radio" id="Recommended" name="sort" value="Recommended" checked="checked">
+            <label for="Recommended">Sort by Recommended</label>
+            <input type="radio" id="HighLow" name="sort" value="HighLow">
+            <label for="HighLow">Sort by Price High to Low</label>
+            <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+            <label for="LowHigh">Sort by Price Low to High</label>
+        </fieldset>
+
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
         <fieldset>
             <legend>Filter Search</legend>
             <input type="checkbox" id="InStock" name="InStock" value="InStock">
@@ -39,7 +56,10 @@
             <label for="OnSale">On Sale</label>
         </fieldset>
 
+<<<<<<< HEAD
         <!-- Product Type -->
+=======
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
         <fieldset>
             <legend>Product Type</legend>
             <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
@@ -54,10 +74,16 @@
             <label for="Necklaces">Necklaces</label>
         </fieldset>
 
+<<<<<<< HEAD
         <!-- Collections -->
         <fieldset>
             <legend>View Collections:</legend>
             <input type="radio" id="None" name="collections" value="None" checked>
+=======
+        <fieldset>
+            <legend>View Collections:</legend>
+            <input type="radio" id="None" name="collections" value="None" checked="checked">
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
             <label for="None">None</label>
             <input type="radio" id="Leaf" name="collections" value="Leaf">
             <label for="Leaf">Leaf Collection</label>
@@ -70,13 +96,17 @@
         <input type="submit" name="Submit" value="Apply Filters">
     </form>
 
+<<<<<<< HEAD
     <!-- Product Display Containers -->
+=======
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
     <div id="Container_Bracelet"></div>
     <div id="Container_Earrings"></div>
     <div id="Container_Rings"></div>
     <div id="Container_Watches"></div>
     <div id="Container_Necklaces"></div>
     <div id="Container_Collections"></div>
+<<<<<<< HEAD
 
     <!-- Review Section -->
     <div class="reviews-container">
@@ -112,6 +142,173 @@
     </div>
 </div>
 {% endblock %}
+=======
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let Sort;
+    let Watches;
+    let Rings;
+    let Necklaces;
+    let OnSale;
+    let New;
+    let InStock;
+    let Earrings;
+    let Bracelets;
+    let Collections;
+    let Search;
+
+    document.getElementById("Form").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        let formElement = document.getElementById("Form");
+        let formData = new FormData(formElement);
+        console.log(Object.fromEntries(formData.entries()));
+        clearBox();
+
+        function clearBox(elementID) {
+            Sort = null;
+            Watches = null;
+            Rings = null;
+            Necklaces = null;
+            OnSale = null;
+            New = null;
+            InStock = null;
+            Earrings = null;
+            Bracelets = null;
+            Collections = null;
+            Search = null;
+            var div = document.getElementById('Container_Bracelet');
+            div.innerHTML = null;
+            var div = document.getElementById('Container_Collections');
+            div.innerHTML = null;
+            var div = document.getElementById('Container_Necklaces');
+            div.innerHTML = null;
+            var div = document.getElementById('Container_Watches');
+            div.innerHTML = null;
+            var div = document.getElementById('Container_Earrings');
+            div.innerHTML = null;
+            var div = document.getElementById('Container_Rings');
+            div.innerHTML = null;
+        }
+
+        Sort = formData.get("sort");
+        Watches = formData.get("Watches");
+        Rings = formData.get("Rings");
+        Necklaces = formData.get("Necklaces");
+        OnSale = formData.get("OnSale");
+        New = formData.get("New");
+        InStock = formData.get("InStock");
+        Earrings = formData.get("Earrings");
+        Bracelets = formData.get("Bracelets");
+        Collections = formData.get("collections");
+        Search = formData.get("Search");
+
+        products();
+    });
+
+    let Bracelet1 = `<div class="Product"><img src="{{ url_for('static', filename='images/crystal_bracelet_1.jpg') }}" alt="Crystal Bracelet" style="width:100%"><h1>Crystal Bracelet</h1><p>Basic description</p><p class="price">£1,500</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Bracelet" /><input type="hidden" name="cost" value="£1,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Bracelet2 = `<div class="Product"><img src="{{ url_for('static', filename='images/pearl bracelet 1.jpg') }}" alt="Pearl Bracelet" style="width:100%"><h1>Pearl Bracelet</h1><p>Basic description</p><p class="price">£2,000</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Bracelet" /><input type="hidden" name="cost" value="£2,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Bracelet3 = `<div class="Product"><img src="{{ url_for('static', filename='images/leaf bracelet 1.jpg') }}" alt="Leaf Bracelet" style="width:100%"><h1>Leaf Bracelet</h1><p>Basic description</p><p class="price">£799</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Bracelet" /><input type="hidden" name="cost" value="£799" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+    let Earrings1 = `<div class="Product"><img src="{{ url_for('static', filename='images/crystal_earrings.jpg') }}" alt="Crystal Earrings" style="width:100%"><h1>Crystal Earrings</h1><p>Basic description</p><p class="price">£499</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Earrings" /><input type="hidden" name="cost" value="£499" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Earrings2 = `<div class="Product"><img src="{{ url_for('static', filename='images/leaf earring 1.jpg') }}" alt="Leaf Earrings" style="width:100%"><h1>Leaf Earrings</h1><p>Basic description</p><p class="price">£399</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Earrings" /><input type="hidden" name="cost" value="£399" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Earrings3 = `<div class="Product"><img src="{{ url_for('static', filename='images/pearl earring 2.jpeg') }}" alt="Pearl Earrings" style="width:100%"><h1>Pearl Earrings</h1><p>Basic description</p><p class="price">£799</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Earrings" /><input type="hidden" name="cost" value="£799" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+    let Rings1 = `<div class="Product"><img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal Ring" style="width:100%"><h1>Crystal Ring</h1><p>Basic description</p><p class="price">£1,100</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Ring" /><input type="hidden" name="cost" value="£1,100" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Rings2 = `<div class="Product"><img src="{{ url_for('static', filename='images/leaf ring 1.webp') }}" alt="Leaf Ring" style="width:100%"><h1>Leaf Ring</h1><p>Basic description</p><p class="price">£1,200</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Ring" /><input type="hidden" name="cost" value="£1,200" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Rings3 = `<div class="Product"><img src="{{ url_for('static', filename='images/pearl ring 1.webp') }}" alt="Pearl Ring" style="width:100%"><h1>Pearl Ring</h1><p>Basic description</p><p class="price">£1,050</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Ring" /><input type="hidden" name="cost" value="£1,050" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+    let Watches1 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch1.jpg') }}" alt="Midnight Heritage" style="width:100%"><h1>Midnight Heritage</h1><p>Watch</p><p class="price">£5,500</p><form action="/products.html"><input type="hidden" name="name" value="Midnight Heritage" /><input type="hidden" name="cost" value="£5,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Watches2 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch2.jpg') }}" alt="Celestial Diver" style="width:100%"><h1>Celestial Diver</h1><p>Watch</p><p class="price">£4,000</p><form action="/products.html"><input type="hidden" name="name" value="Celestial Diver" /><input type="hidden" name="cost" value="£4,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Watches3 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch3.jpg') }}" alt="Eclipse Chronograph" style="width:100%"><h1>Eclipse Chronograph</h1><p>Watch</p><p class="price">£3,500</p><form action="/products.html"><input type="hidden" name="name" value="Eclipse Chronograph" /><input type="hidden" name="cost" value="£3,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Watches4 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch4.jpg') }}" alt="Radiant Elegance" style="width:100%"><h1>Radiant Elegance</h1><p>Watch</p><p class="price">£6,000</p><form action="/products.html"><input type="hidden" name="name" value="Radiant Elegance" /><input type="hidden" name="cost" value="£6,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Watches5 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch5.jpg') }}" alt="Titanium Horizon" style="width:100%"><h1>Titanium Horizon</h1><p>Watch</p><p class="price">£7,500</p><form action="/products.html"><input type="hidden" name="name" value="Titanium Horizon" /><input type="hidden" name="cost" value="£7,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Watches6 = `<div class="Product"><img src="{{ url_for('static', filename='images/Watch6.jpg') }}" alt="Oceanic Voyager" style="width:100%"><h1>Oceanic Voyager</h1><p>Watch</p><p class="price">£4,500</p><form action="/products.html"><input type="hidden" name="name" value="Oceanic Voyager" /><input type="hidden" name="cost" value="£4,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+    let Necklace1 = `<div class="Product"><img src="{{ url_for('static', filename='images/crystal_necklace_1.jpg') }}" alt="Crystal Necklace" style="width:100%"><h1>Crystal Necklace</h1><p>Basic description</p><p class="price">£750</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Necklace" /><input type="hidden" name="cost" value="£750" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Necklace2 = `<div class="Product"><img src="{{ url_for('static', filename='images/leaf necklace 1.jpg') }}" alt="Leaf Necklace" style="width:100%"><h1>Leaf Necklace</h1><p>Basic description</p><p class="price">£599</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Necklace" /><input type="hidden" name="cost" value="£599" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+    let Necklace3 = `<div class="Product"><img src="{{ url_for('static', filename='images/pearl necklace 1.webp') }}" alt="Pearl Necklace" style="width:100%"><h1>Pearl Necklace</h1><p>Basic description</p><p class="price">£899</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Necklace" /><input type="hidden" name="cost" value="£899" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+    function products() {
+        if (Collections === "None") {
+            if (Bracelets !== null) {
+                const container = document.getElementById('Container_Bracelet');
+                if (Sort === "Recommended") {
+                    container.innerHTML = Bracelet1 + Bracelet2 + Bracelet3;
+                }
+                if (Sort === "HighLow") {
+                    container.innerHTML = Bracelet2 + Bracelet1 + Bracelet3;
+                }
+                if (Sort === "LowHigh") {
+                    container.innerHTML = Bracelet3 + Bracelet1 + Bracelet2;
+                }
+            }
+            if (Earrings !== null) {
+                const container = document.getElementById('Container_Earrings');
+                if (Sort === "Recommended") {
+                    container.innerHTML = Earrings1 + Earrings2 + Earrings3;
+                }
+                if (Sort === "HighLow") {
+                    container.innerHTML = Earrings3 + Earrings1 + Earrings2;
+                }
+                if (Sort === "LowHigh") {
+                    container.innerHTML = Earrings2 + Earrings1 + Earrings3;
+                }
+            }
+            if (Rings !== null) {
+                const container = document.getElementById('Container_Rings');
+                if (Sort === "Recommended") {
+                    container.innerHTML = Rings1 + Rings2 + Rings3;
+                }
+                if (Sort === "HighLow") {
+                    container.innerHTML = Rings2 + Rings1 + Rings3;
+                }
+                if (Sort === "LowHigh") {
+                    container.innerHTML = Rings3 + Rings1 + Rings2;
+                }
+            }
+            if (Watches !== null) {
+                const container = document.getElementById('Container_Watches');
+                if (Sort === "Recommended") {
+                    container.innerHTML = Watches1 + Watches2 + Watches3 + Watches4 + Watches5 + Watches6;
+                }
+                if (Sort === "HighLow") {
+                    container.innerHTML = Watches5 + Watches4 + Watches1 + Watches6 + Watches2 + Watches3;
+                }
+                if (Sort === "LowHigh") {
+                    container.innerHTML = Watches3 + Watches2 + Watches6 + Watches1 + Watches4 + Watches5;
+                }
+            }
+            if (Necklaces !== null) {
+                const container = document.getElementById('Container_Necklaces');
+                if (Sort === "Recommended") {
+                    container.innerHTML = Necklace1 + Necklace2 + Necklace3;
+                }
+                if (Sort === "HighLow") {
+                    container.innerHTML = Necklace3 + Necklace1 + Necklace2;
+                }
+                if (Sort === "LowHigh") {
+                    container.innerHTML = Necklace2 + Necklace1 + Necklace3;
+                }
+            }
+        } else if (Collections === "Leaf") {
+            const container = document.getElementById('Container_Collections');
+            container.innerHTML = Bracelet3 + Earrings2 + Rings2 + Necklace2;
+        } else if (Collections === "Pearl") {
+            const container = document.getElementById('Container_Collections');
+            container.innerHTML = Bracelet2 + Earrings3 + Rings3 + Necklace3;
+        } else if (Collections === "Crystal") {
+            const container = document.getElementById('Container_Collections');
+            container.innerHTML = Bracelet1 + Earrings1 + Rings1 + Necklace1;
+        }
+    }
+</script>
+{% endblock %}
+
+>>>>>>> 02354ea4b1b306b91d7691ec4e3c802e78519f0d
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
