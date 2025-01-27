@@ -1,0 +1,176 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: #442711;
+    padding: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.logo img {
+    width: 100%;
+    height: auto;  
+}
+
+/* Navigation Bar Styles */
+nav {
+    background-color: #3d1d07; 
+    padding: 5px 0; 
+    border-top: 1px solid #ddd; 
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.nav-links li {
+    margin-left: 15px; 
+    margin-right: 15px; 
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px; 
+}
+
+.nav-links a:hover {
+    color: #ffd700; 
+}
+
+/* Image Slider Styles */
+.slider {
+    position: relative;
+    width: 100%;
+    height: 600px;  
+    overflow: hidden;
+}
+
+.slider-images {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.slider-images img {
+    width: 100%;  
+    height: 100%; 
+    object-fit: cover;  
+    flex-shrink: 0;  
+}
+
+/* About Section */
+.about-section {
+    padding: 60px 0;
+    background-color: #361c0a;
+    text-align: center;
+}
+
+.about-section h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.about-section p {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Featured Collections */
+.collections-section {
+    padding: 60px 0;
+    background-color: #21140b;
+    text-align: center;
+}
+
+.collections-section h2 {
+    font-size: 36px;
+    margin-bottom: 40px;
+}
+
+.collections-grid {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.collection-item {
+    width: 30%;
+    background-color: #f4f4f4;
+    padding: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;  
+    height: 350px;  
+}
+
+.collection-item img {
+    width: 100%; 
+    height: 100%;  
+    object-fit: cover;  
+    border-radius: 8px; 
+    display: block; 
+}
+
+.collection-title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;  
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
+    text-align: center;
+    width: 100%;
+}
+
+.collection-item:hover img {
+    opacity: 0.8;  
+}
+
+.contact-section {
+    padding: 60px 0;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.contact-section h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.contact-section p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.contact-info {
+    font-size: 16px;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+}

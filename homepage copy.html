@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Divine - Exquisite Handcrafted Jewelry for Every Occasion">
+    <title>The Divine Jewelry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #442711;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        .logo img {
+            width: 100%;
+            height: auto;  
+        }
+
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #3d1d07; 
+            padding: 5px 0; 
+            border-top: 1px solid #ddd; 
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-links li {
+            margin-left: 15px; 
+            margin-right: 15px; 
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px; 
+        }
+
+        .nav-links a:hover {
+            color: #ffd700; 
+        }
+
+        /* Image Slider Styles */
+        .slider {
+            position: relative;
+            width: 100%;
+            height: 600px;  
+            overflow: hidden;
+        }
+
+        .slider-images {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slider-images img {
+            width: 100%;  
+            height: 100%; 
+            object-fit: cover;  
+            flex-shrink: 0;  
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 60px 0;
+            background-color: #361c0a;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .about-section p {
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Featured Collections */
+        .collections-section {
+            padding: 60px 0;
+            background-color: #21140b;
+            text-align: center;
+        }
+
+        .collections-section h2 {
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .collections-grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .collection-item {
+            width: 30%;
+            background-color: #f4f4f4;
+            padding: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;  
+            height: 350px;  
+        }
+
+        .collection-item img {
+            width: 100%; 
+            height: 100%;  
+            object-fit: cover;  
+            border-radius: 8px; 
+            display: block; 
+        }
+
+        .collection-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;  
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); 
+            text-align: center;
+            width: 100%;
+        }
+
+        .collection-item:hover img {
+            opacity: 0.8;  
+        }
+
+        .contact-section {
+            padding: 60px 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        .contact-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .contact-section p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .contact-info {
+            font-size: 16px;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+   
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="#"><img src="hpic.png" alt="The Divine Logo"></a>
+            </div>
+        </div>
+    </header>
+
+   
+    <nav>
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="homepage.html">HOME</a></li>
+                <li><a href="Shop our products">SHOP OUR PRODUCTS</a></li>
+                <li><a href="#collections">ABOUT US</a></li>
+                <li><a href="#shop">CONTACT US</a></li>
+                <li><a href="#contact">LOG IN</a></li>
+                <li><a href="sign up">SIGN UP</a></li>
+            </ul>
+        </div>
+    </nav>
+
+   
+    <section class="slider">
+        <div class="slider-images">
+            <img src="slide1.webp" alt="Jewelry 1">
+            <img src="slide2.jpg" alt="Jewelry 2">
+            <img src="slide3.jpg" alt="Jewelry 3">
+        </div>
+    </section>
+
+    <script>
+      
+        let currentIndex = 0;
+        const images = document.querySelectorAll('.slider-images img');
+        const totalImages = images.length;
+
+        function changeSlide() {
+            currentIndex = (currentIndex + 1) % totalImages; 
+            const offset = -currentIndex * 100; 
+            document.querySelector('.slider-images').style.transform = `translateX(${offset}%)`;
+        }
+
+        setInterval(changeSlide, 3000);
+    </script>
+    
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>About The Divine</h2>
+            <p>At The Divine, we believe that jewelry is more than just an accessory. It is an expression of individuality, elegance, and beauty. Our pieces are carefully crafted with high-quality materials, designed to enhance your inner radiance.</p>
+            <p>Each piece is handmade by skilled artisans who bring passion and attention to detail into every design. Whether you're looking for something timeless, bold, or unique, you'll find something truly divine here.</p>
+        </div>
+    </section>
+
+    
+    <section id="collections" class="collections-section">
+        <div class="container">
+            <h2>Featured Collections</h2>
+            <div class="collections-grid">
+                <a href="crystalcollection.html" class="collection-item">
+                    <div class="collection-title">Crystal Collection</div>
+                    <img src="crystal collection.png" alt="Crystal collection">
+                </a>
+                <a href="leafcollection.html" class="collection-item">
+                    <div class="collection-title">Leaf Collection</div>
+                    <img src="leaf collection.png" alt="Leaf collection">
+                </a>
+                <a href="pearlcollection.html" class="collection-item">
+                    <div class="collection-title">Pearl Collection</div>
+                    <img src="pearl collection.png" alt="Pearl collection">
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>Contact Us</h2>
+            <p>Have any questions or need assistance? Reach out to us!</p>
+            <div class="contact-info">
+                <p>Email: support@thedivinejewelry.com</p>
+                <p>Phone: +44 7473 613 241</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 The Divine Jewelry. All rights reserved.</p>
+    </footer>
+</body>
+</html>

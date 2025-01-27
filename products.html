@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - The Divine</title>
+
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: linear-gradient(to bottom, #fff7e6, #f9f3ea);
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      border-bottom: 3px solid #e0c097;
+    }
+
+    .header img {
+      max-height: 80px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+
+    .footer {
+      text-align: center;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #f8f8f8;
+      border-top: 3px solid #e0c097;
+    }
+
+    .Product {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      width: 15%;
+      display: inline-block;
+      text-align: center;
+      margin: 7.5%;
+      font-family: arial,serif;
+      background-color: #B5B7BB;
+
+    }
+  </style>
+</head>
+<body style="justify-content: center">
+<div class="header">
+  <img src="./TPI/team_project_logo.png" alt="The Divine Logo">
+  <h1>All Products</h1>
+</div>
+<!-- filtering the products -->
+
+<form action="/products.html" id="Form" method="post" >
+  <fieldset>
+    <legend> Search: </legend>
+    <label for="Search">Search:</label>
+    <input type="search" id="Search" name="Search">
+
+  </fieldset>
+
+
+  <fieldset>
+    <legend> Sort By: </legend>
+    <input type="radio" id="Recommended" name="sort" value="Recommended" checked="checked">
+    <label for="Recommended">Sort by Recommended</label>
+    <input type="radio" id="HighLow" name="sort" value="HighLow">
+    <label for="HighLow">Sort by Price High to Low</label>
+    <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+    <label for="LowHigh">Sort by Price Low to High</label>
+  </fieldset>
+
+
+
+  <fieldset>
+    <legend> Filter Search </legend>
+    <input type="checkbox" id="InStock" name="InStock" value="InStock">
+    <label for="InStock">In Stock</label>
+    <input type="checkbox" id="New" name="New" value="New">
+    <label for="New">New</label>
+    <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
+    <label for="OnSale">On Sale</label>
+  </fieldset>
+
+
+
+  <fieldset>
+    <legend> Product Type </legend>
+    <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
+    <label for="Bracelets">Bracelets</label>
+    <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
+    <label for="Earrings">Earrings</label>
+    <input type="checkbox" id="Rings" name="Rings" value="Rings">
+    <label for="Rings">Rings</label>
+    <input type="checkbox" id="Watches" name="Watches" value="Watches">
+    <label for="Watches">Watches</label>
+    <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
+    <label for="Necklaces">Necklaces</label>
+  </fieldset>
+
+  <fieldset>
+    <legend> View Collections: </legend>
+    <input type="radio" id="None" name="collections" value="None" checked="checked">
+    <label for="None">None</label>
+    <input type="radio" id="Leaf" name="collections" value="Leaf">
+    <label for="Leaf">Leaf Collection</label>
+    <input type="radio" id="Pearl" name="collections" value="Pearl">
+    <label for="Pearl">Pearl Collection</label>
+    <input type="radio" id="Crystal" name="collections" value="Crystal">
+    <label for="Crystal">Crystal Collection</label>
+  </fieldset>
+
+  <input type="submit" name="Submit">
+
+
+
+</form>
+<!-- These Div are used for sorting through the products to show only the ones selected, this is done below with JavaScript -->
+<div id="Container_Bracelet"></div>
+<div id="Container_Earrings"></div>
+<div id="Container_Rings"></div>
+<div id="Container_Watches"></div>
+<div id="Container_Necklaces"></div>
+<div id="Container_Collections"></div>
+
+
+
+
+
+<script>
+  //initialize variables
+  let Sort;let Watches;let Rings;let Necklaces;let OnSale;let New;let InStock;let Earrings;let Bracelets;let Collections;let Search;
+
+  document.getElementById("Form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+
+    let formElement = document.getElementById("Form");
+    let formData = new FormData(formElement);
+    // output as an object
+    console.log(Object.fromEntries(formData.entries()));
+    clearBox();
+
+    //the code doesnt update the sort values if you submit the form again unless you reset them manually
+    function clearBox(elementID) {
+      Sort = null;
+      Watches = null;
+      Rings = null;
+      Necklaces = null;
+      OnSale = null;
+      New = null;
+      InStock = null;
+      Earrings = null;
+      Bracelets = null;
+      Collections = null;
+      Search = null;
+      var div = document.getElementById('Container_Bracelet');
+      div.innerHTML = null;
+      var div = document.getElementById('Container_Collections');
+      div.innerHTML = null;
+      var div = document.getElementById('Container_Necklaces');
+      div.innerHTML = null;
+      var div = document.getElementById('Container_Watches');
+      div.innerHTML = null;
+      var div = document.getElementById('Container_Earrings');
+      div.innerHTML = null;
+      var div = document.getElementById('Container_Rings');
+      div.innerHTML = null;
+    }
+
+
+
+
+
+    Sort = formData.get("sort");
+    Watches = formData.get("Watches");
+    Rings = formData.get("Rings");
+    Necklaces = formData.get("Necklaces");
+    OnSale = formData.get("OnSale");
+    New = formData.get("New");
+    InStock = formData.get("InStock");
+    Earrings = formData.get("Earrings");
+    Bracelets = formData.get("Bracelets");
+    Collections = formData.get("collections");
+    Search = formData.get("Search");
+
+    products();
+
+  });
+
+  //code to display the products with html/css kept in variables to make the code look neater and make it more readable
+  let Bracelet1 = `<div class="Product"><img src="./TPI/crystal%20collection%20images/crystal%20bracelet%201.jpg" alt="sample1" style="width:100%"><h1>Crystal Bacelet</h1><p>Basic description</p><p class="price">£1,500</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Bacelet" /><input type="hidden" name="cost" value="£1,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Bracelet2 = `<div class="Product"><img src="./TPI/pearl%20collection%20images/pearl%20bracelet%202.jpg" alt="sample1" style="width:100%"><h1>Pearl Bracelet</h1><p>Basic description</p><p class="price">£2,000</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Bracelet" /><input type="hidden" name="cost" value="£2,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Bracelet3 = `<div class="Product"><img src="./TPI/leaf collection images/Leaf bracelet.jpg" alt="sample1" style="width:100%"><h1>Leaf bracelet</h1><p>Basic description</p><p class="price">£799</p><form action="/products.html"><input type="hidden" name="name" value="Leaf bracelet" /><input type="hidden" name="cost" value="£799" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+  let  Earrings1 = `<div class="Product"><img src="./TPI/crystal collection images/crystal earrings.jpg" alt="sample1" style="width:100%"><h1>Crystal Earings</h1><p>Basic description</p><p class="price">£499</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Earings" /><input type="hidden" name="cost" value="£499" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let  Earrings2 = `<div class="Product"><img src="./TPI/leaf collection images/leaf earring 1.jpg" alt="sample1" style="width:100%"><h1>Leaf Earrings</h1><p>Basic description</p><p class="price">£399</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Earrings" /><input type="hidden" name="cost" value="£399" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let  Earrings3 = `<div class="Product"><img src="./TPI/pearl collection images/pearl earring 3.jpg" alt="sample1" style="width:100%"><h1>Pearl Earrings</h1><p>Basic description</p><p class="price">£799</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Earrings" /><input type="hidden" name="cost" value="£799" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+  let Rings1 = `<div class="Product"><img src="./TPI/crystal collection images/crystal ring 1.jpg" alt="sample1" style="width:100%"><h1>Crystal Ring</h1><p>Basic description</p><p class="price">£1,100</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Ring" /><input type="hidden" name="cost" value="£1,100" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Rings2 = `<div class="Product"><img src="./TPI/leaf collection images/Leaf Ring.jpg" alt="sample1" style="width:100%"><h1>Leaf Ring</h1><p>Basic description</p><p class="price">£1,200</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Ring" /><input type="hidden" name="cost" value="£1,200" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Rings3 = `<div class="Product"><img src="./TPI/pearl collection images/Pearl Ring.jpg" alt="sample1" style="width:100%"><h1>Pearl Ring</h1><p>Basic description</p><p class="price">£1,050</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Ring" /><input type="hidden" name="cost" value="£1,050" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+
+  let Watches1 = `<div class="Product"><img src="./TPI/watches/Watch1.jpg" alt="sample1" style="width:100%"><h1>Midnight Heritage</h1><p>Watch</p><p class="price">£5,500</p><form action="/products.html"><input type="hidden" name="name" value="Midnight Heritage" /><input type="hidden" name="cost" value="£5,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Watches2 = `<div class="Product"><img src="./TPI/watches/Watch2.jpg" alt="sample1" style="width:100%"><h1>Celestial Diver</h1><p>Watch</p><p class="price">£4,000</p><form action="/products.html"><input type="hidden" name="name" value="Celestial Diver" /><input type="hidden" name="cost" value="£4,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Watches3 = `<div class="Product"><img src="./TPI/watches/Watch3.jpg" alt="sample1" style="width:100%"><h1>Eclipse Chronograph</h1><p>Watch</p><p class="price">£3,500</p><form action="/products.html"><input type="hidden" name="name" value="Eclipse Chronograph" /><input type="hidden" name="cost" value="£3,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Watches4 = `<div class="Product"><img src="./TPI/watches/Watch4.jpg" alt="sample1" style="width:100%"><h1>Radiant Elegance</h1><p>Watch</p><p class="price">£6,000</p><form action="/products.html"><input type="hidden" name="name" value="Radiant Elegance" /><input type="hidden" name="cost" value="£6,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Watches5 = `<div class="Product"><img src="./TPI/watches/Watch5.jpg" alt="sample1" style="width:100%"><h1>Titanium Horizon</h1><p>Watch</p><p class="price">£7,500</p><form action="/products.html"><input type="hidden" name="name" value="Titanium Horizon" /><input type="hidden" name="cost" value="£7,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Watches6 = `<div class="Product"><img src="./TPI/watches/Watch6.jpg" alt="sample1" style="width:100%"><h1>Oceanic Voyager</h1><p>Watch</p><p class="price">£4,500</p><form action="/products.html"><input type="hidden" name="name" value="Oceanic Voyager" /><input type="hidden" name="cost" value="£4,500" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+
+  let Necklace1 = `<div class="Product"><img src="./TPI/crystal collection images/crystal necklace.jpg" alt="sample1" style="width:100%"><h1>Crystal Necklace</h1><p>Basic description</p><p class="price">£750</p><form action="/products.html"><input type="hidden" name="name" value="Crystal Necklace" /><input type="hidden" name="cost" value="£10,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Necklace2 = `<div class="Product"><img src="./TPI/leaf collection images/leaf necklace 1.jpg" alt="sample1" style="width:100%"><h1>Leaf Necklace</h1><p>Basic description</p><p class="price">£599</p><form action="/products.html"><input type="hidden" name="name" value="Leaf Necklace" /><input type="hidden" name="cost" value="£10,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+  let Necklace3 = `<div class="Product"><img src="./TPI/pearl collection images/pearl necklace.jpg" alt="sample1" style="width:100%"><h1>Pearl Necklace</h1><p>Basic description</p><p class="price">£899</p><form action="/products.html"><input type="hidden" name="name" value="Pearl Necklace" /><input type="hidden" name="cost" value="£10,000" /><label for="size">Select Size:</label><select name="size" id="size"><option value="Small">Small</option><option value="Medium">Medium</option><option value="Large">Large</option><option value="Extra Large">Extra Large</option></select><br><br><input type="submit" value="Add to Cart"></form></div>`;
+
+
+  //function for displaying the products
+  //checks if the product type has been selected, then displays it if it has
+  function products(){
+    if (Collections === "None") {
+      if (Bracelets !== null) {
+        const container = document.getElementById('Container_Bracelet');
+        if (Sort === "Recommended") {
+          container.innerHTML = Bracelet1 + Bracelet2 + Bracelet3;
+        }
+        if (Sort === "HighLow") {
+          container.innerHTML = Bracelet2 + Bracelet1 + Bracelet3;
+        }
+        if (Sort === "LowHigh") {
+          container.innerHTML = Bracelet3 + Bracelet1 + Bracelet2;
+        }
+
+      }
+      if (Earrings !== null) {
+        const container = document.getElementById('Container_Earrings');
+        if (Sort === "Recommended") {
+          container.innerHTML = Earrings1 + Earrings2 + Earrings3;
+        }
+        if (Sort === "HighLow") {
+          container.innerHTML = Earrings3 + Earrings1 + Earrings2;
+        }
+        if (Sort === "LowHigh") {
+          container.innerHTML = Earrings2 + Earrings1 + Earrings3;
+        }
+      }
+      if (Rings !== null) {
+        const container = document.getElementById('Container_Rings');
+        if (Sort === "Recommended") {
+          container.innerHTML = Rings1 + Rings2 + Rings3;
+        }
+        if (Sort === "HighLow") {
+          container.innerHTML = Rings2 + Rings1 + Rings3;
+        }
+        if (Sort === "LowHigh") {
+          container.innerHTML = Rings3 + Rings1 + Rings2;
+        }
+
+      }
+      if (Watches !== null) {
+        const container = document.getElementById('Container_Watches');
+
+        if (Sort === "Recommended") {
+          container.innerHTML = Watches1 + Watches2 + Watches3 + Watches4 + Watches5 + Watches6;
+        }
+        if (Sort === "HighLow") {
+          container.innerHTML = Watches5 + Watches4 + Watches1 + Watches6 + Watches2 + Watches3;
+        }
+        if (Sort === "LowHigh") {
+          container.innerHTML = Watches3 + Watches2 + Watches6 + Watches1 + Watches4 + Watches5;
+        }
+
+      }
+      if (Necklaces !== null) {
+        const container = document.getElementById('Container_Necklaces');
+
+        if (Sort === "Recommended") {
+          container.innerHTML = Necklace1 + Necklace2 + Necklace3;
+        }
+        if (Sort === "HighLow") {
+          container.innerHTML = Necklace3 + Necklace1 + Necklace2;
+        }
+        if (Sort === "LowHigh") {
+          container.innerHTML = Necklace2 + Necklace1 + Necklace3;
+        }
+
+
+      }
+    }
+    else if (Collections === "Leaf") {
+      const container = document.getElementById('Container_Collections');
+
+      container.innerHTML = Bracelet3 + Earrings2 + Rings2 + Necklace2;
+    }
+
+    else if (Collections === "Pearl") {
+      const container = document.getElementById('Container_Collections');
+
+      container.innerHTML = Bracelet2 + Earrings3 + Rings3 + Necklace3;
+    }
+
+    else if (Collections === "Crystal") {
+      const container = document.getElementById('Container_Collections');
+
+      container.innerHTML = Bracelet1 + Earrings1 + Rings1 + Necklace1;
+    }
+
+  }
+
+
+
+</script>
+</body>
+</html>
+

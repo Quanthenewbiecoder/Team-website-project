@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="The Divine - Crystal Collection Jewelry">
+    <title>Crystal Collection - The Divine Jewelry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet"> 
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Crystal Collection</h1>
+            <p>Discover the brilliance and elegance of our carefully curated crystal jewelry pieces.</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul class="nav-links">
+                <li><a href="homepage.html">HOME</a></li>
+                <li><a href="#chains">SHOP OUR PRODUCTS</a></li>
+                <li><a href="#about">ABOUT US</a></li>
+                <li><a href="#contact">CONTACT</a></li>
+                <li><a href="#bracelets">LOG IN</a></li>
+                <li><a href="#bracelets">SIGN UP</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <h1>The Crystal Jewelry Collection shines with the pure elegance and clarity of nature’s finest gems. Crafted to perfection, each piece features intricate crystal designs that capture light and beauty from every angle. Whether it's a sparkling pendant, delicate earrings, or luxurious bracelets, our crystal collection is the perfect addition to any jewelry lover’s collection, offering a sophisticated and timeless style.</h1>
+    </section>
+
+    <section class="collection-section">
+        <div class="container">
+            <h2>Discover Our Crystal Collection</h2>
+            <div class="collection-grid">
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="crystal ring 1.jpg" alt="Crystal Ring ">
+                        <img class="slide-images" src="crystal ring 2.jpg" alt="Crystal Ring ">
+                        <img class="slide-images" src="crystal ring 3.jpeg" alt="Crystal Ring ">
+                        <button class="prev" onclick="changeSlide(0, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(0, 1)">&#10095;</button>
+                    </div>
+                    <h3>Crystal Ring</h3>
+                    <p>Exquisite crystal ring designed to catch the light with every angle.</p>
+                    <div class="price">$180.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="crystal necklace 1.webp" alt="Crystal Necklace">
+                        <img class="slide-images" src="crystal necklace 2.jpg" alt="Crystal Necklace ">
+                        <img class="slide-images" src="crystal necklace 3.jpg" alt="Crystal Necklace ">
+                        <button class="prev" onclick="changeSlide(1, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(1, 1)">&#10095;</button>
+                    </div>
+                    <h3>Crystal Necklace</h3>
+                    <p>A delicate and sparkling crystal necklace to complement any outfit.</p>
+                    <div class="price">$150.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="crystal earrings.jpg" alt="Crystal Earrings">
+                        <img class="slide-images" src="crystal earrings 2.jpg" alt="Crystal Earrings">
+                        <img class="slide-images" src="crystal earrings 3.webp" alt="Crystal Earrings">
+                        <button class="prev" onclick="changeSlide(2, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(2, 1)">&#10095;</button>
+                    </div>
+                    <h3>Crystal Earrings</h3>
+                    <p>Elegant crystal earrings that add sparkle and sophistication to your look.</p>
+                    <div class="price">$100.00</div>
+                    <button>Shop Now</button>
+                </div>
+
+                <div class="collection-item">
+                    <div class="slideshow-container">
+                        <img class="slide-images" src="crystal bracelet 1.jpg" alt="Crystal Bracelet - Angle 1">
+                        <img class="slide-images" src="crystal bracelet 2.jpg" alt="Crystal Bracelet - Angle 2">
+                        <img class="slide-images" src="crystal bracelet 3.avif" alt="Crystal Bracelet - Angle 3">
+                        <button class="prev" onclick="changeSlide(3, -1)">&#10094;</button>
+                        <button class="next" onclick="changeSlide(3, 1)">&#10095;</button>
+                    </div>
+                    <h3>Crystal Bracelet</h3>
+                    <p>A beautiful bracelet adorned with shimmering crystals, perfect for any occasion.</p>
+                    <div class="price">$120.00</div>
+                    <button>Shop Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 The Divine Jewelry. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // JavaScript for the slideshow functionality
+        let slideIndex = [0, 0, 0, 0]; 
+        let slideContainers = document.getElementsByClassName("slideshow-container");
+
+        function showSlides(productIndex) {
+            let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
+            if (slideIndex[productIndex] >= slides.length) {
+                slideIndex[productIndex] = 0;
+            }
+            if (slideIndex[productIndex] < 0) {
+                slideIndex[productIndex] = slides.length - 1;
+            }
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slides[slideIndex[productIndex]].style.display = "block";
+        }
+
+        function changeSlide(productIndex, n) {
+            slideIndex[productIndex] += n;
+            showSlides(productIndex);
+        }
+
+        for (let i = 0; i < slideContainers.length; i++) {
+            showSlides(i);
+        }
+    </script>
+</body>
+</html>
