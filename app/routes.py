@@ -304,12 +304,6 @@ def checkout():
 
     return render_template('checkout.html', cart_items=cart_items, total_amount=total_amount)
 
-
-@routes_bp.route('/order_summary')
-@login_required
-def order_summary():
-    return render_template('order_summary.html')
-
 # Order Confirmation Page
 @routes_bp.route('/order_confirmation/<int:order_id>')
 @login_required
@@ -322,12 +316,19 @@ def order_confirmation(order_id):
 @routes_bp.route('/track_order/<int:order_id>')
 @login_required
 def track_order(order_id):
-    return render_template('track_order.html', order_id=order_id)
+    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first()
+    
+    if not order:
+        flash('Order not found or access denied.', 'danger')
+        return redirect(url_for('routes.history'))
+    
+    return render_template('track_order.html', order=order)
 
 @routes_bp.route('/history')
 @login_required
 def history():
-    return render_template('history.html')
+    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    return render_template('history.html', orders=orders)
 
 # Reviews and Feedback
 @routes_bp.route('/product/<int:product_id>/reviews')
