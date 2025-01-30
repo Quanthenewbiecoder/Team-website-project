@@ -1,3 +1,0 @@
-Username: Team
-Password: Database8080
-Service / Sever: Localhost
