@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FieldList, FormField, SelectField, DecimalField, TextAreaField, NumberRange
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import StringField, PasswordField, SubmitField, FieldList, FormField, SelectField, DecimalField, TextAreaField, IntegerField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, NumberRange
+
 
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -22,12 +23,25 @@ class EditProfileForm(FlaskForm):
     submit = SubmitField('Save Changes')
 
 class RegistrationForm(FlaskForm):
+    title = SelectField('Title', choices=[('', 'Select your title'), ('Ms/Mrs', 'Ms/Mrs'), ('Mr', 'Mr')], validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired(), Length(min=3, max=50)])
+    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
+    surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
-    first_name = StringField('First Name', validators=[DataRequired(), Length(max=50)])
-    last_name = StringField('Last Name', validators=[DataRequired(), Length(max=50)])
-    submit = SubmitField('Register')
+    email_confirmation = StringField('Confirm Email', validators=[DataRequired(), Email(), EqualTo('email', message="Emails must match")])
+
+    # Separate day, month, year fields
+    day = IntegerField('Day', validators=[DataRequired(), NumberRange(min=1, max=31, message="Invalid day")])
+    month = SelectField('Month', choices=[
+        ('', 'Month'), ('1', 'January'), ('2', 'February'), ('3', 'March'), 
+        ('4', 'April'), ('5', 'May'), ('6', 'June'), ('7', 'July'), ('8', 'August'), 
+        ('9', 'September'), ('10', 'October'), ('11', 'November'), ('12', 'December')
+    ], validators=[DataRequired()])
+    year = IntegerField('Year', validators=[DataRequired(), NumberRange(min=1900, max=2023, message="Invalid year")])
+
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password', message="Passwords must match")])
+
 
 class ProductForm(FlaskForm):
     name = StringField('Product Name', validators=[DataRequired()])

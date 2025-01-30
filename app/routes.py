@@ -4,6 +4,8 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
 from app.models import *
+from app.forms import *
+
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -15,7 +17,7 @@ def role_required(*roles):
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
                 return redirect(url_for('routes.login'))
-            if current_user.user_role not in roles:
+            if current_user.role not in roles:
                 flash("Access denied.", "danger")
                 return redirect(url_for('routes.home'))
             return f(*args, **kwargs)
@@ -34,17 +36,65 @@ def home():
 # Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('routes.home'))
+
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+
+        if user and user.check_password(password):
+            login_user(user)
+            flash("Login successful!", "success")
+            return redirect(url_for('routes.home'))
+        else:
+            flash("Invalid email or password.", "danger")
+
     return render_template('login.html', now=datetime.now())
+
 
 @routes_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
+    flash("You have been logged out.", "info")
     return redirect(url_for('routes.home'))
 
 @routes_bp.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template('register.html', now=datetime.now())
+    form = RegistrationForm()
+    
+    if form.validate_on_submit():
+        # Check if the username already exists in the database
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        
+        if existing_user:
+            flash('Username already exists. Please choose a different username.', 'danger')
+            return redirect(url_for('routes.register'))
+        
+        # Create the user object without the password_hash
+        user = User(
+            username=form.username.data,
+            name=form.name.data,
+            surname=form.surname.data,
+            email=form.email.data,
+            password=form.password.data,
+            role='Customer'
+        )
+        
+        # Set the password after creating the user object (use the set_password method to hash the password)
+        user.set_password(form.password.data)
+        
+        # Commit the new user to the database
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('Your account has been created!', 'success')
+        return redirect(url_for('routes.login'))
+
+    return render_template('register.html', form=form)
+
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
@@ -58,7 +108,22 @@ def forgot_password():
 @routes_bp.route('/password_change', methods=['GET', 'POST'])
 @login_required
 def password_change():
+    if request.method == 'POST':
+        current_password = request.form['current_password']
+        new_password = request.form['new_password']
+
+        if not current_user.check_password(current_password):
+            flash("Current password is incorrect.", "danger")
+            return redirect(url_for('routes.password_change'))
+
+        current_user.set_password(new_password)
+        db.session.commit()
+
+        flash("Password successfully updated!", "success")
+        return redirect(url_for('routes.home'))
+
     return render_template('password_change.html')
+
 
 
 @routes_bp.route('/aboutus')

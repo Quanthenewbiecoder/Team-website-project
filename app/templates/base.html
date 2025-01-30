@@ -24,14 +24,20 @@
 
     <nav class="navbar navbar_bg">
         <ul class="menu">
-          <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-          <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
-          <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-          <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
-          <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
-          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
-        </ul>
+            <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+            <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>  
+            <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+            <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+            <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+    
+            {% if not current_user.is_authenticated %}
+                <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+                <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+            {% else %}
+                <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
+                <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
+            {% endif %}
+        </ul>  
     
         <div class="search-bar">
           <input type="text" placeholder="Search..." />
