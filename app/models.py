@@ -61,3 +61,25 @@ class RoleValidation:
     @staticmethod
     def can_change_role(user_role):
         return user_role == 'Owner'
+
+# Order Model
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    total_price = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    status = db.Column(db.String(50), default='Pending')  # 'Pending', 'Completed', 'Canceled'
+
+    # Relationship to User
+    user = db.relationship('User', backref=db.backref('orders', lazy=True))
+
+# Order Item Model
+class OrderItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    product_name = db.Column(db.String(255), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+
+    # Relationship to Order
+    order = db.relationship('Order', backref=db.backref('items', lazy=True))
