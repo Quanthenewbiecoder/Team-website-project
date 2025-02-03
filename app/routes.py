@@ -227,6 +227,7 @@ def basket():
 
 
 @routes_bp.route('/payment', methods=['GET', 'POST'])
+@login_required
 def payment():
     cart_items = []
     total_amount = 0
@@ -254,6 +255,7 @@ def payment():
                          total_amount=total_amount)
 
 @routes_bp.route('/payment/success')
+@login_required
 def payment_success():
     return render_template('payment.html', 
                          payment_status='success',
