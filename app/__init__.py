@@ -24,9 +24,4 @@ def create_app(config_class=Config):
     from app.routes import routes_bp
     app.register_blueprint(routes_bp)
 
-    # Import models
-    with app.app_context():
-        from app.models import User
-        db.create_all()
-
     return app

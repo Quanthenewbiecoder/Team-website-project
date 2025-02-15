@@ -1,4 +1,3 @@
-/* Global Styles */
 * {
     margin: 0;
     padding: 0;
@@ -6,23 +5,8 @@
     font-family: "Nunito", sans-serif;
 }
 
-/* Header & Navigation Styles */
-header {
-    background-color: #442711;
-    padding: 20px 0;
-}
-  
-.logo img {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-
 .navbar {
     display: flex;
-    position: absolute;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -30,10 +14,17 @@ header {
     z-index: 1000;
     background: transparent;
     transition: background-color 0.3s, backdrop-filter 0.3s;
+    position: relative;
 }
 
 .navbar_bg {
     background-color: #2f1c0e;
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 .menu {
@@ -69,11 +60,14 @@ header {
 }
 
 .navbar .logo {
-    color: #fff;
-    font-size: 1.8em;
-    font-weight: bold;
-    text-decoration: none;
-    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .logo img {
+    width: auto;
+    height: 50px;
+    display: block;
 }
 
 .navbar ul {
@@ -98,7 +92,6 @@ header {
     transform: scale(1.1);
 }
 
-/* Hamburger Menu */
 .hamburger {
     display: none;
     flex-direction: column;
@@ -114,7 +107,6 @@ header {
     transition: transform 0.3s ease;
 }
 
-/* Search Bar */
 .search-bar {
     display: flex;
     align-items: center;
@@ -149,7 +141,6 @@ header {
     border-color: rgba(255, 255, 255, 0.8);
 }
 
-/* Footer Styles */
 .footer {
     background-color: #2f1c0e;
     color: #fff;
@@ -201,15 +192,13 @@ header {
     color: #f5c518;
 }
 
-/* Responsive Styles */
 @media (max-width: 768px) {
+    .right-section {
+        gap: 10px;
+    }
+
     .search-bar input:focus {
         width: 100%;
-    }
-    
-    .search-bar {
-        margin-left: auto;
-        margin-right: 20px;
     }
 
     .navbar ul {
@@ -244,6 +233,10 @@ header {
 
     .hamburger {
         display: flex;
+    }
+    
+    .navbar .logo img {
+        height: 40px;
     }
 
     .search-bar {
