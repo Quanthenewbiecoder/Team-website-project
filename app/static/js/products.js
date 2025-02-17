@@ -1,4 +1,8 @@
 let isProcessing = false; // Flag to prevent repeated submissions
+let braceletNames = ["Pearl bracelet", "Crystal bracelet", "Leaf bracelet"];
+let braceletPrice = ["£1,500","£1,100","£1,250"]
+let productDescription = ["A finely crafted bracelet made with the finest pearls","A luxurious bracelet made with the finest quartz", "A metallic masterpiece made of stainless steel"]
+
 
 document.getElementById("Form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -16,12 +20,17 @@ document.getElementById("Form").addEventListener("submit", function (e) {
     // Clear previous results
     clearContainers();
 
+    
     // Apply filters and display products (mock implementation here)
-    if (filters.Bracelets) addProduct("Container_Bracelet", braceletMock);
-    if (filters.Earrings) addProduct("Container_Earrings", earringMock);
-    if (filters.Rings) addProduct("Container_Rings", ringMock);
-    if (filters.Watches) addProduct("Container_Watches", watchMock);
-    if (filters.Necklaces) addProduct("Container_Necklaces", necklaceMock);
+    if (filters.Bracelets) {
+        for (let i = 0; i < braceletNames.length; i++) {
+            addProduct(braceletMock(i));
+        }
+    }
+    if (filters.Earrings) addProduct(earringMock);
+    if (filters.Rings) addProduct(ringMock);
+    if (filters.Watches) addProduct(watchMock);
+    if (filters.Necklaces) addProduct(necklaceMock);
 
     // Add further logic for other filters
 
@@ -30,13 +39,16 @@ document.getElementById("Form").addEventListener("submit", function (e) {
 });
 
 // Mock product templates
-const braceletMock = `
+function braceletMock(i){ 
+    return `
     <div class="Product">
         <img src="${imagePaths.bracelet}" alt="Bracelet" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>Crystal Bracelet</h1>
-        <p class="price">£1,500</p>
+        <h1>, ${braceletNames[i]}</h1>
+        <p class="price">,${braceletPrice[i]} </p>
+        <p>, ${productDescription[i]}</p>
     </div>
-`;
+    `;
+}
 
 const earringMock = `
     <div class="Product">
@@ -78,7 +90,10 @@ function clearContainers() {
     });
 }
 
-function addProduct(containerId, productHTML) {
-    const container = document.getElementById(containerId);
-    if (container) container.innerHTML += productHTML; // Add new product HTML to the container
+function addProduct(productHTML) {
+    var container = document.createElement("div");
+    container.innerHTML += productHTML;  // Add new product HTML to the container
+    const productDisplay = document.getElementById("product_display")
+    productDisplay.appendChild(container)
+    
 }
