@@ -1,99 +1,43 @@
-let isProcessing = false; // Flag to prevent repeated submissions
-let braceletNames = ["Pearl bracelet", "Crystal bracelet", "Leaf bracelet"];
-let braceletPrice = ["£1,500","£1,100","£1,250"]
-let productDescription = ["A finely crafted bracelet made with the finest pearls","A luxurious bracelet made with the finest quartz", "A metallic masterpiece made of stainless steel"]
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("Search");
+    const form = document.getElementById("Form");
+    const productContainers = {
+        Bracelets: document.getElementById("Container_Bracelet"),
+        Earrings: document.getElementById("Container_Earrings"),
+        Rings: document.getElementById("Container_Rings"),
+        Watches: document.getElementById("Container_Watches"),
+        Necklaces: document.getElementById("Container_Necklaces"),
+    };
 
+    const products = [
+        { name: "Crystal Bracelet", type: "Bracelets", price: 20, img: imagePaths.bracelet },
+        { name: "Leaf Earrings", type: "Earrings", price: 15, img: imagePaths.earring },
+        { name: "Pearl Ring", type: "Rings", price: 25, img: imagePaths.ring },
+        { name: "Stylish Watch", type: "Watches", price: 50, img: imagePaths.watch },
+        { name: "Leaf Necklace", type: "Necklaces", price: 30, img: imagePaths.necklace },
+    ];
 
-document.getElementById("Form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    if (isProcessing) return; // Prevent multiple submissions
-
-    isProcessing = true; // Set processing flag
-
-    // Extract form data
-    const formData = new FormData(e.target);
-    const filters = Object.fromEntries(formData.entries());
-
-    console.log("Filters Applied:", filters);
-
-    // Clear previous results
-    clearContainers();
-
-    
-    // Apply filters and display products (mock implementation here)
-    if (filters.Bracelets) {
-        for (let i = 0; i < braceletNames.length; i++) {
-            addProduct(braceletMock(i));
-        }
+    function displayProducts(filteredProducts) {
+        Object.values(productContainers).forEach(container => container.innerHTML = "");
+        filteredProducts.forEach(product => {
+            const container = productContainers[product.type];
+            if (container) {
+                const productElement = document.createElement("div");
+                productElement.classList.add("Product");
+                productElement.innerHTML = `
+                    <img src="${product.img}" alt="${product.name}">
+                    <h1>${product.name}</h1>
+                    <p class="price">$${product.price}</p>
+                `;
+                container.appendChild(productElement);
+            }
+        });
     }
-    if (filters.Earrings) addProduct(earringMock);
-    if (filters.Rings) addProduct(ringMock);
-    if (filters.Watches) addProduct(watchMock);
-    if (filters.Necklaces) addProduct(necklaceMock);
 
-    // Add further logic for other filters
-
-    // Reset processing flag
-    isProcessing = false;
-});
-
-// Mock product templates
-function braceletMock(i){ 
-    return `
-    <div class="Product">
-        <img src="${imagePaths.bracelet}" alt="Bracelet" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>, ${braceletNames[i]}</h1>
-        <p class="price">,${braceletPrice[i]} </p>
-        <p>, ${productDescription[i]}</p>
-    </div>
-    `;
-}
-
-const earringMock = `
-    <div class="Product">
-        <img src="${imagePaths.earring}" alt="Earring" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>Pearl Earring</h1>
-        <p class="price">£799</p>
-    </div>
-`;
-
-const ringMock = `
-    <div class="Product">
-        <img src="${imagePaths.ring}" alt="Ring" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>Leaf Ring</h1>
-        <p class="price">£999</p>
-    </div>
-`;
-
-const watchMock = `
-    <div class="Product">
-        <img src="${imagePaths.watch}" alt="Watch" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>Luxury Watch</h1>
-        <p class="price">£2,500</p>
-    </div>
-`;
-
-const necklaceMock = `
-    <div class="Product">
-        <img src="${imagePaths.necklace}" alt="Necklace" onerror="this.src='${imagePaths.placeholder}'">
-        <h1>Diamond Necklace</h1>
-        <p class="price">£3,000</p>
-    </div>
-`;
-
-
-// Helper Functions
-function clearContainers() {
-    document.querySelectorAll("[id^='Container_']").forEach(container => {
-        container.innerHTML = ""; // Clear the contents of the containers
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const query = searchInput.value.toLowerCase();
+        const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
+        displayProducts(filteredProducts);
     });
-}
-
-function addProduct(productHTML) {
-    var container = document.createElement("div");
-    container.innerHTML += productHTML;  // Add new product HTML to the container
-    const productDisplay = document.getElementById("product_display")
-    productDisplay.appendChild(container)
-    
-}
+});
