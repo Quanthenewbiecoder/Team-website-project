@@ -31,11 +31,11 @@
         <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
 
         {% if not current_user.is_authenticated %}
-        <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-        <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+            <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+            <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
         {% else %}
-        <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
-        <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
+            <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
         {% endif %}
     </ul>
 
