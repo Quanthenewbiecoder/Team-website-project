@@ -91,9 +91,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 let type = checkbox.id.toLowerCase();
                 // Special case for earrings to match the data-type attribute
                 if (type === 'earrings') type = 'earring';
-                // For watch/watches
+                if (type === 'bracelets') type = 'bracelet';
+                if (type === 'rings') type = 'ring';
                 if (type === 'watches') type = 'watch';
+                if (type === 'necklaces') type = 'necklace'; 
                 checkedTypes.push(type);
+                
             }
         });
         
