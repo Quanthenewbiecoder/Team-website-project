@@ -1,102 +1,110 @@
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("Search");
     const form = document.getElementById("Form");
-    const productContainers = {
-        Bracelets: document.getElementById("Container_Bracelet"),
-        Earrings: document.getElementById("Container_Earrings"),
-        Rings: document.getElementById("Container_Rings"),
-        Watches: document.getElementById("Container_Watches"),
-        Necklaces: document.getElementById("Container_Necklaces"),
-    };
+    const productsContainer = document.querySelector(".products-container");
+    let allProducts = []; // Store all products globally
 
-    const products = [
-        { name: "Ethereal Harmony", type: "Bracelets", price: 200, img: imagePaths.bracelet, collection: "Crystal", description: "A captivating blend of elegance and serenity."},
-        { name: "Nature's Grace", type: "Earrings", price: 150, img: imagePaths.earring, collection: "Leaf", description: "Masterfully crafted to embody the delicate beauty of nature, featuring intricately detailed leaf designs that capture the essence of a serene forest." },
-        { name: "Luminous Pearl", type: "Rings", price: 250, img: imagePaths.ring, collection: "Pearl", description: "This ring, with its natural iridescence, catches the light beautifully, creating a mesmerizing glow that draws the eye."},
-        { name: "Midnight Elegance", type: "Watches", price: 1500, img: imagePaths.watch, collection: "None", description: "This striking timepiece seamlessly blends modern sophistication with timeless charm, creating a versatile accessory that's perfect for any occasion."},
-        { name: "Forest Whisper", type: "Necklaces", price: 300, img: imagePaths.necklace, collection: "Leaf", description: "Meticulously crafted to showcase it's fine details, from the veins to the subtle textures, creating a lifelike representation of nature's artistry."},
-    ];
-
-    var collectionFilter = ""
-    function collectionType(){
-        var collections = document.getElementsByName("collections")
-        for (i = 0; i < collections.length; i++){
-            if(collections[i].checked){
-                collectionFilter = collections[i].value
-            }
+    //  Fetch products from Flask API once
+    async function fetchProducts() {
+        try {
+            const response = await fetch("/api/products"); // Fetch products from API
+            allProducts = await response.json(); // Store globally
+            displayProducts(allProducts); // Display all products initially
+        } catch (error) {
+            console.error("Error fetching products:", error);
         }
     }
 
-    function displayProducts(filteredProducts) {
-        Object.values(productContainers).forEach(container => container.innerHTML = "");
-        filteredProducts.forEach(product => {
-            const container = productContainers[product.type];
-            collectionType();
+    //  Display products dynamically
+    function displayProducts(products) {
+        // Clear previous products before adding new ones
+        document.querySelectorAll(".product-card").forEach(card => card.remove());
 
-            if (document.getElementById(product.type).checked && collectionFilter === "None") {
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
-            }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement); 
-            }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
-            }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){ 
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
-            }
-            console.log(product.type)
-            console.log(product.collection)
+        products.forEach(product => {
+            const productElement = document.createElement("div");
+            productElement.classList.add("product-card");
+            productElement.setAttribute("data-type", product.type);
+            productElement.setAttribute("data-collection", product.collection);
+            productElement.setAttribute("data-instock", product.in_stock);
+
+            productElement.innerHTML = `
+                <img src="${product.image_url}" alt="${product.name}">
+                <h1>${product.name}</h1>
+                <p class="price">£${product.price}</p>
+                <p>${product.description}</p>
+            `;
+            productsContainer.appendChild(productElement);
         });
     }
 
-    function emptyContainers() {
-        //remove the products as they dont get removed automatically when filtered due to how this code is setup
-        document.getElementById("Container_Bracelet").innerHTML = ""
-        document.getElementById("Container_Earrings").innerHTML = ""
-        document.getElementById("Container_Rings").innerHTML = ""
-        document.getElementById("Container_Watches").innerHTML = ""
-        document.getElementById("Container_Necklaces").innerHTML = ""
+    //  Apply filters based on user selection
+    function applyFilters() {
+        let filteredProducts = [...allProducts]; // Copy the array
 
+        const query = searchInput.value.toLowerCase();
+        const selectedSort = document.querySelector('input[name="sort"]:checked')?.value;
+        const selectedCollection = document.querySelector('input[name="collections"]:checked')?.value;
+        const inStockChecked = document.getElementById("InStock").checked;
+        const newChecked = document.getElementById("New").checked;
+        const onSaleChecked = document.getElementById("OnSale").checked;
+
+        //  Filter by search query (name)
+        if (query) {
+            filteredProducts = filteredProducts.filter(product =>
+                product.name.toLowerCase().includes(query)
+            );
+        }
+
+        //  Filter by collection
+        if (selectedCollection && selectedCollection !== "None") {
+            filteredProducts = filteredProducts.filter(product =>
+                product.collection === selectedCollection
+            );
+        }
+
+        //  Filter by stock availability
+        if (inStockChecked) {
+            filteredProducts = filteredProducts.filter(product => product.in_stock);
+        }
+
+        //  Filter by "New" - Assuming "New" means products with a certain property (e.g., collection is recent)
+        if (newChecked) {
+            filteredProducts = filteredProducts.filter(product => product.collection === "New");
+        }
+
+        //  Filter by "On Sale" - Assuming sale items have a specific flag (modify this as needed)
+        if (onSaleChecked) {
+            filteredProducts = filteredProducts.filter(product => product.collection === "OnSale");
+        }
+
+        //  Filter by Product Type (Checkbox Selection)
+        const selectedTypes = [];
+        document.querySelectorAll('input[name="Bracelets"]:checked, input[name="Earrings"]:checked, input[name="Rings"]:checked, input[name="Watches"]:checked, input[name="Necklaces"]:checked').forEach(checkbox => {
+            selectedTypes.push(checkbox.value);
+        });
+
+        if (selectedTypes.length > 0) {
+            filteredProducts = filteredProducts.filter(product =>
+                selectedTypes.includes(product.type)
+            );
+        }
+
+        //  Sorting logic
+        if (selectedSort === "HighLow") {
+            filteredProducts.sort((a, b) => b.price - a.price);
+        } else if (selectedSort === "LowHigh") {
+            filteredProducts.sort((a, b) => a.price - b.price);
+        }
+
+        // Display filtered products
+        displayProducts(filteredProducts);
     }
 
+    //  Event Listener for form submission (filters and sorting)
     form.addEventListener("submit", function (event) {
         event.preventDefault();
-        const query = searchInput.value.toLowerCase();
-        const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
-        emptyContainers() 
-        displayProducts(filteredProducts);
+        applyFilters();
     });
+
+    fetchProducts(); // Load products on page load
 });

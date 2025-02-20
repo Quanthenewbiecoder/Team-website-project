@@ -124,8 +124,6 @@ def password_change():
 
     return render_template('password_change.html')
 
-
-
 @routes_bp.route('/aboutus')
 def about_us():
     return render_template('aboutus.html')
@@ -142,37 +140,60 @@ def crystalcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
 
-# ---------------- Review Functionality ----------------
-# In-memory storage for reviews, using product_id as keys
+# Store reviews in memory (this should be a database in production)
 reviews = {}
 
-@routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET', 'POST'])
-@routes_bp.route('/products/<int:product_id>', methods=['GET', 'POST'])
+#  Route to display all products
+@routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET'])
+@routes_bp.route('/products/<int:product_id>', methods=['GET'])
 def products(product_id):
     if product_id is None:
-        # Handle case where no product_id is provided (list all products)
-        all_products = ["Product 1", "Product 2", "Product 3"]  # Example product list
+        # Fetch all products from the database
+        all_products = Product.query.all()
         return render_template('all_products.html', products=all_products, now=datetime.now())
     
-    # Handle case for a specific product
+    # Fetch a single product
+    product = Product.query.get_or_404(product_id)
     product_reviews = reviews.get(product_id, [])
     
-    if request.method == 'POST':
-        review = request.form.get('review')
-        rating = request.form.get('rating')
+    return render_template('products.html', product=product, reviews=product_reviews)
 
-        # Basic validation
-        if not review or not rating:
-            flash('Review and rating are required.', 'error')
-            return redirect(url_for('routes.products', product_id=product_id))
-        
-        # Add new review
-        if product_id not in reviews:
-            reviews[product_id] = []
-        reviews[product_id].append({'review': review, 'rating': rating})
-        flash('Review added successfully!', 'success')
+#  Route to add a review
+@routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
+def add_review(product_id):
+    review = request.form.get('review')
+    rating = request.form.get('rating')
 
-    return render_template('products.html', product_id=product_id, reviews=product_reviews)
+    # Basic validation
+    if not review or not rating:
+        flash('Review and rating are required.', 'error')
+        return redirect(url_for('products', product_id=product_id))
+    
+    # Add new review
+    if product_id not in reviews:
+        reviews[product_id] = []
+    reviews[product_id].append({'review': review, 'rating': rating})
+    flash('Review added successfully!', 'success')
+    
+    return redirect(url_for('products', product_id=product_id))
+
+#  API Route to fetch all products
+@routes_bp.route('/api/products', methods=['GET'])
+def api_products():
+    products = Product.query.all()
+    product_list = [{
+        "id": product.id,
+        "name": product.name,
+        "type": product.type,
+        "price": product.price,
+        "image_url": url_for('static', filename=product.image_url),  #  Fix image path issue
+        "collection": product.collection,
+        "description": product.description,
+        "in_stock": product.in_stock
+    } for product in products]
+
+    return jsonify(product_list)
+
 
 
 @routes_bp.route('/leafcollection')
@@ -191,10 +212,7 @@ def pearlcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
     
-@routes_bp.route('/product/<int:product_id>')
-def product_detail(product_id):
-    return render_template('product_detail.html', product_id=product_id)
-
+    
 @routes_bp.route('/product/<int:product_id>/care_instructions')
 def product_care_instructions(product_id):
     return render_template('care_instructions.html', product_id=product_id)
@@ -401,11 +419,6 @@ def history():
 @routes_bp.route('/product/<int:product_id>/reviews')
 def product_reviews(product_id):
     return render_template('product_reviews.html', product_id=product_id)
-
-@routes_bp.route('/product/<int:product_id>/add_review', methods=['GET', 'POST'])
-@login_required
-def add_review(product_id):
-    return render_template('add_review.html', product_id=product_id)
 
 @routes_bp.route('/feedback', methods=['GET', 'POST'])
 @login_required

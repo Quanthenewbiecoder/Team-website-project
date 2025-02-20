@@ -70,27 +70,22 @@
         <input type="submit" value="Apply Filters">
     </form>
 
+      
+
     <!-- Product Display Containers -->
-    <div id="Container_Bracelet"></div>
-    <div id="Container_Earrings"></div>
-    <div id="Container_Rings"></div>
-    <div id="Container_Watches"></div>
-    <div id="Container_Necklaces"></div>
+    {% for product in products %}
+    <div class="product-card" data-type="{{ product.type }}" data-collection="{{ product.collection }}" data-instock="{{ product.in_stock }}">
+        <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}">
+        <h1>{{ product.name }}</h1>
+        <p class="price">£{{ product.price }}</p>
+        <p>{{ product.description }}</p>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-    // Pass the image URLs dynamically from Flask to JavaScript
-    const imagePaths = {
-        bracelet: "{{ url_for('static', filename='Images/crystal_bracelet.jpg') }}",
-        earring: "{{ url_for('static', filename='Images/leaf_earring_1.jpg') }}",
-        ring: "{{ url_for('static', filename='Images/pearl ring 1.webp') }}",
-        watch: "{{ url_for('static', filename='Images/Watch3.jpg') }}",
-        necklace: "{{ url_for('static', filename='Images/leaf necklace 3.webp') }}",
 
-    };
-</script>
+{% block scripts %}
 
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock %}

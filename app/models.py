@@ -93,3 +93,16 @@ class OrderItem(db.Model):
 
     # Relationship to Order
     order = db.relationship('Order', backref=db.backref('items', lazy=True))
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    type = db.Column(db.String(50), nullable=False)  # e.g., "Bracelets", "Earrings"
+    price = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(255), nullable=False)
+    collection = db.Column(db.String(50), nullable=True)  # e.g., "Leaf", "Pearl"
+    description = db.Column(db.Text, nullable=False)
+    in_stock = db.Column(db.Boolean, default=True)
+
+    def __repr__(self):
+        return f"<Product {self.name}>"

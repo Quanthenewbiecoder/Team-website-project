@@ -55,7 +55,8 @@ nav {
 
 /* Form Styling */
 form {
-    width: 90%;
+    display: block;
+    width: 100%;
     max-width: 1200px;
     margin: 20px auto;
     background: white;
@@ -109,8 +110,10 @@ input[type="submit"]:hover {
     background-color: #6d563f;
 }
 
-/* Product Card Styling */
-.Product {
+
+
+/* product-card Card Styling */
+.product-card {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 250px;
     margin: 15px;
@@ -122,30 +125,30 @@ input[type="submit"]:hover {
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.Product:hover {
+.product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-.Product img {
+.product-card img {
     width: 100%;
     height: auto;
     border-radius: 4px;
 }
 
-.Product h1 {
+.product-card h1 {
     font-size: 1.2em;
     margin: 10px 0;
     color: #333;
 }
 
-.Product .price {
+.product-card .price {
     color: #836953;
     font-weight: bold;
     font-size: 1.1em;
 }
 
-.Product select {
+.product-card select {
     width: 100%;
     padding: 8px;
     margin: 10px 0;
@@ -153,7 +156,7 @@ input[type="submit"]:hover {
     border-radius: 4px;
 }
 
-/* Product Containers */
+/* product-card Containers */
 #Container_Bracelet,
 #Container_Earrings,
 #Container_Rings,
@@ -176,7 +179,7 @@ input[type="submit"]:hover {
         gap: 15px;
     }
 
-    .Product {
+    .product-card {
         width: 100%;
         max-width: 300px;
     }
@@ -191,7 +194,7 @@ input[type="submit"]:hover {
         width: 100%;
     }
 
-    .Product {
+    .product-card {
         width: 100%;
         max-width: 100%;
     }
