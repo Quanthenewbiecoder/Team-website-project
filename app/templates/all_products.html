@@ -11,85 +11,107 @@
     <div class="sidebar">
         <form id="Form">
             <div class="filter-section">
-                <h3>Search:</h3>
-                <div class="search-input">
-                    <input type="search" id="Search" name="Search" placeholder="Search products...">
+                <div class="filter-header">
+                </div>
+                <div class="filter-content show">
+                    <div class="search-input">
+                        <input type="search" id="Search" name="Search" placeholder="Search products...">
+                    </div>
+                </div>
+            </div>
+            <div class="filter-section">
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Sort By:</h3>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="radio-group">
+                        <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
+                        <label for="Recommended">Recommended</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="HighLow" name="sort" value="HighLow">
+                        <label for="HighLow">High to Low</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+                        <label for="LowHigh">Low to High</label>
+                    </div>
                 </div>
             </div>
 
             <div class="filter-section">
-                <h3>Sort By:</h3>
-                <div class="radio-group">
-                    <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
-                    <label for="Recommended">Recommended</label>
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Filter Search</h3>
+                    <span class="arrow">▼</span>
                 </div>
-                <div class="radio-group">
-                    <input type="radio" id="HighLow" name="sort" value="HighLow">
-                    <label for="HighLow">High to Low</label>
-                </div>
-                <div class="radio-group">
-                    <input type="radio" id="LowHigh" name="sort" value="LowHigh">
-                    <label for="LowHigh">Low to High</label>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <h3>Filter Search</h3>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="InStock" name="InStock" value="InStock">
-                    <label for="InStock">In Stock</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="New" name="New" value="New">
-                    <label for="New">New</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
-                    <label for="OnSale">On Sale</label>
+                <div class="filter-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="InStock" name="InStock" value="InStock">
+                        <label for="InStock">In Stock</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="New" name="New" value="New">
+                        <label for="New">New</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
+                        <label for="OnSale">On Sale</label>
+                    </div>
                 </div>
             </div>
 
             <div class="filter-section">
-                <h3>Product Type</h3>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
-                    <label for="Bracelets">Bracelets</label>
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Product Type</h3>
+                    <span class="arrow">▼</span>
                 </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
-                    <label for="Earrings">Earrings</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="Rings" name="Rings" value="Rings">
-                    <label for="Rings">Rings</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="Watches" name="Watches" value="Watches">
-                    <label for="Watches">Watches</label>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
-                    <label for="Necklaces">Necklaces</label>
+                <div class="filter-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
+                        <label for="Bracelets">Bracelets</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
+                        <label for="Earrings">Earrings</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Rings" name="Rings" value="Rings">
+                        <label for="Rings">Rings</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Watches" name="Watches" value="Watches">
+                        <label for="Watches">Watches</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
+                        <label for="Necklaces">Necklaces</label>
+                    </div>
                 </div>
             </div>
 
             <div class="filter-section">
-                <h3>View Collections:</h3>
-                <div class="radio-group">
-                    <input type="radio" id="None" name="collections" value="None" checked>
-                    <label for="None">All Collections</label>
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>View Collections:</h3>
+                    <span class="arrow">▼</span>
                 </div>
-                <div class="radio-group">
-                    <input type="radio" id="Leaf" name="collections" value="Leaf">
-                    <label for="Leaf">Leaf Collection</label>
-                </div>
-                <div class="radio-group">
-                    <input type="radio" id="Pearl" name="collections" value="Pearl">
-                    <label for="Pearl">Pearl Collection</label>
-                </div>
-                <div class="radio-group">
-                    <input type="radio" id="Crystal" name="collections" value="Crystal">
-                    <label for="Crystal">Crystal Collection</label>
+                <div class="filter-content">
+                    <div class="radio-group">
+                        <input type="radio" id="None" name="collections" value="None" checked>
+                        <label for="None">All Collections</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Leaf" name="collections" value="Leaf">
+                        <label for="Leaf">Leaf Collection</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Pearl" name="collections" value="Pearl">
+                        <label for="Pearl">Pearl Collection</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Crystal" name="collections" value="Crystal">
+                        <label for="Crystal">Crystal Collection</label>
+                    </div>
                 </div>
             </div>
 

@@ -1,17 +1,31 @@
 document.addEventListener("DOMContentLoaded", function () {
+    function toggleFilter(header) {
+        const content = header.nextElementSibling;
+        const arrow = header.querySelector('.arrow');
+        content.classList.toggle('show');
+        arrow.classList.toggle('rotate');
+    }
+    
+    window.toggleFilter = toggleFilter;
+
+    const searchSection = document.querySelector('.filter-section:first-child .filter-content');
+    const searchArrow = document.querySelector('.filter-section:first-child .arrow');
+    if (searchSection && searchArrow) {
+        searchSection.classList.add('show');
+        searchArrow.classList.add('rotate');
+    }
+
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
     const productsGrid = document.getElementById("products-grid");
     const productCards = document.querySelectorAll(".Product");
     
-    // Add to cart functionality
     document.querySelectorAll('.add-btn').forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
             
             if (!isLoggedIn) {
-                // Redirect to login page if not logged in
                 window.location.href = '/login?redirect=products';
                 return;
             }
@@ -67,13 +81,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 2000);
     }
     
-    // Filter functionality
     filterForm.addEventListener("submit", function(event) {
         event.preventDefault();
         applyFilters();
     });
     
-    // Search as you type (optional - remove if not desired)
     searchInput.addEventListener("input", debounce(function() {
         applyFilters();
     }, 300));
@@ -83,32 +95,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const selectedCollectionRadio = document.querySelector('input[name="collections"]:checked');
         const selectedCollection = selectedCollectionRadio ? selectedCollectionRadio.value : 'None';
         
-        // Get all checked product types
         const checkedTypes = [];
         document.querySelectorAll('input[type="checkbox"][id="Bracelets"], input[type="checkbox"][id="Earrings"], input[type="checkbox"][id="Rings"], input[type="checkbox"][id="Watches"], input[type="checkbox"][id="Necklaces"]').forEach(checkbox => {
             if (checkbox.checked) {
-                // Convert checkbox ID to lowercase product type
                 let type = checkbox.id.toLowerCase();
-                // Special case for earrings to match the data-type attribute
                 if (type === 'earrings') type = 'earring';
                 if (type === 'bracelets') type = 'bracelet';
                 if (type === 'rings') type = 'ring';
                 if (type === 'watches') type = 'watch';
                 if (type === 'necklaces') type = 'necklace'; 
                 checkedTypes.push(type);
-                
             }
         });
         
-        // Sort option
         const sortOption = document.querySelector('input[name="sort"]:checked').value;
         
-        // Additional filters
         const inStockOnly = document.getElementById('InStock').checked;
         const newOnly = document.getElementById('New').checked;
         const onSaleOnly = document.getElementById('OnSale').checked;
         
-        // Filter products
         productCards.forEach(product => {
             const productName = product.querySelector('h3').textContent.toLowerCase();
             const productType = product.getAttribute('data-type');
@@ -116,31 +121,25 @@ document.addEventListener("DOMContentLoaded", function () {
             
             let shouldShow = true;
             
-            // Search filter
             if (searchQuery && !productName.includes(searchQuery)) {
                 shouldShow = false;
             }
             
-            // Collection filter
             if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
                 shouldShow = false;
             }
             
-            // Product type filter (if any checked)
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
                 shouldShow = false;
             }
             
-            // Show or hide based on filters
             product.style.display = shouldShow ? 'flex' : 'none';
         });
         
-        // Apply sorting if needed
         if (sortOption !== 'Recommended') {
             sortProducts(sortOption);
         }
         
-        // Show empty state if no products match
         const visibleProducts = Array.from(productCards).filter(p => p.style.display !== 'none');
         if (visibleProducts.length === 0) {
             showEmptyState();
@@ -164,14 +163,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return 0;
         });
         
-        // Reorder in the DOM
         products.forEach(product => {
             productsGrid.appendChild(product);
         });
     }
     
     function showEmptyState() {
-        // Check if empty state exists already
         if (!document.querySelector('.empty-state')) {
             const emptyState = document.createElement('div');
             emptyState.className = 'empty-state';
