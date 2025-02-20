@@ -8,89 +8,210 @@
 
 {% block content %}
 <div class="products-container">
-    <!-- Product Filter and Search Form -->
-    <form id="Form">
-        <!-- Search Section -->
-        <fieldset>
-            <legend>Search:</legend>
-            <label for="Search">Search:</label>
-            <input type="search" id="Search" name="Search">
-        </fieldset>
+    <div class="sidebar">
+        <form id="Form">
+            <div class="filter-section">
+                <h3>Search:</h3>
+                <div class="search-input">
+                    <input type="search" id="Search" name="Search" placeholder="Search products...">
+                </div>
+            </div>
 
-        <!-- Sort By Section -->
-        <fieldset>
-            <legend>Sort By:</legend>
-            <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
-            <label for="Recommended">Recommended</label>
-            <input type="radio" id="HighLow" name="sort" value="HighLow">
-            <label for="HighLow">High to Low</label>
-            <input type="radio" id="LowHigh" name="sort" value="LowHigh">
-            <label for="LowHigh">Low to High</label>
-        </fieldset>
+            <div class="filter-section">
+                <h3>Sort By:</h3>
+                <div class="radio-group">
+                    <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
+                    <label for="Recommended">Recommended</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="HighLow" name="sort" value="HighLow">
+                    <label for="HighLow">High to Low</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+                    <label for="LowHigh">Low to High</label>
+                </div>
+            </div>
 
-        <!-- Filter Section -->
-        <fieldset>
-            <legend>Filter Search</legend>
-            <input type="checkbox" id="InStock" name="InStock" value="InStock">
-            <label for="InStock">In Stock</label>
-            <input type="checkbox" id="New" name="New" value="New">
-            <label for="New">New</label>
-            <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
-            <label for="OnSale">On Sale</label>
-        </fieldset>
+            <div class="filter-section">
+                <h3>Filter Search</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="InStock" name="InStock" value="InStock">
+                    <label for="InStock">In Stock</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="New" name="New" value="New">
+                    <label for="New">New</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
+                    <label for="OnSale">On Sale</label>
+                </div>
+            </div>
 
-        <!-- Product Type -->
-        <fieldset>
-            <legend>Product Type</legend>
-            <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
-            <label for="Bracelets">Bracelets</label>
-            <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
-            <label for="Earrings">Earrings</label>
-            <input type="checkbox" id="Rings" name="Rings" value="Rings">
-            <label for="Rings">Rings</label>
-            <input type="checkbox" id="Watches" name="Watches" value="Watches">
-            <label for="Watches">Watches</label>
-            <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
-            <label for="Necklaces">Necklaces</label>
-        </fieldset>
+            <div class="filter-section">
+                <h3>Product Type</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
+                    <label for="Bracelets">Bracelets</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
+                    <label for="Earrings">Earrings</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="Rings" name="Rings" value="Rings">
+                    <label for="Rings">Rings</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="Watches" name="Watches" value="Watches">
+                    <label for="Watches">Watches</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
+                    <label for="Necklaces">Necklaces</label>
+                </div>
+            </div>
 
-        <!-- Collections -->
-        <fieldset>
-            <legend>View Collections:</legend>
-            <input type="radio" id="None" name="collections" value="None" checked>
-            <label for="None">None</label>
-            <input type="radio" id="Leaf" name="collections" value="Leaf">
-            <label for="Leaf">Leaf Collection</label>
-            <input type="radio" id="Pearl" name="collections" value="Pearl">
-            <label for="Pearl">Pearl Collection</label>
-            <input type="radio" id="Crystal" name="collections" value="Crystal">
-            <label for="Crystal">Crystal Collection</label>
-        </fieldset>
+            <div class="filter-section">
+                <h3>View Collections:</h3>
+                <div class="radio-group">
+                    <input type="radio" id="None" name="collections" value="None" checked>
+                    <label for="None">All Collections</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="Leaf" name="collections" value="Leaf">
+                    <label for="Leaf">Leaf Collection</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="Pearl" name="collections" value="Pearl">
+                    <label for="Pearl">Pearl Collection</label>
+                </div>
+                <div class="radio-group">
+                    <input type="radio" id="Crystal" name="collections" value="Crystal">
+                    <label for="Crystal">Crystal Collection</label>
+                </div>
+            </div>
 
-        <input type="submit" value="Apply Filters">
-    </form>
+            <button type="submit" class="apply-filters-btn">Apply Filters</button>
+        </form>
+    </div>
 
-    <!-- Product Display Containers -->
-    <div id="Container_Bracelet"></div>
-    <div id="Container_Earrings"></div>
-    <div id="Container_Rings"></div>
-    <div id="Container_Watches"></div>
-    <div id="Container_Necklaces"></div>
+    <div class="products-display">
+        <h2>Our Products</h2>
+        <div id="products-grid">
+            <!-- Crystal Collection -->
+            <div class="Product" data-type="ring" data-collection="crystal">
+                <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal Ring">
+                <h3>Crystal Ring</h3>
+                <p>Exquisite crystal ring designed to catch the light with every angle.</p>
+                <p class="price">£180.00</p>
+                <button class="add-btn" data-id="1" data-name="Crystal Ring" data-price="180.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="necklace" data-collection="crystal">
+                <img src="{{ url_for('static', filename='images/crystal_necklace_1.jpg') }}" alt="Crystal Necklace">
+                <h3>Crystal Necklace</h3>
+                <p>Elegant crystal necklace that adds sparkle to any outfit.</p>
+                <p class="price">£250.00</p>
+                <button class="add-btn" data-id="2" data-name="Crystal Necklace" data-price="250.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="bracelet" data-collection="crystal">
+                <img src="{{ url_for('static', filename='images/crystal_bracelet_1.jpg') }}" alt="Crystal Bracelet">
+                <h3>Crystal Bracelet</h3>
+                <p>Stunning crystal bracelet that wraps your wrist in elegance.</p>
+                <p class="price">£150.00</p>
+                <button class="add-btn" data-id="3" data-name="Crystal Bracelet" data-price="150.00">Add to Cart</button>
+            </div>
+
+            <!-- Leaf Collection -->
+            <div class="Product" data-type="ring" data-collection="leaf">
+                <img src="{{ url_for('static', filename='images/leaf ring 1.webp') }}" alt="Leaf Ring">
+                <h3>Leaf Ring</h3>
+                <p>Elegant leaf design to enhance your style. Crafted with precision and care.</p>
+                <p class="price">£150.00</p>
+                <button class="add-btn" data-id="4" data-name="Leaf Ring" data-price="150.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="necklace" data-collection="leaf">
+                <img src="{{ url_for('static', filename='images/leaf necklace 1.jpg') }}" alt="Leaf Necklace">
+                <h3>Leaf Necklace</h3>
+                <p>Delicate leaf pendant necklace, a symbol of nature's grace.</p>
+                <p class="price">£120.00</p>
+                <button class="add-btn" data-id="5" data-name="Leaf Necklace" data-price="120.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="earring" data-collection="leaf">
+                <img src="{{ url_for('static', filename='images/leaf earring 1.jpg') }}" alt="Leaf Earrings">
+                <h3>Leaf Earrings</h3>
+                <p>Chic earrings featuring the elegant shape of leaves, perfect for any occasion.</p>
+                <p class="price">£85.00</p>
+                <button class="add-btn" data-id="6" data-name="Leaf Earrings" data-price="85.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="bracelet" data-collection="leaf">
+                <img src="{{ url_for('static', filename='images/leaf bracelet 1.webp') }}" alt="Leaf Bracelet">
+                <h3>Leaf Bracelet</h3>
+                <p>Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.</p>
+                <p class="price">£135.00</p>
+                <button class="add-btn" data-id="7" data-name="Leaf Bracelet" data-price="135.00">Add to Cart</button>
+            </div>
+
+            <!-- Pearl Collection -->
+            <div class="Product" data-type="ring" data-collection="pearl">
+                <img src="{{ url_for('static', filename='images/pearl ring 1.webp') }}" alt="Pearl Ring">
+                <h3>Pearl Ring</h3>
+                <p>A beautiful and timeless pearl ring, perfect for any occasion.</p>
+                <p class="price">£220.00</p>
+                <button class="add-btn" data-id="8" data-name="Pearl Ring" data-price="220.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="necklace" data-collection="pearl">
+                <img src="{{ url_for('static', filename='images/pearl necklace 2.webp') }}" alt="Pearl Necklace">
+                <h3>Pearl Necklace</h3>
+                <p>A stunning necklace featuring lustrous pearls for an elegant look.</p>
+                <p class="price">£250.00</p>
+                <button class="add-btn" data-id="9" data-name="Pearl Necklace" data-price="250.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="earring" data-collection="pearl">
+                <img src="{{ url_for('static', filename='images/pearl earring 1.avif') }}" alt="Pearl Earrings">
+                <h3>Pearl Earrings</h3>
+                <p>Elegant pearl earrings that add a touch of sophistication to your look.</p>
+                <p class="price">£180.00</p>
+                <button class="add-btn" data-id="10" data-name="Pearl Earrings" data-price="180.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="bracelet" data-collection="pearl">
+                <img src="{{ url_for('static', filename='images/pearl_bracelet_1.jpg') }}" alt="Pearl Bracelet">
+                <h3>Pearl Bracelet</h3>
+                <p>A beautiful pearl bracelet, perfect for adding elegance to your wrist.</p>
+                <p class="price">£180.00</p>
+                <button class="add-btn" data-id="11" data-name="Pearl Bracelet" data-price="180.00">Add to Cart</button>
+            </div>
+
+            <!-- Watches -->
+            <div class="Product" data-type="watch">
+                <img src="{{ url_for('static', filename='images/Watch3.jpg') }}" alt="Midnight Elegance Watch">
+                <h3>Midnight Elegance</h3>
+                <p>A striking timepiece blending modern sophistication with timeless charm.</p>
+                <p class="price">£1500.00</p>
+                <button class="add-btn" data-id="12" data-name="Midnight Elegance" data-price="1500.00">Add to Cart</button>
+            </div>
+
+            <div class="Product" data-type="watch">
+                <img src="{{ url_for('static', filename='images/Watch5.jpg') }}" alt="Titanium Horizon Watch">
+                <h3>Titanium Horizon</h3>
+                <p>Premium titanium watch with precision mechanics and elegant design.</p>
+                <p class="price">£7500.00</p>
+                <button class="add-btn" data-id="13" data-name="Titanium Horizon" data-price="7500.00">Add to Cart</button>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Pass the image URLs dynamically from Flask to JavaScript
-    const imagePaths = {
-        bracelet: "{{ url_for('static', filename='Images/crystal_bracelet.jpg') }}",
-        earring: "{{ url_for('static', filename='Images/leaf_earring_1.jpg') }}",
-        ring: "{{ url_for('static', filename='Images/pearl ring 1.webp') }}",
-        watch: "{{ url_for('static', filename='Images/Watch3.jpg') }}",
-        necklace: "{{ url_for('static', filename='Images/leaf necklace 3.webp') }}",
-
-    };
-</script>
-
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock %}

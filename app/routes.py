@@ -37,6 +37,9 @@ def home():
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        redirect_url = request.args.get('redirect')
+        if redirect_url:
+            return redirect(url_for(f'routes.{redirect_url}'))
         return redirect(url_for('routes.home'))
 
     if request.method == 'POST':
@@ -47,12 +50,15 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash("Login successful!", "success")
+            
+            redirect_url = request.args.get('redirect')
+            if redirect_url:
+                return redirect(url_for(f'routes.{redirect_url}'))
             return redirect(url_for('routes.home'))
         else:
             flash("Invalid email or password.", "danger")
 
     return render_template('login.html', now=datetime.now())
-
 
 @routes_bp.route('/logout')
 @login_required

@@ -1,102 +1,202 @@
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("Search");
-    const form = document.getElementById("Form");
-    const productContainers = {
-        Bracelets: document.getElementById("Container_Bracelet"),
-        Earrings: document.getElementById("Container_Earrings"),
-        Rings: document.getElementById("Container_Rings"),
-        Watches: document.getElementById("Container_Watches"),
-        Necklaces: document.getElementById("Container_Necklaces"),
-    };
-
-    const products = [
-        { name: "Ethereal Harmony", type: "Bracelets", price: 200, img: imagePaths.bracelet, collection: "Crystal", description: "A captivating blend of elegance and serenity."},
-        { name: "Nature's Grace", type: "Earrings", price: 150, img: imagePaths.earring, collection: "Leaf", description: "Masterfully crafted to embody the delicate beauty of nature, featuring intricately detailed leaf designs that capture the essence of a serene forest." },
-        { name: "Luminous Pearl", type: "Rings", price: 250, img: imagePaths.ring, collection: "Pearl", description: "This ring, with its natural iridescence, catches the light beautifully, creating a mesmerizing glow that draws the eye."},
-        { name: "Midnight Elegance", type: "Watches", price: 1500, img: imagePaths.watch, collection: "None", description: "This striking timepiece seamlessly blends modern sophistication with timeless charm, creating a versatile accessory that's perfect for any occasion."},
-        { name: "Forest Whisper", type: "Necklaces", price: 300, img: imagePaths.necklace, collection: "Leaf", description: "Meticulously crafted to showcase it's fine details, from the veins to the subtle textures, creating a lifelike representation of nature's artistry."},
-    ];
-
-    var collectionFilter = ""
-    function collectionType(){
-        var collections = document.getElementsByName("collections")
-        for (i = 0; i < collections.length; i++){
-            if(collections[i].checked){
-                collectionFilter = collections[i].value
+    const filterForm = document.getElementById("Form");
+    const productsGrid = document.getElementById("products-grid");
+    const productCards = document.querySelectorAll(".Product");
+    
+    // Add to cart functionality
+    document.querySelectorAll('.add-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+            
+            if (!isLoggedIn) {
+                // Redirect to login page if not logged in
+                window.location.href = '/login?redirect=products';
+                return;
             }
+            
+            const productId = this.getAttribute('data-id');
+            const productName = this.getAttribute('data-name');
+            const productPrice = this.getAttribute('data-price');
+            const productImage = this.closest('.Product').querySelector('img').src;
+            
+            addToCart(productId, productName, parseFloat(productPrice), productImage);
+        });
+    });
+    
+    async function addToCart(id, name, price, image) {
+        try {
+            const response = await fetch('/basket/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: id,
+                    product_name: name,
+                    price: price,
+                    quantity: 1,
+                    image: image
+                })
+            });
+            
+            if (response.ok) {
+                showNotification(`${name} added to cart`);
+            }
+        } catch (error) {
+            console.error('Error adding to cart:', error);
         }
     }
-
-    function displayProducts(filteredProducts) {
-        Object.values(productContainers).forEach(container => container.innerHTML = "");
-        filteredProducts.forEach(product => {
-            const container = productContainers[product.type];
-            collectionType();
-
-            if (document.getElementById(product.type).checked && collectionFilter === "None") {
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
+    
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'cart-notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+    
+    // Filter functionality
+    filterForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        applyFilters();
+    });
+    
+    // Search as you type (optional - remove if not desired)
+    searchInput.addEventListener("input", debounce(function() {
+        applyFilters();
+    }, 300));
+    
+    function applyFilters() {
+        const searchQuery = searchInput.value.toLowerCase();
+        const selectedCollectionRadio = document.querySelector('input[name="collections"]:checked');
+        const selectedCollection = selectedCollectionRadio ? selectedCollectionRadio.value : 'None';
+        
+        // Get all checked product types
+        const checkedTypes = [];
+        document.querySelectorAll('input[type="checkbox"][id="Bracelets"], input[type="checkbox"][id="Earrings"], input[type="checkbox"][id="Rings"], input[type="checkbox"][id="Watches"], input[type="checkbox"][id="Necklaces"]').forEach(checkbox => {
+            if (checkbox.checked) {
+                // Convert checkbox ID to lowercase product type
+                let type = checkbox.id.toLowerCase();
+                // Special case for earrings to match the data-type attribute
+                if (type === 'earrings') type = 'earring';
+                // For watch/watches
+                if (type === 'watches') type = 'watch';
+                checkedTypes.push(type);
             }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement); 
+        });
+        
+        // Sort option
+        const sortOption = document.querySelector('input[name="sort"]:checked').value;
+        
+        // Additional filters
+        const inStockOnly = document.getElementById('InStock').checked;
+        const newOnly = document.getElementById('New').checked;
+        const onSaleOnly = document.getElementById('OnSale').checked;
+        
+        // Filter products
+        productCards.forEach(product => {
+            const productName = product.querySelector('h3').textContent.toLowerCase();
+            const productType = product.getAttribute('data-type');
+            const productCollection = product.getAttribute('data-collection');
+            
+            let shouldShow = true;
+            
+            // Search filter
+            if (searchQuery && !productName.includes(searchQuery)) {
+                shouldShow = false;
             }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
+            
+            // Collection filter
+            if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
+                shouldShow = false;
             }
-            else if (document.getElementById(product.type).checked && collectionFilter === product.collection){ 
-                const productElement = document.createElement("div");
-                productElement.classList.add("Product");
-                productElement.innerHTML = `
-                    <img src="${product.img}" alt="${product.name}">
-                    <h1>${product.name}</h1>
-                    <p class="price">£ ${product.price}</p>
-                    <p>${product.description}</p>
-                `;
-                container.appendChild(productElement);
+            
+            // Product type filter (if any checked)
+            if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
+                shouldShow = false;
             }
-            console.log(product.type)
-            console.log(product.collection)
+            
+            // Show or hide based on filters
+            product.style.display = shouldShow ? 'flex' : 'none';
+        });
+        
+        // Apply sorting if needed
+        if (sortOption !== 'Recommended') {
+            sortProducts(sortOption);
+        }
+        
+        // Show empty state if no products match
+        const visibleProducts = Array.from(productCards).filter(p => p.style.display !== 'none');
+        if (visibleProducts.length === 0) {
+            showEmptyState();
+        } else {
+            hideEmptyState();
+        }
+    }
+    
+    function sortProducts(sortOption) {
+        const products = Array.from(productCards).filter(p => p.style.display !== 'none');
+        
+        products.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('.price').textContent.replace('£', ''));
+            const priceB = parseFloat(b.querySelector('.price').textContent.replace('£', ''));
+            
+            if (sortOption === 'HighLow') {
+                return priceB - priceA;
+            } else if (sortOption === 'LowHigh') {
+                return priceA - priceB;
+            }
+            return 0;
+        });
+        
+        // Reorder in the DOM
+        products.forEach(product => {
+            productsGrid.appendChild(product);
         });
     }
-
-    function emptyContainers() {
-        //remove the products as they dont get removed automatically when filtered due to how this code is setup
-        document.getElementById("Container_Bracelet").innerHTML = ""
-        document.getElementById("Container_Earrings").innerHTML = ""
-        document.getElementById("Container_Rings").innerHTML = ""
-        document.getElementById("Container_Watches").innerHTML = ""
-        document.getElementById("Container_Necklaces").innerHTML = ""
-
+    
+    function showEmptyState() {
+        // Check if empty state exists already
+        if (!document.querySelector('.empty-state')) {
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <div class="empty-icon">🔍</div>
+                <h3>No products found</h3>
+                <p>Try adjusting your filters or search terms</p>
+            `;
+            productsGrid.appendChild(emptyState);
+        }
     }
-
-    form.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const query = searchInput.value.toLowerCase();
-        const filteredProducts = products.filter(product => product.name.toLowerCase().includes(query));
-        emptyContainers() 
-        displayProducts(filteredProducts);
-    });
+    
+    function hideEmptyState() {
+        const emptyState = document.querySelector('.empty-state');
+        if (emptyState) {
+            emptyState.remove();
+        }
+    }
+    
+    function debounce(func, delay) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+    
+    applyFilters();
 });
