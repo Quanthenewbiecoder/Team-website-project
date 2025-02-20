@@ -6,7 +6,16 @@ document.addEventListener("DOMContentLoaded", function () {
     
     // Add to cart functionality
     document.querySelectorAll('.add-btn').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+            
+            if (!isLoggedIn) {
+                // Redirect to login page if not logged in
+                window.location.href = '/login?redirect=products';
+                return;
+            }
+            
             const productId = this.getAttribute('data-id');
             const productName = this.getAttribute('data-name');
             const productPrice = this.getAttribute('data-price');
@@ -179,7 +188,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     
-    // Utility function for debouncing
     function debounce(func, delay) {
         let timeout;
         return function() {
@@ -190,6 +198,5 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
     
-    // Initialize with all products visible
     applyFilters();
 });
