@@ -1,41 +1,73 @@
-const addToCart = async (name, price, image) => {
-    const productId = btoa(name).slice(0, 10);
-    const data = {
-        product_id: productId,
-        product_name: name,
-        price: price,
-        quantity: 1,
-        image: image
-    };
+let cartTotal = 0;
+let discountApplied = false; 
+let discountAmount = 0;
 
-    try {
-        const response = await fetch('/basket/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
+document.addEventListener("DOMContentLoaded", function () {
+    updateCartTotal();
+});
 
-        if (response.ok) {
-            const result = await response.json();
-            updateCartDisplay(result.basket);
-        }
-    } catch (error) {
-        console.error('Error:', error);
+//update the total price
+function updateCartTotal() {
+    let totalElement = document.getElementById("order-total");
+    let discountedTotal = cartTotal - discountAmount;
+    totalElement.innerHTML = `<strong>Total: £${discountedTotal.toFixed(2)}</strong>`;
+}
+
+
+function showPromoPopup() {
+    document.getElementById("promo-popup").classList.remove("hidden");
+}
+
+
+function applyPromoCode() {
+    let promoCodeInput = document.getElementById("promo-code-input").value.trim();
+    let successPopup = document.getElementById("success-popup");
+    let errorPopup = document.getElementById("error-popup");
+
+    if (discountApplied) {
+        errorPopup.innerText = "Only one discount can be applied per purchase.";
+        errorPopup.classList.remove("hidden");
+        setTimeout(() => errorPopup.classList.add("hidden"), 2000);
+        return;
     }
-};
+
+    if (promoCodeInput === "MothersDay") {
+        discountAmount = cartTotal * 0.32; // 32% off
+        discountApplied = true;
+        successPopup.innerText = "Congratulations! 32% off applied!";
+    } else if (promoCodeInput === "Team20") {
+        discountAmount = cartTotal * 0.20; // 20% off
+        discountApplied = true;
+        successPopup.innerText = "Congratulations! 20% off applied!";
+    } else {
+        errorPopup.innerText = "Invalid promo code!";
+        errorPopup.classList.remove("hidden");
+        setTimeout(() => errorPopup.classList.add("hidden"), 2000);
+        return;
+    }
+
+    updateCartTotal();
+    successPopup.classList.remove("hidden");
+    setTimeout(() => successPopup.classList.add("hidden"), 2000);
+    document.getElementById("promo-popup").classList.add("hidden");
+}
+
+//for closing popups
+document.getElementById("close-popup").addEventListener("click", function () {
+    document.getElementById("promo-popup").classList.add("hidden");
+});
+
 
 const updateCartDisplay = (basket) => {
     const orderSummaryList = document.getElementById("order-summary-list");
     const orderTotal = document.getElementById("order-total");
-    let total = 0;
+    cartTotal = 0; // Reset total
 
     orderSummaryList.innerHTML = Object.keys(basket).length ? "" : "<li>Basket is empty</li>";
 
     Object.entries(basket).forEach(([id, item]) => {
         const itemTotal = item.price * item.quantity;
-        total += itemTotal;
+        cartTotal += itemTotal;
 
         const listItem = document.createElement("li");
         listItem.innerHTML = `
@@ -49,53 +81,6 @@ const updateCartDisplay = (basket) => {
         orderSummaryList.appendChild(listItem);
     });
 
-    orderTotal.innerHTML = `<strong>Total: £${total.toFixed(2)}</strong>`;
-    document.getElementById("cart-link").innerText = 
-        `My Cart (${Object.keys(basket).length} Items)`;
+    updateCartTotal(); // Update total with discount
+    document.getElementById("cart-link").innerText = `My Cart (${Object.keys(basket).length} Items)`;
 };
-
-const updateQuantity = async (productId, newQuantity) => {
-    if (newQuantity < 1) {
-        try {
-            const response = await fetch(`/basket/remove/${productId}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                const result = await response.json();
-                updateCartDisplay(result.basket);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-        return;
-    }
-
-    try {
-        const response = await fetch('/basket/update', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: newQuantity
-            })
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            updateCartDisplay(result.basket);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-};
-
-document.querySelectorAll(".add-btn").forEach(btn => {
-    btn.addEventListener("click", event => {
-        const name = event.target.dataset.name;
-        const price = parseFloat(event.target.dataset.price);
-        const image = event.target.closest(".product-card").querySelector("img").src;
-        addToCart(name, price, image);
-    });
-});
