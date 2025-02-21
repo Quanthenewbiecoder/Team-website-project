@@ -11,14 +11,14 @@
     <div class="sidebar">
         <form id="Form">
             <div class="filter-section">
-                <div class="filter-header">
-                </div>
+                <div class="filter-header"></div>
                 <div class="filter-content show">
                     <div class="search-input">
                         <input type="search" id="Search" name="Search" placeholder="Search products...">
                     </div>
                 </div>
             </div>
+            
             <div class="filter-section">
                 <div class="filter-header" onclick="toggleFilter(this)">
                     <h3>Sort By:</h3>
@@ -117,29 +117,24 @@
 
         <input type="submit" value="Apply Filters">
     </form>
+    </div>
 
-    <!-- Product Display Containers -->
-    <div id="Container_Bracelet"></div>
-    <div id="Container_Earrings"></div>
-    <div id="Container_Rings"></div>
-    <div id="Container_Watches"></div>
-    <div id="Container_Necklaces"></div>
+    <!-- Product Display Grid -->
+    <div id="products-grid">
+        {% for product in products %}
+        <div class="Product" data-id="{{ product.id }}" data-type="{{ product.type }}" data-collection="{{ product.collection }}">
+            <img src="{{ product.image }}" alt="{{ product.name }}">
+            <h3>{{ product.name }}</h3>
+            <p class="price">£{{ product.price }}</p>
+            <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                Add to Cart
+            </button>
+        </div>
+        {% endfor %}
+    </div>    
 </div>
 {% endblock %}
 
-
 {% block scripts %}
-<script>
-    // Pass the image URLs dynamically from Flask to JavaScript
-    const imagePaths = {
-        bracelet: "{{ url_for('static', filename='Images/crystal_bracelet.jpg') }}",
-        earring: "{{ url_for('static', filename='Images/leaf_earring_1.jpg') }}",
-        ring: "{{ url_for('static', filename='Images/pearl ring 1.webp') }}",
-        watch: "{{ url_for('static', filename='Images/Watch3.jpg') }}",
-        necklace: "{{ url_for('static', filename='Images/leaf necklace 3.webp') }}",
-
-    };
-</script>
-
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
 {% endblock %}

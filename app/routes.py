@@ -146,10 +146,7 @@ def crystalcollection():
         print(f"Error rendering template: {str(e)}")
         return f"Error: {str(e)}", 500
 
-# Store reviews in memory (this should be a database in production)
-reviews = {}
-
-#  Route to display all products
+# Route to display all products or a single product
 @routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET'])
 @routes_bp.route('/products/<int:product_id>', methods=['GET'])
 def products(product_id):
@@ -157,49 +154,78 @@ def products(product_id):
         # Fetch all products from the database
         all_products = Product.query.all()
         return render_template('all_products.html', products=all_products, now=datetime.now())
-    
+
     # Fetch a single product
     product = Product.query.get_or_404(product_id)
-    product_reviews = reviews.get(product_id, [])
-    
+
+    # Fetch reviews from the database instead of using an in-memory dictionary
+    product_reviews = Review.query.filter_by(product_id=product.id).all()
+
     return render_template('products.html', product=product, reviews=product_reviews)
 
-#  Route to add a review
+# Route to add a review (Store reviews in database)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
 def add_review(product_id):
-    review = request.form.get('review')
+    product = Product.query.get_or_404(product_id)  # Ensure the product exists
+    review_text = request.form.get('review')
     rating = request.form.get('rating')
 
     # Basic validation
-    if not review or not rating:
+    if not review_text or not rating:
         flash('Review and rating are required.', 'error')
-        return redirect(url_for('products', product_id=product_id))
-    
-    # Add new review
-    if product_id not in reviews:
-        reviews[product_id] = []
-    reviews[product_id].append({'review': review, 'rating': rating})
-    flash('Review added successfully!', 'success')
-    
-    return redirect(url_for('products', product_id=product_id))
+        return redirect(url_for('routes.products', product_id=product_id))
 
-#  API Route to fetch all products
+    try:
+        # Convert rating to an integer
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            raise ValueError("Rating must be between 1 and 5.")
+
+        # Save review to the database
+        new_review = Review(product_id=product.id, review=review_text, rating=rating, created_at=datetime.now())
+        db.session.add(new_review)
+        db.session.commit()
+
+        flash('Review added successfully!', 'success')
+
+    except ValueError as e:
+        flash(str(e), 'error')
+
+    return redirect(url_for('routes.products', product_id=product_id))
+
+# API Route to fetch all products
 @routes_bp.route('/api/products', methods=['GET'])
 def api_products():
     products = Product.query.all()
+
     product_list = [{
         "id": product.id,
         "name": product.name,
         "type": product.type,
         "price": product.price,
-        "image_url": url_for('static', filename=product.image_url),  #  Fix image path issue
-        "collection": product.collection,
+        "image_url": url_for('static', filename=f'Images/{product.image_url.split("/")[-1]}'),  # Ensure correct path
+        "collection": product.collection if product.collection else "None",
         "description": product.description,
-        "in_stock": product.in_stock
+        "in_stock": bool(product.in_stock)  # Convert to boolean
     } for product in products]
 
     return jsonify(product_list)
 
+# API Route to fetch reviews for a product
+@routes_bp.route('/api/products/<int:product_id>/reviews', methods=['GET'])
+def api_reviews(product_id):
+    product = Product.query.get_or_404(product_id)
+    product_reviews = Review.query.filter_by(product_id=product.id).all()
+
+    reviews_list = [{
+        "id": review.id,
+        "product_id": review.product_id,
+        "review": review.review,
+        "rating": review.rating,
+        "created_at": review.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    } for review in product_reviews]
+
+    return jsonify(reviews_list)
 
 
 @routes_bp.route('/leafcollection')

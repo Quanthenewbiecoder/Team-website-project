@@ -106,3 +106,13 @@ class Product(db.Model):
 
     def __repr__(self):
         return f"<Product {self.name}>"
+
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    review = db.Column(db.Text, nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    product = db.relationship('Product', backref=db.backref('reviews', lazy=True))
