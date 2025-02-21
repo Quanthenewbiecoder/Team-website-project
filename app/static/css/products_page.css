@@ -1,39 +1,65 @@
+/* General Styles */
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background: #fff7e6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Product Detail Container */
 .product-detail-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    max-width: 900px;
-    margin: auto;
+    max-width: 1200px;
+    margin: 40px auto;
+    gap: 40px;
     padding: 20px;
-    background: #fff;
+    background: white;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.product-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .product-image img {
-    max-width: 350px;
-    border-radius: 5px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    max-height: 450px; /* Prevents oversized images */
 }
 
+/* Product Info */
 .product-info {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 20px;
 }
 
 .product-info h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 28px;
+    color: #442711;
+    margin-bottom: 15px;
 }
 
 .price {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     color: #836953;
+    margin-bottom: 10px;
 }
 
 .collection, .availability, .description {
-    margin: 10px 0;
-    color: #333;
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
 }
 
 .in-stock {
@@ -46,14 +72,21 @@
     font-weight: bold;
 }
 
+/* Review Section */
 .review-section {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
-    background: #f9f9f9;
+    max-width: 800px;
+    margin: 40px auto;
+    background: white;
+    padding: 25px;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.review-section h2 {
+    font-size: 24px;
+    color: #442711;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .reviews {
@@ -61,36 +94,138 @@
 }
 
 .review {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
+    background: #fff7e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
+.review p {
+    font-size: 16px;
+    color: #333;
+    margin: 5px 0;
+}
+
+.review strong {
+    color: #836953;
+}
+
+/* Review Form */
 form {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
+}
+
+form label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #442711;
 }
 
 textarea {
     width: 100%;
-    padding: 8px;
-    border-radius: 4px;
+    padding: 10px;
     border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: none;
+    transition: border 0.3s ease;
 }
 
-select, button {
+textarea:focus {
+    border-color: #836953;
+    box-shadow: 0 0 0 2px rgba(131, 105, 83, 0.1);
+    outline: none;
+}
+
+select {
+    width: 100%;
     padding: 10px;
-    border-radius: 4px;
     border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border 0.3s ease;
+}
+
+select:focus {
+    border-color: #836953;
+    box-shadow: 0 0 0 2px rgba(131, 105, 83, 0.1);
+    outline: none;
 }
 
 button {
     background-color: #836953;
     color: white;
-    font-weight: bold;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 16px;
     cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background-color: #6d4c41;
+    background-color: #6d563f;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .product-detail-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .product-info {
+        text-align: center;
+        padding: 10px;
+    }
+
+    .review-section {
+        width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-detail-container {
+        flex-direction: column;
+    }
+
+    .product-image img {
+        max-height: 350px;
+    }
+
+    .review-section {
+        width: 95%;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-detail-container {
+        padding: 15px;
+    }
+
+    .product-info h1 {
+        font-size: 22px;
+    }
+
+    .price {
+        font-size: 18px;
+    }
+
+    .review-section {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .review p {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 10px;
+    }
 }

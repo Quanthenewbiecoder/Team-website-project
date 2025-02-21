@@ -46,7 +46,7 @@
 
     <!-- Review Form -->
     <h3>Leave a Review</h3>
-    <form method="POST" action="{{ url_for('add_review', product_id=product.id) }}">
+    <form method="POST" action="{{ url_for('routes.add_review', product_id=product.id) }}">
         <label for="review">Your Review:</label>
         <textarea name="review" id="review" rows="4" required></textarea>
 

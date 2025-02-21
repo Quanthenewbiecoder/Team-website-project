@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const productDiv = document.createElement("div");
             productDiv.classList.add("Product");
             productDiv.setAttribute("data-id", product.id);
-            productDiv.setAttribute("data-type", product.type); // Updated to type
+            productDiv.setAttribute("data-type", product.product_type); // Ensure consistency with database
             productDiv.setAttribute("data-collection", product.collection);
 
             productDiv.innerHTML = `
@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
             fetchProductReviews(product.id);
         });
 
+        attachProductNavigation();
         attachAddToCartEvents();
     }
 
@@ -80,12 +81,29 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function attachProductNavigation() {
+        document.querySelectorAll(".Product").forEach(product => {
+            product.addEventListener("click", function (e) {
+                // Prevent click event from firing if clicking on the Add to Cart button
+                if (e.target.classList.contains("add-btn")) {
+                    return;
+                }
+
+                const productId = this.getAttribute("data-id");
+                if (productId) {
+                    window.location.href = `/products/${productId}`;
+                }
+            });
+        });
+    }
+
     function attachAddToCartEvents() {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
-                e.preventDefault();
-                const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+                e.preventDefault(); // Prevent default click event
+                e.stopPropagation(); // Stop event from bubbling up to product container
 
+                const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
                 if (!isLoggedIn) {
                     window.location.href = '/login?redirect=products';
                     return;
@@ -165,8 +183,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
-            const productType = product.type.toLowerCase();
-            const productCollection = product.collection.toLowerCase();
+            const productType = product.product_type.toLowerCase();
+            const productCollection = product.collection ? product.collection.toLowerCase() : "none";
 
             let shouldShow = true;
 
@@ -236,19 +254,6 @@ document.addEventListener("DOMContentLoaded", function () {
             timeout = setTimeout(() => func.apply(this, arguments), delay);
         };
     }
-
-    // Fix: Toggle Filter Dropdowns
-    function toggleFilter(header) {
-        const content = header.nextElementSibling;
-        const arrow = header.querySelector('.arrow');
-
-        // Toggle visibility
-        content.classList.toggle('show');
-        arrow.classList.toggle('rotate');
-    }
-    
-    // Attach function to window to ensure onclick works
-    window.toggleFilter = toggleFilter;
 
     fetchProducts();
 });
