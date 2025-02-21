@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.name}</h3>
                 <p class="price">£${product.price.toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <div class="reviews" id="reviews-${product.id}">Loading reviews...</div>
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
