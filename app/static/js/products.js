@@ -237,5 +237,18 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    // Fix: Toggle Filter Dropdowns
+    function toggleFilter(header) {
+        const content = header.nextElementSibling;
+        const arrow = header.querySelector('.arrow');
+
+        // Toggle visibility
+        content.classList.toggle('show');
+        arrow.classList.toggle('rotate');
+    }
+    
+    // Attach function to window to ensure onclick works
+    window.toggleFilter = toggleFilter;
+
     fetchProducts();
 });
