@@ -188,13 +188,10 @@ def api_products():
 
 # Route to add or edit a review (User can only post one review per product)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
+@login_required  # ✅ Ensures only logged-in users can access
 def add_review(product_id):
-    if 'user_id' not in session:
-        flash("You have to log in to comment on this product.", "error")
-        return redirect(url_for('routes.products', product_id=product_id))
+    product = Product.query.get_or_404(product_id)
 
-    product = Product.query.get_or_404(product_id)  # Ensure the product exists
-    user_id = session['user_id']  # Get logged-in user ID
     review_text = request.form.get('review')
     rating = request.form.get('rating')
 
@@ -208,17 +205,15 @@ def add_review(product_id):
             raise ValueError("Rating must be between 1 and 5.")
 
         # Check if the user has already reviewed this product
-        existing_review = Review.query.filter_by(product_id=product_id, user_id=user_id).first()
+        existing_review = Review.query.filter_by(product_id=product_id, user_id=current_user.id).first()
 
         if existing_review:
-            # Update existing review
             existing_review.review = review_text
             existing_review.rating = rating
             existing_review.created_at = datetime.utcnow()
             flash('Review updated successfully!', 'success')
         else:
-            # Create a new review
-            new_review = Review(product_id=product.id, user_id=user_id, review=review_text, rating=rating, created_at=datetime.now())
+            new_review = Review(product_id=product.id, user_id=current_user.id, review=review_text, rating=rating, created_at=datetime.now())
             db.session.add(new_review)
             flash('Review added successfully!', 'success')
 
@@ -231,13 +226,9 @@ def add_review(product_id):
 
 # Route to delete a review (Allows user to review again after deleting)
 @routes_bp.route('/products/<int:product_id>/review/delete', methods=['POST'])
+@login_required  # ✅ Ensures only logged-in users can delete reviews
 def delete_review(product_id):
-    if 'user_id' not in session:
-        flash("You have to log in to delete your review.", "error")
-        return redirect(url_for('routes.products', product_id=product_id))
-
-    user_id = session['user_id']
-    review = Review.query.filter_by(product_id=product_id, user_id=user_id).first()
+    review = Review.query.filter_by(product_id=product_id, user_id=current_user.id).first()
 
     if review:
         db.session.delete(review)
@@ -247,24 +238,6 @@ def delete_review(product_id):
         flash("No review found to delete.", "error")
 
     return redirect(url_for('routes.products', product_id=product_id))
-
-# API Route to fetch all products
-@routes_bp.route('/api/products', methods=['GET'])
-def api_products():
-    products = Product.query.all()
-
-    product_list = [{
-        "id": product.id,
-        "name": product.name,
-        "type": product.type,
-        "price": product.price,
-        "image_url": url_for('static', filename=f'Images/{product.image_url.split("/")[-1]}'),  # Ensure correct path
-        "collection": product.collection if product.collection else "None",
-        "description": product.description,
-        "in_stock": bool(product.in_stock)  # Convert to boolean
-    } for product in products]
-
-    return jsonify(product_list)
 
 # API Route to fetch reviews for a product
 @routes_bp.route('/api/products/<int:product_id>/reviews', methods=['GET'])
