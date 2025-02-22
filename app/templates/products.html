@@ -37,12 +37,47 @@
                 <div class="review">
                     <p><strong>Rating:</strong> ⭐ {{ review.rating }}</p>
                     <p>{{ review.review }}</p>
+
+                    {% if session.get('user_id') == review.user_id %}
+                        <!-- Show Edit and Delete buttons if the review belongs to the logged-in user -->
+                        <form method="POST" action="{{ url_for('delete_review', product_id=product.id) }}">
+                            <button type="submit" class="delete-review-btn">Delete</button>
+                        </form>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% else %}
             <p>No reviews yet. Be the first to leave a review!</p>
         {% endif %}
     </div>
+
+    <!-- Review Form (Only if user is logged in) -->
+    {% if session.get('user_id') %}
+        {% set user_review = reviews | selectattr("user_id", "equalto", session.get('user_id')) | list %}
+
+        {% if user_review %}
+            <h3>Edit Your Review</h3>
+        {% else %}
+            <h3>Leave a Review</h3>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('add_review', product_id=product.id) }}">
+            <label for="review">Your Review:</label>
+            <textarea name="review" id="review" rows="4" required>{{ user_review[0].review if user_review else "" }}</textarea>
+
+            <label for="rating">Rating:</label>
+            <select name="rating" id="rating" required>
+                {% for i in range(5, 0, -1) %}
+                    <option value="{{ i }}" {% if user_review and user_review[0].rating == i %}selected{% endif %}>⭐ {{ i }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">{{ "Update Review" if user_review else "Submit Review" }}</button>
+        </form>
+    {% else %}
+        <p>You have to log in to comment on this product.</p>
+    {% endif %}
+</div>
 
     <!-- Review Form -->
     <h3>Leave a Review</h3>

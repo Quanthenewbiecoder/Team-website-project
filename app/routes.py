@@ -72,34 +72,39 @@ def register():
     form = RegistrationForm()
     
     if form.validate_on_submit():
-        # Check if the username already exists in the database
-        existing_user = User.query.filter_by(username=form.username.data).first()
-        
-        if existing_user:
+        # Check if the username already exists
+        existing_username = User.query.filter_by(username=form.username.data).first()
+        if existing_username:
             flash('Username already exists. Please choose a different username.', 'danger')
             return redirect(url_for('routes.register'))
-        
-        # Create the user object without the password_hash
+
+        # Check if the email already exists
+        existing_email = User.query.filter_by(email=form.email.data).first()
+        if existing_email:
+            flash("Email already registered. Please use a different email or log in.", "error")
+            return redirect(url_for('routes.register'))
+
+        # Create user object without password
         user = User(
             username=form.username.data,
+            email=form.email.data,
             name=form.name.data,
             surname=form.surname.data,
-            email=form.email.data,
-            password=form.password.data,
             role='Customer'
         )
-        
-        # Set the password after creating the user object (use the set_password method to hash the password)
+
+        # Set the password separately using `set_password()`
         user.set_password(form.password.data)
-        
+
         # Commit the new user to the database
         db.session.add(user)
         db.session.commit()
         
-        flash('Your account has been created!', 'success')
+        flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('routes.login'))
 
     return render_template('register.html', form=form)
+
 
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
@@ -163,33 +168,83 @@ def products(product_id):
 
     return render_template('products.html', product=product, reviews=product_reviews)
 
-# Route to add a review (Store reviews in database)
+# API Route to fetch all products
+@routes_bp.route('/api/products', methods=['GET'])
+def api_products():
+    products = Product.query.all()
+
+    product_list = [{
+        "id": product.id,
+        "name": product.name,
+        "type": product.type,
+        "price": product.price,
+        "image_url": url_for('static', filename=f'Images/{product.image_url.split("/")[-1]}'),  # Ensure correct path
+        "collection": product.collection if product.collection else "None",
+        "description": product.description,
+        "in_stock": bool(product.in_stock)  # Convert to boolean
+    } for product in products]
+
+    return jsonify(product_list)
+
+# Route to add or edit a review (User can only post one review per product)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
 def add_review(product_id):
+    if 'user_id' not in session:
+        flash("You have to log in to comment on this product.", "error")
+        return redirect(url_for('routes.products', product_id=product_id))
+
     product = Product.query.get_or_404(product_id)  # Ensure the product exists
+    user_id = session['user_id']  # Get logged-in user ID
     review_text = request.form.get('review')
     rating = request.form.get('rating')
 
-    # Basic validation
     if not review_text or not rating:
         flash('Review and rating are required.', 'error')
         return redirect(url_for('routes.products', product_id=product_id))
 
     try:
-        # Convert rating to an integer
         rating = int(rating)
         if rating < 1 or rating > 5:
             raise ValueError("Rating must be between 1 and 5.")
 
-        # Save review to the database
-        new_review = Review(product_id=product.id, review=review_text, rating=rating, created_at=datetime.now())
-        db.session.add(new_review)
-        db.session.commit()
+        # Check if the user has already reviewed this product
+        existing_review = Review.query.filter_by(product_id=product_id, user_id=user_id).first()
 
-        flash('Review added successfully!', 'success')
+        if existing_review:
+            # Update existing review
+            existing_review.review = review_text
+            existing_review.rating = rating
+            existing_review.created_at = datetime.utcnow()
+            flash('Review updated successfully!', 'success')
+        else:
+            # Create a new review
+            new_review = Review(product_id=product.id, user_id=user_id, review=review_text, rating=rating, created_at=datetime.now())
+            db.session.add(new_review)
+            flash('Review added successfully!', 'success')
+
+        db.session.commit()
 
     except ValueError as e:
         flash(str(e), 'error')
+
+    return redirect(url_for('routes.products', product_id=product_id))
+
+# Route to delete a review (Allows user to review again after deleting)
+@routes_bp.route('/products/<int:product_id>/review/delete', methods=['POST'])
+def delete_review(product_id):
+    if 'user_id' not in session:
+        flash("You have to log in to delete your review.", "error")
+        return redirect(url_for('routes.products', product_id=product_id))
+
+    user_id = session['user_id']
+    review = Review.query.filter_by(product_id=product_id, user_id=user_id).first()
+
+    if review:
+        db.session.delete(review)
+        db.session.commit()
+        flash("Your review has been deleted.", "success")
+    else:
+        flash("No review found to delete.", "error")
 
     return redirect(url_for('routes.products', product_id=product_id))
 
@@ -220,6 +275,7 @@ def api_reviews(product_id):
     reviews_list = [{
         "id": review.id,
         "product_id": review.product_id,
+        "user_id": review.user_id,  # Include user ID for frontend checks
         "review": review.review,
         "rating": review.rating,
         "created_at": review.created_at.strftime("%Y-%m-%d %H:%M:%S")

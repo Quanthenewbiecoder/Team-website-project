@@ -46,44 +46,16 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
 
             productsGrid.appendChild(productDiv);
-
-            // Fetch and display reviews
-            fetchProductReviews(product.id);
         });
 
         attachProductNavigation();
         attachAddToCartEvents();
     }
 
-    async function fetchProductReviews(productId) {
-        try {
-            const response = await fetch(`/api/products/${productId}/reviews`);
-            const reviews = await response.json();
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-
-            if (reviews.length === 0) {
-                reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
-                return;
-            }
-
-            let reviewsHTML = "<strong>Reviews:</strong><ul>";
-            reviews.forEach(review => {
-                reviewsHTML += `<li>⭐ ${review.rating}/5 - ${review.review} <em>(${review.created_at})</em></li>`;
-            });
-            reviewsHTML += "</ul>";
-
-            reviewsContainer.innerHTML = reviewsHTML;
-        } catch (error) {
-            console.error(`Error loading reviews for product ${productId}:`, error);
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-            reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
-        }
-    }
-
     function attachProductNavigation() {
         document.querySelectorAll(".Product").forEach(product => {
             product.addEventListener("click", function (e) {
-                // Prevent click event from firing if clicking on the Add to Cart button
+                // Prevent navigation if clicking on the Add to Cart button
                 if (e.target.classList.contains("add-btn")) {
                     return;
                 }
