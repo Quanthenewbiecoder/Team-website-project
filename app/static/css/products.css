@@ -1,4 +1,3 @@
-/* General Styles */
 body {
     font-family: 'Times New Roman', Times, serif;
     background: #fff7e6;
@@ -15,7 +14,6 @@ body {
     padding: 0 20px;
 }
 
-/* Sidebar Styles */
 .sidebar {
     flex: 0 0 280px;
     position: sticky;
@@ -65,7 +63,6 @@ body {
     outline: none;
 }
 
-/* Apply Filters Button */
 .apply-filters-btn {
     width: 100%;
     background-color: #836953;
@@ -77,6 +74,8 @@ body {
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
     margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .apply-filters-btn:hover {
@@ -84,7 +83,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Products Display */
+
 .products-display {
     flex: 1;
 }
@@ -98,7 +97,6 @@ body {
     border-bottom: 2px solid #eee;
 }
 
-/* ✅ Ensures products align in a row */
 #products-grid {
     display: flex;
     flex-wrap: wrap;
@@ -106,7 +104,6 @@ body {
     gap: 25px;
 }
 
-/* ✅ Product cards appear in a row with uniform size */
 .Product {
     background-color: white;
     border-radius: 8px;
@@ -121,7 +118,6 @@ body {
     justify-content: space-between;
 }
 
-/* ✅ Product images are correctly displayed in a row */
 .Product img {
     width: 100%;
     height: 250px;
@@ -150,7 +146,6 @@ body {
     margin: 5px 0 15px;
 }
 
-/* Add to Cart Button */
 .add-btn {
     background-color: #836953;
     color: white;
@@ -168,7 +163,6 @@ body {
     background-color: #6d563f;
 }
 
-/* Cart Notification */
 .cart-notification {
     position: fixed;
     bottom: 20px;
@@ -189,30 +183,27 @@ body {
     opacity: 1;
 }
 
-/* Empty State */
-/* Center the No Products Found message */
+
 .empty-state {
     width: 100%;
     text-align: center;
     padding: 60px 20px;
     grid-column: 1 / -1;
 
-    /* Centering */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 75vh; /* Adjust this value as needed */
+    height: 75vh;
     margin-left: 350px;
 }
 
-/* Ensures the icon is large and visible */
 .empty-icon {
-    font-size: 50px; /* Bigger size */
+    font-size: 50px;
     margin-bottom: 20px;
 }
 
-/* Styling the No Products Found message */
+
 .empty-state h3 {
     font-size: 22px;
     color: #442711;
@@ -225,11 +216,10 @@ body {
 }
 
 
-/* Responsive Design */
 
 @media (max-width: 1200px) {
     .empty-state {
-        margin-left: 250px; /* Move slightly less to the right */
+        margin-left: 250px;
     }
 }
 
@@ -247,7 +237,7 @@ body {
     }
 
     .empty-state {
-        margin-left: 150px; /* Adjust for medium-sized screens */
+        margin-left: 150px; 
     }
 }
 
@@ -267,13 +257,13 @@ body {
     }
 
     .empty-state {
-        margin-left: 50px; /* Slight shift for tablet-sized screens */
+        margin-left: 50px; 
     }
 }
 
 @media (max-width: 600px) {
     .empty-state {
-        margin-left: 0; /* Fully centered for smaller screens */
+        margin-left: 0; 
         justify-content: center;
         height: auto;
         padding: 40px 20px;
@@ -305,7 +295,6 @@ body {
     }
 }
 
-/* Filter Dropdowns */
 .filter-header {
     display: flex;
     justify-content: space-between;
