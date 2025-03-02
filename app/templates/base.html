@@ -14,42 +14,45 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     {% block extra_css %}{% endblock %}
+    <title>{% block title %}The Divine Jewelry{% endblock %}</title>
 </head>
 
 <body data-logged-in="{{ 'true' if current_user.is_authenticated else 'false' }}">
   <nav class="navbar navbar_bg">
-    <div class="search-bar">
-        <input type="text" placeholder="Search..." />
-        <button type="button" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <div class="logo">
+      <a href="{{ url_for('routes.home') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
+      </a>
     </div>
 
     <ul class="menu">
-        <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-        <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
-        <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-        <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
-        <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+      <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
+      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+      <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
 
-        {% if not current_user.is_authenticated %}
-            <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-            <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
-        {% else %}
-            <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
-        {% endif %}
+      {% if not current_user.is_authenticated %}
+          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+      {% else %}
+          <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
+      {% endif %}
     </ul>
 
     <div class="right-section">
-        <div class="logo">
-            <a href="{{ url_for('routes.home') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
-            </a>
-        </div>
-        <div class="hamburger" onclick="toggleMenu(event)">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
+      <div class="search-bar">
+        <form id="searchForm" action="{{ url_for('routes.search_products') }}" method="GET">
+          <input type="text" name="query" placeholder="Search..." />
+          <button type="submit" style="font-size: 15px;"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+      </div>
+      <div class="hamburger" onclick="toggleMenu(event)">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
     </div>
   </nav>
 
@@ -92,9 +95,9 @@
         <div class="footer-column small">
             <h3>Collections</h3>
             <ul>
-                <li><a href="leafcollection.html">Leaf</a></li>
-                <li><a href="crytsalcollection.html">Crystal</a></li>
-                <li><a href="pearlcollection.html">Pearl</a></li>
+                <li><a href="{{ url_for('routes.leafcollection') }}">Leaf</a></li>
+                <li><a href="{{ url_for('routes.crystalcollection') }}">Crystal</a></li>
+                <li><a href="{{ url_for('routes.pearlcollection') }}">Pearl</a></li>
             </ul>
         </div>
     </footer>

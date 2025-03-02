@@ -7,8 +7,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
+    const searchQueryParam = new URLSearchParams(window.location.search).get('query');
 
-    let allProducts = []; // Store all fetched products
+    if (searchQueryParam) {
+        console.log("Using server-filtered results for query:", searchQueryParam);
+        attachAddToCartEvents();
+        return;
+    }
+
+    let allProducts = []; 
+    fetchProducts();
 
     async function fetchProducts() {
         try {
@@ -32,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const productDiv = document.createElement("div");
             productDiv.classList.add("Product");
             productDiv.setAttribute("data-id", product.id);
-            productDiv.setAttribute("data-type", product.type); // Updated to type
+            productDiv.setAttribute("data-type", product.type);
             productDiv.setAttribute("data-collection", product.collection);
 
             productDiv.innerHTML = `
@@ -48,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             productsGrid.appendChild(productDiv);
 
-            // Fetch and display reviews
             fetchProductReviews(product.id);
         });
 
@@ -143,10 +150,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 2000);
     }
 
-    filterForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        applyFilters();
-    });
+    if (filterForm) {
+        filterForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const searchTerm = searchInput.value.trim();
+            
+            window.location.href = `/search?query=${encodeURIComponent(searchTerm)}`;
+        });
+    }
 
     searchInput.addEventListener("input", debounce(function () {
         applyFilters();
@@ -237,18 +248,13 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // Fix: Toggle Filter Dropdowns
-    function toggleFilter(header) {
+    window.toggleFilter = function(header) {
         const content = header.nextElementSibling;
         const arrow = header.querySelector('.arrow');
 
-        // Toggle visibility
         content.classList.toggle('show');
         arrow.classList.toggle('rotate');
-    }
-    
-    // Attach function to window to ensure onclick works
-    window.toggleFilter = toggleFilter;
+    };
 
     fetchProducts();
 });

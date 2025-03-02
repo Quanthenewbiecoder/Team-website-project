@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Products - The Divine{% endblock %}
+{% block title %}
+{% if search_query %}
+Search Results for "{{ search_query }}" - The Divine
+{% else %}
+Products - The Divine
+{% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
@@ -14,7 +20,7 @@
                 <div class="filter-header"></div>
                 <div class="filter-content show">
                     <div class="search-input">
-                        <input type="search" id="Search" name="Search" placeholder="Search products...">
+                        <input type="search" id="Search" name="Search" placeholder="Search products..." value="{{ search_query }}">
                     </div>
                 </div>
             </div>
@@ -119,18 +125,25 @@
     </form>
     </div>
 
-    <!-- Product Display Grid -->
     <div id="products-grid">
-        {% for product in products %}
-        <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
-            <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}">
-            <h3>{{ product.name }}</h3>
-            <p class="price">£{{ product.price }}</p>
-            <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
-                Add to Cart
-            </button>
+        {% if search_query and products|length == 0 %}
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No products found for "{{ search_query }}"</h3>
+            <p>Try different keywords or browse our collections</p>
         </div>
-        {% endfor %}
+        {% else %}
+            {% for product in products %}
+            <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
+                <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}">
+                <h3>{{ product.name }}</h3>
+                <p class="price">£{{ product.price }}</p>
+                <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                    Add to Cart
+                </button>
+            </div>
+            {% endfor %}
+        {% endif %}
     </div>    
    
 </div>
