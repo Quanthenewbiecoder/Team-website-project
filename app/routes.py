@@ -1,5 +1,7 @@
 from functools import wraps
 from datetime import datetime 
+import random
+import string
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
@@ -306,8 +308,8 @@ def basket():
 
 
 @routes_bp.route('/payment', methods=['GET', 'POST'])
-@login_required
 def payment():
+    # Removed login_required decorator
     cart_items = []
     total_amount = 0
     
@@ -326,16 +328,47 @@ def payment():
             total_amount += price * quantity
 
     if request.method == 'POST':
+        # Handle both authenticated and guest users
+        if current_user.is_authenticated:
+            # Create a new order in the database
+            new_order = Order(
+                user_id=current_user.id,
+                total_price=total_amount,
+                created_at=datetime.now(),
+                status='Pending'
+            )
+            db.session.add(new_order)
+            db.session.commit()
+
+            # Save order items
+            for item in cart_items:
+                order_item = OrderItem(
+                    order_id=new_order.id,
+                    product_name=item['name'],
+                    quantity=item['quantity'],
+                    price=item['price']
+                )
+                db.session.add(order_item)
+
+            db.session.commit()
+            order_id = new_order.id
+        else:
+            # For guest checkout, use a temporary order ID
+            order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        
+        # Clear shopping basket
         shopping_basket.clear()
-        return redirect(url_for('routes.payment_success'))
+        
+        # Redirect to success page
+        return redirect(url_for('routes.payment_success', order_id=order_id))
 
     return render_template('payment.html', 
                          cart_items=cart_items,
                          total_amount=total_amount)
 
 @routes_bp.route('/payment/success')
-@login_required
 def payment_success():
+    # Removed login_required decorator
     return render_template('payment.html', 
                          payment_status='success',
                          cart_items=[],
@@ -398,75 +431,57 @@ def clear_basket():
         'basket': shopping_basket
     }), 200
 
-# Checkout and Orders
-@routes_bp.route('/checkout', methods=['GET', 'POST'])
-@login_required
-def checkout():
-    cart_items = []
-    total_amount = 0
-
-    if shopping_basket:
-        for product_id, item in shopping_basket.items():
-            price = float(item.get('price', 0))
-            quantity = int(item.get('quantity', 0))
-            cart_items.append({
-                'id': product_id,
-                'name': item['product_name'],
-                'quantity': quantity,
-                'price': price,
-                'total': price * quantity,
-                'image': item.get('image', '')
-            })
-            total_amount += price * quantity
-
-    if request.method == 'POST':
-        # Create a new order in the database
-        new_order = Order(
-            user_id=current_user.id,
-            total_price=total_amount,
-            created_at=datetime.now(),
-            status='Pending'
-        )
-        db.session.add(new_order)
-        db.session.commit()
-
-        # Save order items
-        for item in cart_items:
-            order_item = OrderItem(
-                order_id=new_order.id,
-                product_name=item['name'],
-                quantity=item['quantity'],
-                price=item['price']
-            )
-            db.session.add(order_item)
-
-        db.session.commit()
-
-        # Clear shopping basket
-        shopping_basket.clear()
-
-        # Redirect to order confirmation page
-        return redirect(url_for('routes_bp.order_confirmation', order_id=new_order.id))
-
-    return render_template('checkout.html', cart_items=cart_items, total_amount=total_amount)
-
 # Order Confirmation Page
-@routes_bp.route('/order_confirmation/<int:order_id>')
-@login_required
+@routes_bp.route('/order_confirmation/<order_id>')
 def order_confirmation(order_id):
-    order = Order.query.get_or_404(order_id)
-    order_items = OrderItem.query.filter_by(order_id=order.id).all()
+    # Removed login_required decorator and handle guest orders
+    # Check if it's a guest order
+    if isinstance(order_id, str) and order_id.startswith("GUEST-"):
+        # Create a mock order for guests
+        order = {
+            "id": order_id,
+            "status": "Processing",
+            "created_at": datetime.now()
+        }
+        order_items = []
+    else:
+        # Convert to integer for database query
+        try:
+            order_id = int(order_id)
+            order = Order.query.get_or_404(order_id)
+            order_items = OrderItem.query.filter_by(order_id=order.id).all()
+        except ValueError:
+            flash('Invalid order ID', 'danger')
+            return redirect(url_for('routes.home'))
 
     return render_template('order_confirmation.html', order=order, order_items=order_items)
 
-@routes_bp.route('/track_order/<int:order_id>')
-@login_required
+@routes_bp.route('/track_order/<order_id>')
 def track_order(order_id):
-    order = Order.query.filter_by(id=order_id, user_id=current_user.id).first()
-    
-    if not order:
-        flash('Order not found or access denied.', 'danger')
-        return redirect(url_for('routes.history'))
+    # Removed login_required decorator and handle guest orders
+    # Check if it's a guest order
+    if isinstance(order_id, str) and order_id.startswith("GUEST-"):
+        # Create mock order for guests
+        order = {
+            "id": order_id,
+            "status": "Processing",
+            "created_at": datetime.now()
+        }
+    else:
+        # For authenticated users
+        try:
+            order_id = int(order_id)
+            if current_user.is_authenticated:
+                order = Order.query.filter_by(id=order_id, user_id=current_user.id).first()
+                if not order:
+                    flash('Order not found or access denied.', 'danger')
+                    return redirect(url_for('routes.history'))
+            else:
+                flash('Order not found or access denied.', 'danger')
+                return redirect(url_for('routes.home'))
+        except ValueError:
+            flash('Invalid order ID', 'danger')
+            return redirect(url_for('routes.home'))
     
     return render_template('track_order.html', order=order)
 

@@ -8,9 +8,11 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/payment.css') }}">
+{% endblock %}
 
+{% block content %}
 <div class="payment-container">
     {% if payment_status == 'success' %}
         <div class="success-message">
@@ -23,21 +25,15 @@
         <div class="payment-content">
             <div class="order-summary">
                 <h2>Order Summary</h2>
-                {% if cart_items %}
-                    {% for item in cart_items %}
-                    <div class="product-item">
-                        <span class="product-name">{{ item.name }}</span>
-                        <span class="quantity">x{{ item.quantity }}</span>
-                        <span class="price">£{{ "%.2f"|format(item.total) }}</span>
+                <div id="order-items">
+                    <div class="empty-cart-message" style="display: none;">
+                        <p>Your cart is empty</p>
                     </div>
-                    {% endfor %}
-                    <div class="total-amount">
-                        <strong>Total:</strong>
-                        <span>£{{ "%.2f"|format(total_amount) }}</span>
-                    </div>
-                {% else %}
-                    <p>Your cart is empty</p>
-                {% endif %}
+                </div>
+                <div class="total-amount">
+                    <strong>Total:</strong>
+                    <span id="cart-total">£0.00</span>
+                </div>
             </div>
 
             <form class="payment-form" method="POST">
@@ -68,6 +64,8 @@
                                placeholder="123" maxlength="3">
                     </div>
                 </div>
+                
+                <input type="hidden" id="cart-data" name="cart_data" value="">
 
                 <button type="submit" class="btn-primary">Complete Payment</button>
             </form>
@@ -75,5 +73,8 @@
     {% endif %}
 </div>
 
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
 {% endblock %}

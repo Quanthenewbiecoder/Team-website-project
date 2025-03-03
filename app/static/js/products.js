@@ -16,7 +16,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let allProducts = []; 
-    fetchProducts();
 
     async function fetchProducts() {
         try {
@@ -91,13 +90,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
-
-                if (!isLoggedIn) {
-                    window.location.href = '/login?redirect=products';
-                    return;
-                }
-
+                
+                // Removed login check
                 const productId = this.getAttribute('data-id');
                 const productName = this.getAttribute('data-name');
                 const productPrice = this.getAttribute('data-price');
@@ -110,23 +104,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function addToCart(id, name, price, image) {
         try {
-            const response = await fetch('/basket/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: id,
-                    product_name: name,
+            let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
+            
+            if (cart[id]) {
+                cart[id].quantity += 1;
+            } else {
+                cart[id] = {
+                    name: name,
                     price: price,
                     quantity: 1,
                     image: image
-                })
-            });
-
-            if (response.ok) {
-                showNotification(`${name} added to cart`);
+                };
             }
+            
+            sessionStorage.setItem('divinecart', JSON.stringify(cart));
+            
+            showNotification(`${name} added to cart`);
         } catch (error) {
             console.error('Error adding to cart:', error);
         }
@@ -159,7 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    searchInput.addEventListener("input", debounce(function () {
+    searchInput?.addEventListener("input", debounce(function () {
         applyFilters();
     }, 300));
 
@@ -176,8 +169,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
-            const productType = product.type.toLowerCase();
-            const productCollection = product.collection.toLowerCase();
+            const productType = product.type?.toLowerCase() || '';
+            const productCollection = product.collection?.toLowerCase() || '';
 
             let shouldShow = true;
 

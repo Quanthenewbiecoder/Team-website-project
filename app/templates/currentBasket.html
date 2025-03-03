@@ -2,41 +2,56 @@
 
 {% block title %}Basket - The Divine Jewelry{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/basketStyle.css') }}">
+{% endblock %}
 
-<div class="cart">
-    <a href="#" id="cart-link">My Cart (0 Items)</a>
+{% block content %}
+<div class="cart-header">
+    <h1 class="section-title">My Shopping Basket</h1>
+    <a href="{{ url_for('routes.products') }}" class="btn-primary" style="width: auto; display: inline-block; padding: 8px 15px;">
+        Continue Shopping
+    </a>
 </div>
 
 <main class="basket-page">
     <section class="recommended-section">
-        <h2 class="section-title">Recommended Products</h2>
+        <h2 class="section-title">Your Items</h2>
+        <div id="basket-container">
+            <div id="empty-cart-message" class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Your basket is empty</h3>
+                <p>Browse our collections and add some beautiful pieces to your basket.</p>
+                <a href="{{ url_for('routes.products') }}" class="btn-primary continue-shopping">Shop Now</a>
+            </div>
+        </div>
+
+        <h2 class="section-title">Recommended For You</h2>
         <div class="product-grid">
             <div class="product-card">
                 <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Elegant leaf design">
                 <div class="product-info">
-                    <h3>Elegant leaf design</h3>
+                    <h3>Elegant Leaf Ring</h3>
                     <p class="product-price">£150.00</p>
-                    <button class="btn-primary add-btn" data-name="Elegant leaf design" data-price="150.00">Add to Cart</button>
+                    <button class="btn-primary add-btn" data-id="leaf-ring-1" data-name="Elegant Leaf Ring" data-price="150.00">Add to Basket</button>
                 </div>
             </div>
             
             <div class="product-card">
                 <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal ring">
                 <div class="product-info">
-                    <h3>Crystal ring</h3>
+                    <h3>Crystal Ring</h3>
                     <p class="product-price">£180.00</p>
-                    <button class="btn-primary add-btn" data-name="Crystal ring" data-price="180.00">Add to Cart</button>
+                    <button class="btn-primary add-btn" data-id="crystal-ring-1" data-name="Crystal Ring" data-price="180.00">Add to Basket</button>
                 </div>
             </div>
             
             <div class="product-card">
                 <img src="{{ url_for('static', filename='images/pearl_necklace_1.webp') }}" alt="Pearl necklace">
                 <div class="product-info">
-                    <h3>Pearl necklace</h3>
+                    <h3>Pearl Necklace</h3>
                     <p class="product-price">£250.00</p>
-                    <button class="btn-primary add-btn" data-name="Pearl necklace" data-price="250.00">Add to Cart</button>
+                    <button class="btn-primary add-btn" data-id="pearl-necklace-1" data-name="Pearl Necklace" data-price="250.00">Add to Basket</button>
                 </div>
             </div>
         </div>
@@ -45,11 +60,10 @@
     <aside class="order-summary">
         <h2 class="section-title">Order Summary</h2>
         <ul id="order-summary-list">
-            <li>Basket is empty</li>
         </ul>
         <p id="order-total"><strong>Total: £0.00</strong></p>
         <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
-        <a href="{{ url_for('routes.payment') }}" class="btn-primary checkout-btn">Checkout</a>
+        <a href="{{ url_for('routes.payment') }}" class="btn-primary checkout-btn">Proceed to Checkout</a>
     </aside>
 </main>
 
@@ -61,7 +75,10 @@
 </div>
 
 <div id="success-popup" class="popup hidden success-message">Congratulations! 20% off!</div>
-<div id="error-popup" class="popup hidden error-message">Mmm... not quite!</div>
+<div id="error-popup" class="popup hidden error-message">Invalid code</div>
 
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/basket.js') }}"></script>
 {% endblock %}
