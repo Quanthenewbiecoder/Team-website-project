@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - The Divine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="Css /static/css/dashboardstyles.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <img src="/static/Images/logo.png" alt="The Divine Logo">
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="container1">
+            <ul class="nav-links">
+                <li><a href="user-dashboard.html">DASHBOARD</a></li>
+                <li><a href="#">PROFILE</a></li>
+                <li><a href="#">ORDERS</a></li>
+                <li><a href="#">LOG OUT</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- User Dashboard Content -->
+    <div class="container dashboard-container">
+        <h2>Welcome to Your Dashboard</h2>
+        <p>Manage your profile and order history.</p>
+
+        <!-- User Profile Section -->
+        <div class="card user-info-card">
+            <div class="card-body">
+                <h4 class="card-title">Profile Information</h4>
+                <p><strong>Name:</strong> John Doe</p>
+                <p><strong>Email:</strong> john.doe@example.com</p>
+                <p><strong>Subscription:</strong> <span class="badge bg-warning">Gold</span></p>
+                <p><strong>Address:</strong> 123 Street, London, UK</p>
+                <p><strong>Phone:</strong> +44 123 456 7890</p>
+            </div>
+        </div>
+
+        <!-- Order History Table -->
+        <h3 class="mt-5">Order History</h3>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered mt-3">
+                <thead class="table-light">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>O1001</td>
+                        <td>05/03/2024</td>
+                        <td><span class="badge bg-info">Processing</span></td>
+                        <td>£250.00</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>O1002</td>
+                        <td>10/03/2024</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                        <td>£180.00</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">View</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>O1003</td>
+                        <td>15/03/2024</td>
+                        <td><span class="badge bg-danger">Cancelled</span></td>
+                        <td>£120.00</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary">View</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="footer">
+        <p>© 2024 The Divine - Crafted with Passion for Elegance</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
