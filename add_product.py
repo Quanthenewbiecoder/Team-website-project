@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 # ✅ Connect to MongoDB Atlas
 client = MongoClient(Config.MONGO_URI)
 db = client["divine"]  # Use your actual database name
-products_collection = db["products"]  # Collection name
+products_collection = db["product"]  # Collection name
 
 # ✅ Product data converted from SQL
 products = [

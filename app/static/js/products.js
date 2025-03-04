@@ -7,8 +7,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
+    const searchQueryParam = new URLSearchParams(window.location.search).get('query');
 
-    let allProducts = []; // Store all fetched products
+    if (searchQueryParam) {
+        console.log("Using server-filtered results for query:", searchQueryParam);
+        attachAddToCartEvents();
+        return;
+    }
+
+    let allProducts = []; 
 
     async function fetchProducts() {
         try {
@@ -22,21 +29,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderProducts(products) {
         productsGrid.innerHTML = "";
-
+    
         if (products.length === 0) {
             showEmptyState();
             return;
         }
-
+    
         products.forEach(product => {
+            // ✅ Remove any extra 'static/' from the path
+            let correctedImageURL = product.image_url.replace(/\s/g, "_");
+    
             const productDiv = document.createElement("div");
             productDiv.classList.add("Product");
             productDiv.setAttribute("data-id", product.id);
-            productDiv.setAttribute("data-type", product.type); // Updated to type
+            productDiv.setAttribute("data-type", product.type);
             productDiv.setAttribute("data-collection", product.collection);
-
+    
             productDiv.innerHTML = `
-                <img src="${product.image_url}" alt="${product.name}">
+                <img src="${correctedImageURL}" alt="${product.name}">
                 <h3>${product.name}</h3>
                 <p class="price">£${product.price.toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
@@ -44,24 +54,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     Add to Cart
                 </button>
             `;
-
+    
             productsGrid.appendChild(productDiv);
-
         });
-
+    
         attachAddToCartEvents();
     }
+       
 
     function attachAddToCartEvents() {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
-
-                if (!isLoggedIn) {
-                    window.location.href = '/login?redirect=products';
-                    return;
-                }
 
                 const productId = this.getAttribute('data-id');
                 const productName = this.getAttribute('data-name');
@@ -75,23 +79,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function addToCart(id, name, price, image) {
         try {
-            const response = await fetch('/basket/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    product_id: id,
-                    product_name: name,
+            let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
+
+            if (cart[id]) {
+                cart[id].quantity += 1;
+            } else {
+                cart[id] = {
+                    name: name,
                     price: price,
                     quantity: 1,
                     image: image
-                })
-            });
-
-            if (response.ok) {
-                showNotification(`${name} added to cart`);
+                };
             }
+
+            sessionStorage.setItem('divinecart', JSON.stringify(cart));
+
+            showNotification(`${name} added to cart`);
         } catch (error) {
             console.error('Error adding to cart:', error);
         }
@@ -115,12 +118,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 2000);
     }
 
-    filterForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        applyFilters();
-    });
+    if (filterForm) {
+        filterForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            const searchTerm = searchInput.value.trim();
+            
+            window.location.href = `/search?query=${encodeURIComponent(searchTerm)}`;
+        });
+    }
 
-    searchInput.addEventListener("input", debounce(function () {
+    searchInput?.addEventListener("input", debounce(function () {
         applyFilters();
     }, 300));
 
@@ -130,27 +137,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const checkedTypes = [];
         document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-            checkedTypes.push(checkbox.id.toLowerCase());
+            checkedTypes.push(checkbox.value.toLowerCase());
         });
 
         const sortOption = document.querySelector('input[name="sort"]:checked')?.value || 'Recommended';
 
+        //  Convert In-Stock Checkbox to Boolean
+        const inStockChecked = document.querySelector('#InStock')?.checked || false;
+
         const filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
-            const productType = product.type.toLowerCase();
-            const productCollection = product.collection.toLowerCase();
+            const productType = product.type?.toLowerCase() || '';
+            const productCollection = product.collection?.toLowerCase() || '';
 
             let shouldShow = true;
 
+            //  Search Query Filtering
             if (searchQuery && !productName.includes(searchQuery)) {
                 shouldShow = false;
             }
 
+            //  Collection Filtering
             if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
                 shouldShow = false;
             }
 
+            //  Product Type Filtering
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
+                shouldShow = false;
+            }
+
+            //  In-Stock Filtering
+            if (inStockChecked && product.in_stock !== true) {
                 shouldShow = false;
             }
 
@@ -201,6 +219,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function toggleMenu() {
+        const menu = document.getElementById("mobile-menu");
+        if (menu) {
+            menu.classList.toggle("show");
+        } else {
+            console.error("Error: Element with ID 'mobile-menu' not found.");
+        }
+    }     
+
     function debounce(func, delay) {
         let timeout;
         return function () {
@@ -209,18 +236,13 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // Fix: Toggle Filter Dropdowns
-    function toggleFilter(header) {
+    window.toggleFilter = function(header) {
         const content = header.nextElementSibling;
         const arrow = header.querySelector('.arrow');
 
-        // Toggle visibility
         content.classList.toggle('show');
         arrow.classList.toggle('rotate');
-    }
-    
-    // Attach function to window to ensure onclick works
-    window.toggleFilter = toggleFilter;
+    };
 
     fetchProducts();
 });
