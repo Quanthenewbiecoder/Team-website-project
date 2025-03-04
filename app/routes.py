@@ -7,7 +7,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app import mongo
 from app.models import *
 from app.forms import *
-
+from app.database import products_collection
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -154,16 +154,19 @@ def products(product_id):
     return render_template('products.html', product=product, reviews=product_reviews)
 
 # API Route to fetch all products
+from flask import url_for, jsonify
+from bson import ObjectId
+
 @routes_bp.route('/api/products', methods=['GET'])
 def api_products():
-    products = list(mongo.db.products.find())
+    products = list(products_collection.find())
 
     product_list = [{
         "id": str(product["_id"]),
         "name": product["name"],
         "type": product["type"],
         "price": product["price"],
-        "image_url": url_for('static', filename=f'Images/{product["image_url"].split("/")[-1]}'),
+        "image_url": url_for('static', filename=f'images/{product["image_url"].replace(" ", "_")}'),  # ✅ Fix spaces
         "collection": product.get("collection", "None"),
         "description": product["description"],
         "in_stock": bool(product["in_stock"])

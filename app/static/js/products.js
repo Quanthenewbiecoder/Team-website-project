@@ -7,15 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
-    const searchQueryParam = new URLSearchParams(window.location.search).get('query');
 
-    if (searchQueryParam) {
-        console.log("Using server-filtered results for query:", searchQueryParam);
-        attachAddToCartEvents();
-        return;
-    }
-
-    let allProducts = []; 
+    let allProducts = []; // Store all fetched products
 
     async function fetchProducts() {
         try {
@@ -39,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const productDiv = document.createElement("div");
             productDiv.classList.add("Product");
             productDiv.setAttribute("data-id", product.id);
-            productDiv.setAttribute("data-type", product.type);
+            productDiv.setAttribute("data-type", product.type); // Updated to type
             productDiv.setAttribute("data-collection", product.collection);
 
             productDiv.innerHTML = `
@@ -47,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.name}</h3>
                 <p class="price">£${product.price.toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <div class="reviews" id="reviews-${product.id}">Loading reviews...</div>
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
@@ -55,43 +47,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
             productsGrid.appendChild(productDiv);
 
-            fetchProductReviews(product.id);
         });
 
         attachAddToCartEvents();
-    }
-
-    async function fetchProductReviews(productId) {
-        try {
-            const response = await fetch(`/api/products/${productId}/reviews`);
-            const reviews = await response.json();
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-
-            if (reviews.length === 0) {
-                reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
-                return;
-            }
-
-            let reviewsHTML = "<strong>Reviews:</strong><ul>";
-            reviews.forEach(review => {
-                reviewsHTML += `<li>⭐ ${review.rating}/5 - ${review.review} <em>(${review.created_at})</em></li>`;
-            });
-            reviewsHTML += "</ul>";
-
-            reviewsContainer.innerHTML = reviewsHTML;
-        } catch (error) {
-            console.error(`Error loading reviews for product ${productId}:`, error);
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-            reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
-        }
     }
 
     function attachAddToCartEvents() {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                
-                // Removed login check
+                const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+
+                if (!isLoggedIn) {
+                    window.location.href = '/login?redirect=products';
+                    return;
+                }
+
                 const productId = this.getAttribute('data-id');
                 const productName = this.getAttribute('data-name');
                 const productPrice = this.getAttribute('data-price');
@@ -104,22 +75,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function addToCart(id, name, price, image) {
         try {
-            let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
-            
-            if (cart[id]) {
-                cart[id].quantity += 1;
-            } else {
-                cart[id] = {
-                    name: name,
+            const response = await fetch('/basket/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: id,
+                    product_name: name,
                     price: price,
                     quantity: 1,
                     image: image
-                };
+                })
+            });
+
+            if (response.ok) {
+                showNotification(`${name} added to cart`);
             }
-            
-            sessionStorage.setItem('divinecart', JSON.stringify(cart));
-            
-            showNotification(`${name} added to cart`);
         } catch (error) {
             console.error('Error adding to cart:', error);
         }
@@ -143,16 +115,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 2000);
     }
 
-    if (filterForm) {
-        filterForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-            const searchTerm = searchInput.value.trim();
-            
-            window.location.href = `/search?query=${encodeURIComponent(searchTerm)}`;
-        });
-    }
+    filterForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        applyFilters();
+    });
 
-    searchInput?.addEventListener("input", debounce(function () {
+    searchInput.addEventListener("input", debounce(function () {
         applyFilters();
     }, 300));
 
@@ -169,8 +137,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
-            const productType = product.type?.toLowerCase() || '';
-            const productCollection = product.collection?.toLowerCase() || '';
+            const productType = product.type.toLowerCase();
+            const productCollection = product.collection.toLowerCase();
 
             let shouldShow = true;
 
@@ -241,13 +209,18 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    window.toggleFilter = function(header) {
+    // Fix: Toggle Filter Dropdowns
+    function toggleFilter(header) {
         const content = header.nextElementSibling;
         const arrow = header.querySelector('.arrow');
 
+        // Toggle visibility
         content.classList.toggle('show');
         arrow.classList.toggle('rotate');
-    };
+    }
+    
+    // Attach function to window to ensure onclick works
+    window.toggleFilter = toggleFilter;
 
     fetchProducts();
 });

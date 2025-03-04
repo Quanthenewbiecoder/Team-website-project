@@ -4,6 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from bson import ObjectId
 from config import Config
+from app.database import db, products_collection  # Import MongoDB connection
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
+from bson import ObjectId
 
 #  Connect to MongoDB Atlas
 client = MongoClient(Config.MONGO_URI)
@@ -139,9 +144,9 @@ class Order:
 class Product:
     def __init__(self, name, product_type, price, image_url, collection=None, description="", in_stock=True, _id=None):
         self.name = name
-        self.type = product_type  # e.g., "Bracelets", "Earrings"
+        self.type = product_type
         self.price = price
-        self.image_url = image_url
+        self.image_url = image_url.replace(" ", "_")  # Fix spaces in filenames
         self.collection = collection
         self.description = description
         self.in_stock = in_stock
@@ -149,17 +154,17 @@ class Product:
 
     def save(self):
         """Save product to MongoDB"""
-        db.products.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=True)
+        products_collection.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=True)
 
     @staticmethod
     def find_by_id(product_id):
         """Fetch product by _id"""
-        product_data = db.products.find_one({"_id": ObjectId(product_id)})
+        product_data = products_collection.find_one({"_id": ObjectId(product_id)})
         return Product(**product_data) if product_data else None
 
     def delete(self):
         """Delete product from MongoDB"""
-        db.products.delete_one({"_id": self._id})
+        products_collection.delete_one({"_id": self._id})
 
     def __repr__(self):
         return f"<Product {self.name}>"
