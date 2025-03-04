@@ -1,26 +1,30 @@
 from flask import Flask
-from app.extensions import db, login_manager, migrate
-from config import Config  # Adjusted import path
+from flask_pymongo import PyMongo
+from flask_login import LoginManager
+from config import Config
+
+#  Initialize Flask extensions
+mongo = PyMongo()
+login_manager = LoginManager()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
-    migrate.init_app(app, db)
+    #  Initialize MongoDB
+    mongo.init_app(app)
 
-    # Login view
+    #  Initialize Flask-Login
+    login_manager.init_app(app)
     login_manager.login_view = 'routes.login'
 
-    # Define user_loader
+    #  Load user from MongoDB for Flask-Login
     @login_manager.user_loader
     def load_user(user_id):
-        from app.models import User  # Import here to avoid circular imports
-        return User.query.get(int(user_id))
+        from app.models import User
+        return User.get(user_id)
 
-    # Import and register blueprints
+    #  Register Blueprints (Routes)
     from app.routes import routes_bp
     app.register_blueprint(routes_bp)
 
