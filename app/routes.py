@@ -8,6 +8,7 @@ from app import mongo
 from app.models import *
 from app.forms import *
 from app.database import products_collection
+from flask import session, jsonify
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -578,3 +579,17 @@ def search_products():
         filtered_products = all_products
 
     return render_template('all_products.html', products=filtered_products, search_query=query)
+
+
+@app.route('/check-login-status')
+def check_login_status():
+    if 'user_id' in session:  # Assuming you store user sessions
+        return jsonify({"logged_in": True})
+    else:
+        return jsonify({"logged_in": False})
+    
+
+@app.route('/guest-checkout')
+def guest_checkout():
+    session['guest'] = True  # Store guest status
+    return redirect(url_for('routes.payment'))
