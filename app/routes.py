@@ -156,14 +156,14 @@ def products(product_id):
 # API Route to fetch all products
 @routes_bp.route('/api/products', methods=['GET'])
 def api_products():
-    products = list(products_collection.find())  #  Corrected collection reference
+    products = list(mongo.db.products.find())
 
     product_list = [{
         "id": str(product["_id"]),
         "name": product["name"],
         "type": product["type"],
         "price": product["price"],
-        "image_url": url_for('static', filename=f'images/{product["image_url"].replace(" ", "_")}'),  #  Fix spaces
+        "image_url": url_for('static', filename=product["image_url"]),  # ✅ Ensures correct path
         "collection": product.get("collection", "None"),
         "description": product["description"],
         "in_stock": bool(product["in_stock"])
