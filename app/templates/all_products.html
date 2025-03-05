@@ -135,7 +135,7 @@ Products - The Divine
         {% else %}
             {% for product in products %}
             <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
-                <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}">
+                <img src="{{ product.image_url | replace(' ', '_') }}" alt="{{ product.name }}">
                 <h3>{{ product.name }}</h3>
                 <p class="price">£{{ product.price }}</p>
                 <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
@@ -144,8 +144,7 @@ Products - The Divine
             </div>
             {% endfor %}
         {% endif %}
-    </div>    
-   
+    </div>  
 </div>
 {% endblock %}
 

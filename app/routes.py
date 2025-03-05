@@ -3,11 +3,12 @@ from datetime import datetime
 import random
 import string
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
-from app.extensions import db
 from flask_login import login_user, logout_user, login_required, current_user
+from app import mongo
 from app.models import *
 from app.forms import *
-
+from app.database import products_collection
+from flask import session, jsonify
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -39,23 +40,16 @@ def home():
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        redirect_url = request.args.get('redirect')
-        if redirect_url:
-            return redirect(url_for(f'routes.{redirect_url}'))
         return redirect(url_for('routes.home'))
 
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        user = User.query.filter_by(email=email).first()
 
+        user = User.find_by_email(email)
         if user and user.check_password(password):
             login_user(user)
             flash("Login successful!", "success")
-            
-            redirect_url = request.args.get('redirect')
-            if redirect_url:
-                return redirect(url_for(f'routes.{redirect_url}'))
             return redirect(url_for('routes.home'))
         else:
             flash("Invalid email or password.", "danger")
@@ -72,42 +66,32 @@ def logout():
 @routes_bp.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
-    
+
     if form.validate_on_submit():
-        # Check if the username already exists
-        existing_username = User.query.filter_by(username=form.username.data).first()
+        existing_username = mongo.db.users.find_one({"username": form.username.data})
         if existing_username:
             flash('Username already exists. Please choose a different username.', 'danger')
             return redirect(url_for('routes.register'))
 
-        # Check if the email already exists
-        existing_email = User.query.filter_by(email=form.email.data).first()
+        existing_email = mongo.db.users.find_one({"email": form.email.data})
         if existing_email:
             flash("Email already registered. Please use a different email or log in.", "error")
             return redirect(url_for('routes.register'))
 
-        # Create user object without password
-        user = User(
+        new_user = User(
             username=form.username.data,
             email=form.email.data,
             name=form.name.data,
             surname=form.surname.data,
-            role='Customer'
+            role='Customer',
+            password=form.password.data
         )
 
-        # Set the password separately using `set_password()`
-        user.set_password(form.password.data)
-
-        # Commit the new user to the database
-        db.session.add(user)
-        db.session.commit()
-        
+        mongo.db.users.insert_one(new_user.__dict__)
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('routes.login'))
 
     return render_template('register.html', form=form)
-
-
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
@@ -155,44 +139,48 @@ def crystalcollection():
 
 # Route to display all products or a single product
 @routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET'])
-@routes_bp.route('/products/<int:product_id>', methods=['GET'])
+@routes_bp.route('/products/<string:product_id>', methods=['GET'])
 def products(product_id):
     if product_id is None:
-        # Fetch all products from the database
-        all_products = Product.query.all()
+        all_products = list(mongo.db.products.find())
         return render_template('all_products.html', products=all_products, now=datetime.now())
 
-    # Fetch a single product
-    product = Product.query.get_or_404(product_id)
+    product = mongo.db.products.find_one({"_id": product_id})
+    if not product:
+        flash("Product not found.", "danger")
+        return redirect(url_for('routes.products'))
 
-    # Fetch reviews from the database instead of using an in-memory dictionary
-    product_reviews = Review.query.filter_by(product_id=product.id).all()
+    product_reviews = list(mongo.db.reviews.find({"product_id": product_id}))
 
     return render_template('products.html', product=product, reviews=product_reviews)
 
 # API Route to fetch all products
 @routes_bp.route('/api/products', methods=['GET'])
 def api_products():
-    products = Product.query.all()
+    products = list(products_collection.find())  # Ensure the correct collection reference
 
     product_list = [{
-        "id": product.id,
-        "name": product.name,
-        "type": product.type,
-        "price": product.price,
-        "image_url": url_for('static', filename=f'Images/{product.image_url.split("/")[-1]}'),  # Ensure correct path
-        "collection": product.collection if product.collection else "None",
-        "description": product.description,
-        "in_stock": bool(product.in_stock)  # Convert to boolean
+        "id": str(product["_id"]),
+        "name": product["name"],
+        "type": product["type"],
+        "price": product["price"],
+        "image_url": url_for('static', filename=f'images/{product["image_url"].split("/")[-1]}'),  # Ensure correct path
+        "collection": product.get("collection", "None"),
+        "description": product["description"],
+        "in_stock": bool(product["in_stock"])
     } for product in products]
 
     return jsonify(product_list)
 
+
 # Route to add or edit a review (User can only post one review per product)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
-@login_required  # ✅ Ensures only logged-in users can access
+@login_required  #  Ensures only logged-in users can access
 def add_review(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = mongo.db.products.find_one({"_id": product_id})
+    if not product:
+        flash("Product not found.", "danger")
+        return redirect(url_for('routes.products', product_id=product_id))
 
     review_text = request.form.get('review')
     rating = request.form.get('rating')
@@ -201,45 +189,38 @@ def add_review(product_id):
         flash('Review and rating are required.', 'error')
         return redirect(url_for('routes.products', product_id=product_id))
 
-    try:
-        rating = int(rating)
-        if rating < 1 or rating > 5:
-            raise ValueError("Rating must be between 1 and 5.")
+    rating = int(rating)
+    if rating < 1 or rating > 5:
+        flash("Rating must be between 1 and 5.", "error")
+        return redirect(url_for('routes.products', product_id=product_id))
 
-        # Check if the user has already reviewed this product
-        existing_review = Review.query.filter_by(product_id=product_id, user_id=current_user.id).first()
-
-        if existing_review:
-            existing_review.review = review_text
-            existing_review.rating = rating
-            existing_review.created_at = datetime.utcnow()
-            flash('Review updated successfully!', 'success')
-        else:
-            new_review = Review(product_id=product.id, user_id=current_user.id, review=review_text, rating=rating, created_at=datetime.now())
-            db.session.add(new_review)
-            flash('Review added successfully!', 'success')
-
-        db.session.commit()
-
-    except ValueError as e:
-        flash(str(e), 'error')
+    existing_review = mongo.db.reviews.find_one({"product_id": product_id, "user_id": current_user.get_id()})
+    if existing_review:
+        mongo.db.reviews.update_one(
+            {"_id": existing_review["_id"]},
+            {"$set": {"review": review_text, "rating": rating, "created_at": datetime.utcnow()}}
+        )
+        flash('Review updated successfully!', 'success')
+    else:
+        mongo.db.reviews.insert_one({
+            "product_id": product_id,
+            "user_id": current_user.get_id(),
+            "review": review_text,
+            "rating": rating,
+            "created_at": datetime.utcnow()
+        })
+        flash('Review added successfully!', 'success')
 
     return redirect(url_for('routes.products', product_id=product_id))
 
 # Route to delete a review (Allows user to review again after deleting)
 @routes_bp.route('/products/<int:product_id>/review/delete', methods=['POST'])
-@login_required  # ✅ Ensures only logged-in users can delete reviews
+@login_required  #  Ensures only logged-in users can delete reviews
 def delete_review(product_id):
-    review = Review.query.filter_by(product_id=product_id, user_id=current_user.id).first()
-
-    if review:
-        db.session.delete(review)
-        db.session.commit()
-        flash("Your review has been deleted.", "success")
-    else:
-        flash("No review found to delete.", "error")
-
+    mongo.db.reviews.delete_one({"product_id": product_id, "user_id": current_user.get_id()})
+    flash("Your review has been deleted.", "success")
     return redirect(url_for('routes.products', product_id=product_id))
+
 
 # API Route to fetch reviews for a product
 @routes_bp.route('/api/products/<int:product_id>/reviews', methods=['GET'])
@@ -287,38 +268,34 @@ shopping_basket = {}
 def basket():
     cart_items = []
     total_amount = 0
-    
+
     if shopping_basket:
         for product_id, item in shopping_basket.items():
-            price = float(item.get('price', 0))
-            quantity = int(item.get('quantity', 0))
-            cart_items.append({
-                'id': product_id,
-                'name': item['product_name'],
-                'quantity': quantity,
-                'price': price,
-                'total': price * quantity,
-                'image': item.get('image', '')
-            })
-            total_amount += price * quantity
+            product = mongo.db.products.find_one({"_id": product_id})
+            if product:
+                cart_items.append({
+                    "id": product_id,
+                    "name": product["name"],
+                    "price": product["price"],
+                    "quantity": item["quantity"],
+                    "total": product["price"] * item["quantity"]
+                })
+                total_amount += product["price"] * item["quantity"]
 
-    return render_template('currentbasket.html', 
-                         cart_items=cart_items,
-                         total_amount=total_amount)
-
+    return render_template('currentbasket.html', cart_items=cart_items, total_amount=total_amount)
 
 @routes_bp.route('/payment', methods=['GET', 'POST'])
 def payment():
-    # Removed login_required decorator
     cart_items = []
     total_amount = 0
     
+    #  Extract shopping basket data
     if shopping_basket:
         for product_id, item in shopping_basket.items():
             price = float(item.get('price', 0))
             quantity = int(item.get('quantity', 0))
             cart_items.append({
-                'id': product_id,
+                'product_id': product_id,  #  Store product ID
                 'name': item['product_name'],
                 'quantity': quantity,
                 'price': price,
@@ -328,52 +305,47 @@ def payment():
             total_amount += price * quantity
 
     if request.method == 'POST':
-        # Handle both authenticated and guest users
         if current_user.is_authenticated:
-            # Create a new order in the database
+            #  Create a new order in MongoDB
             new_order = Order(
-                user_id=current_user.id,
+                user_id=current_user.get_id(),  #  MongoDB needs string ID
                 total_price=total_amount,
-                created_at=datetime.now(),
+                items=cart_items,  #  Embed items in order
                 status='Pending'
             )
-            db.session.add(new_order)
-            db.session.commit()
-
-            # Save order items
-            for item in cart_items:
-                order_item = OrderItem(
-                    order_id=new_order.id,
-                    product_name=item['name'],
-                    quantity=item['quantity'],
-                    price=item['price']
-                )
-                db.session.add(order_item)
-
-            db.session.commit()
-            order_id = new_order.id
+            result = mongo.db.orders.insert_one(new_order.__dict__)  #  Save to MongoDB
+            order_id = str(result.inserted_id)  #  Convert ObjectId to string
         else:
-            # For guest checkout, use a temporary order ID
+            #  Guest order with random ID
             order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
-        
-        # Clear shopping basket
+            guest_order = {
+                "user_id": "guest",
+                "total_price": total_amount,
+                "items": cart_items,
+                "status": "Pending",
+                "created_at": datetime.utcnow(),
+                "guest_order_id": order_id
+            }
+            mongo.db.orders.insert_one(guest_order)  #  Save guest order to MongoDB
+
+        #  Clear shopping basket
         shopping_basket.clear()
         
-        # Redirect to success page
+        #  Redirect to success page
         return redirect(url_for('routes.payment_success', order_id=order_id))
 
-    return render_template('payment.html', 
-                         cart_items=cart_items,
-                         total_amount=total_amount)
+    return render_template('payment.html', cart_items=cart_items, total_amount=total_amount)
 
-@routes_bp.route('/payment/success')
-def payment_success():
-    # Removed login_required decorator
+
+@routes_bp.route('/payment/success/<order_id>')
+def payment_success(order_id):
     return render_template('payment.html', 
-                         payment_status='success',
-                         cart_items=[],
-                         total_amount=0,
-                         now=datetime.now())
+                           payment_status='success',
+                           cart_items=[],
+                           total_amount=0,
+                           order_id=order_id,
+                           now=datetime.now())
+
 
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
@@ -431,13 +403,12 @@ def clear_basket():
         'basket': shopping_basket
     }), 200
 
-# Order Confirmation Page
+from bson import ObjectId
+
 @routes_bp.route('/order_confirmation/<order_id>')
 def order_confirmation(order_id):
-    # Removed login_required decorator and handle guest orders
-    # Check if it's a guest order
-    if isinstance(order_id, str) and order_id.startswith("GUEST-"):
-        # Create a mock order for guests
+    #  Handle guest orders
+    if order_id.startswith("GUEST-"):
         order = {
             "id": order_id,
             "status": "Processing",
@@ -445,13 +416,16 @@ def order_confirmation(order_id):
         }
         order_items = []
     else:
-        # Convert to integer for database query
+        #  Try fetching order from MongoDB
         try:
-            order_id = int(order_id)
-            order = Order.query.get_or_404(order_id)
-            order_items = OrderItem.query.filter_by(order_id=order.id).all()
-        except ValueError:
-            flash('Invalid order ID', 'danger')
+            order = mongo.db.orders.find_one({"_id": ObjectId(order_id)})  #  Fetch order
+            if not order:
+                flash("Order not found!", "danger")
+                return redirect(url_for('routes.home'))
+            
+            order_items = order.get("items", [])  #  Get embedded order items
+        except Exception:
+            flash("Invalid order ID.", "danger")
             return redirect(url_for('routes.home'))
 
     return render_template('order_confirmation.html', order=order, order_items=order_items)
@@ -472,7 +446,7 @@ def track_order(order_id):
         try:
             order_id = int(order_id)
             if current_user.is_authenticated:
-                order = Order.query.filter_by(id=order_id, user_id=current_user.id).first()
+                order = mongo.db.orders.find_one({"_id": ObjectId(order_id), "user_id": current_user.get_id()})
                 if not order:
                     flash('Order not found or access denied.', 'danger')
                     return redirect(url_for('routes.history'))
@@ -488,7 +462,7 @@ def track_order(order_id):
 @routes_bp.route('/history')
 @login_required
 def history():
-    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.created_at.desc()).all()
+    orders = list(mongo.db.orders.find({"user_id": current_user.get_id()}).sort("created_at", -1))
     return render_template('history.html', orders=orders)
 
 # Reviews and Feedback
@@ -571,132 +545,51 @@ def remove_subscription():
         return jsonify({'message': 'Subscription removed', 'subscriptions': subscriptions}), 200
     return jsonify({'error': 'Email not found in subscriptions'}), 404
 
+from flask import request, render_template, url_for
+from app import mongo
+
 @routes_bp.route('/search')
 def search_products():
-    query = request.args.get('query', '')
-    
-    all_products = [
-        {
-            'id': 1,
-            'name': 'Crystal Ring',
-            'price': 180.00,
-            'description': 'Exquisite crystal ring designed to catch the light with every angle.',
-            'image_url': 'images/crystal_ring_1.jpg',
-            'product_type': 'Rings',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 2,
-            'name': 'Crystal Necklace',
-            'price': 250.00,
-            'description': 'Elegant crystal necklace that adds sparkle to any outfit.',
-            'image_url': 'images/crystal_necklace_1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 3,
-            'name': 'Crystal Bracelet',
-            'price': 150.00,
-            'description': 'Stunning crystal bracelet that wraps your wrist in elegance.',
-            'image_url': 'images/crystal_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 4,
-            'name': 'Leaf Ring',
-            'price': 150.00,
-            'description': 'Elegant leaf design to enhance your style. Crafted with precision and care.',
-            'image_url': 'images/leaf ring 1`.webp',
-            'product_type': 'Rings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 5,
-            'name': 'Leaf Necklace',
-            'price': 120.00,
-            'description': 'Delicate leaf pendant necklace, a symbol of nature\'s grace.',
-            'image_url': 'images/leaf necklace 1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 6, 
-            'name': 'Leaf Earrings',
-            'price': 85.00,
-            'description': 'Chic earrings featuring the elegant shape of leaves, perfect for any occasion.',
-            'image_url': 'images/leaf earring 1.jpg',
-            'product_type': 'Earrings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 7,
-            'name': 'Leaf Bracelet',
-            'price': 135.00,
-            'description': 'Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.',
-            'image_url': 'images/leaf bracelet 1.webp',
-            'product_type': 'Bracelets',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 8,
-            'name': 'Pearl Ring',
-            'price': 220.00,
-            'description': 'A beautiful and timeless pearl ring, perfect for any occasion.',
-            'image_url': 'images/pearl ring 1.webp',
-            'product_type': 'Rings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 9,
-            'name': 'Pearl Necklace',
-            'price': 250.00,
-            'description': 'A stunning necklace featuring lustrous pearls for an elegant look.',
-            'image_url': 'images/pearl necklace 3.webp',
-            'product_type': 'Necklaces',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 10,
-            'name': 'Pearl Earrings',
-            'price': 180.00,
-            'description': 'Elegant pearl earrings that add a touch of sophistication to your look.',
-            'image_url': 'images/pearl earring 1.avif',
-            'product_type': 'Earrings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 11,
-            'name': 'Pearl Bracelet',
-            'price': 180.00,
-            'description': 'A beautiful pearl bracelet, perfect for adding elegance to your wrist.',
-            'image_url': 'images/pearl_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Pearl',
-            'in_stock': True
-        }
-    ]
-    
+    query = request.args.get('query', '').strip().lower()
+
+    # Fetch all products from MongoDB
+    all_products = list(mongo.db.products.find())
+
+    for product in all_products:
+        product["_id"] = str(product["_id"])  # Convert ObjectId to string
+
+        #  Fix duplicate 'static/' issue
+        image_path = product.get("image_url", "").replace("static/", "").replace("static\\", "").split("/")[-1]
+        product["image_url"] = url_for('static', filename=f'images/{image_path}')  # Corrected path
+
+        #  Handle None values safely
+        product["collection"] = product.get("collection", "") or ""
+        product["type"] = product.get("type", "") or ""
+
+    #  Apply search filtering
     if query:
         filtered_products = [
-            product for product in all_products 
-            if query.lower() in product['name'].lower() or 
-               query.lower() in product['description'].lower() or
-               query.lower() in product['collection'].lower() or
-               query.lower() in product['product_type'].lower()
+            product for product in all_products
+            if query in product.get('name', '').lower() or
+               query in product.get('description', '').lower() or
+               query in product["collection"].lower() or
+               query in product["type"].lower()
         ]
     else:
         filtered_products = all_products
-    
+
     return render_template('all_products.html', products=filtered_products, search_query=query)
+
+
+@app.route('/check-login-status')
+def check_login_status():
+    if 'user_id' in session:  # Assuming you store user sessions
+        return jsonify({"logged_in": True})
+    else:
+        return jsonify({"logged_in": False})
+    
+
+@app.route('/guest-checkout')
+def guest_checkout():
+    session['guest'] = True  # Store guest status
+    return redirect(url_for('routes.payment'))

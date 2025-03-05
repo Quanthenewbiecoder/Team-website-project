@@ -29,69 +29,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderProducts(products) {
         productsGrid.innerHTML = "";
-
+    
         if (products.length === 0) {
             showEmptyState();
             return;
         }
-
+    
         products.forEach(product => {
+            // ✅ Remove any extra 'static/' from the path
+            let correctedImageURL = product.image_url.replace(/\s/g, "_");
+    
             const productDiv = document.createElement("div");
             productDiv.classList.add("Product");
             productDiv.setAttribute("data-id", product.id);
             productDiv.setAttribute("data-type", product.type);
             productDiv.setAttribute("data-collection", product.collection);
-
+    
             productDiv.innerHTML = `
-                <img src="${product.image_url}" alt="${product.name}">
+                <img src="${correctedImageURL}" alt="${product.name}">
                 <h3>${product.name}</h3>
                 <p class="price">£${product.price.toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <div class="reviews" id="reviews-${product.id}">Loading reviews...</div>
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
             `;
-
+    
             productsGrid.appendChild(productDiv);
-
-            fetchProductReviews(product.id);
         });
-
+    
         attachAddToCartEvents();
     }
-
-    async function fetchProductReviews(productId) {
-        try {
-            const response = await fetch(`/api/products/${productId}/reviews`);
-            const reviews = await response.json();
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-
-            if (reviews.length === 0) {
-                reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
-                return;
-            }
-
-            let reviewsHTML = "<strong>Reviews:</strong><ul>";
-            reviews.forEach(review => {
-                reviewsHTML += `<li>⭐ ${review.rating}/5 - ${review.review} <em>(${review.created_at})</em></li>`;
-            });
-            reviewsHTML += "</ul>";
-
-            reviewsContainer.innerHTML = reviewsHTML;
-        } catch (error) {
-            console.error(`Error loading reviews for product ${productId}:`, error);
-            const reviewsContainer = document.getElementById(`reviews-${productId}`);
-            reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
-        }
-    }
+       
 
     function attachAddToCartEvents() {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                
-                // Removed login check
+
                 const productId = this.getAttribute('data-id');
                 const productName = this.getAttribute('data-name');
                 const productPrice = this.getAttribute('data-price');
@@ -105,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
     async function addToCart(id, name, price, image) {
         try {
             let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
-            
+
             if (cart[id]) {
                 cart[id].quantity += 1;
             } else {
@@ -116,9 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     image: image
                 };
             }
-            
+
             sessionStorage.setItem('divinecart', JSON.stringify(cart));
-            
+
             showNotification(`${name} added to cart`);
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -162,10 +137,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const checkedTypes = [];
         document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-            checkedTypes.push(checkbox.id.toLowerCase());
+            checkedTypes.push(checkbox.value.toLowerCase());
         });
 
         const sortOption = document.querySelector('input[name="sort"]:checked')?.value || 'Recommended';
+
+        //  Convert In-Stock Checkbox to Boolean
+        const inStockChecked = document.querySelector('#InStock')?.checked || false;
 
         const filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
@@ -174,15 +152,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let shouldShow = true;
 
+            //  Search Query Filtering
             if (searchQuery && !productName.includes(searchQuery)) {
                 shouldShow = false;
             }
 
+            //  Collection Filtering
             if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
                 shouldShow = false;
             }
 
+            //  Product Type Filtering
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
+                shouldShow = false;
+            }
+
+            //  In-Stock Filtering
+            if (inStockChecked && product.in_stock !== true) {
                 shouldShow = false;
             }
 
@@ -232,6 +218,15 @@ document.addEventListener("DOMContentLoaded", function () {
             emptyState.remove();
         }
     }
+
+    function toggleMenu() {
+        const menu = document.getElementById("mobile-menu");
+        if (menu) {
+            menu.classList.toggle("show");
+        } else {
+            console.error("Error: Element with ID 'mobile-menu' not found.");
+        }
+    }     
 
     function debounce(func, delay) {
         let timeout;
