@@ -63,7 +63,7 @@
         </ul>
         <p id="order-total"><strong>Total: £0.00</strong></p>
         <button class="btn-primary" onclick="showPromoPopup()">Enter Promo Code</button>
-        <button class="btn-primary checkout-btn" onclick="handleCheckout()">Proceed to Checkout</button>
+        <a href="{{ url_for('routes.payment') }}" class="btn-primary checkout-btn">Proceed to Checkout</a>
     </aside>
 </main>
 
@@ -76,15 +76,6 @@
 
 <div id="success-popup" class="popup hidden success-message">Congratulations! 20% off!</div>
 <div id="error-popup" class="popup hidden error-message">Invalid code</div>
-
-
-<div id="login-popup" class="popup hidden">
-    <span id="close-login-popup" class="close">&times;</span>
-    <h2>Log in or Check Out as Guest</h2>
-    <p>You need to log in or continue as a guest to proceed.</p>
-    <a href="{{ url_for('routes.login') }}" class="btn-primary">Log In</a>
-    <a href="{{ url_for('routes.guest_checkout') }}" class="btn-secondary">Check Out as Guest</a>
-</div>
 
 {% endblock %}
 

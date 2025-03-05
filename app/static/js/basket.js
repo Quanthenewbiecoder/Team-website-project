@@ -252,20 +252,3 @@ window.removeItem = removeItem;
 window.clearCart = clearCart;
 window.showPromoPopup = showPromoPopup;
 window.applyPromoCode = applyPromoCode;
-
-function handleCheckout() {
-    fetch('/check-login-status')
-        .then(response => response.json())
-        .then(data => {
-            if (data.logged_in) {
-                window.location.href = "/payment";
-            } else {
-                document.getElementById("login-popup").classList.remove("hidden");
-            }
-        })
-        .catch(error => console.error("Error checking login status:", error));
-}
-
-document.getElementById("close-login-popup").addEventListener("click", function() {
-    document.getElementById("login-popup").classList.add("hidden");
-});
