@@ -313,6 +313,9 @@ def payment():
             )
             result = mongo.db.orders.insert_one(new_order.__dict__)  #  Save to MongoDB
             order_id = str(result.inserted_id)  #  Convert ObjectId to string
+            
+            # Store tracking number in session for payment success page
+            session['last_order_tracking'] = order_id
         else:
             #  Guest order with random ID
             order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -325,6 +328,9 @@ def payment():
                 "guest_order_id": order_id
             }
             mongo.db.orders.insert_one(guest_order)  #  Save guest order to MongoDB
+            
+            # Store tracking number in session for payment success page
+            session['last_order_tracking'] = order_id
 
         #  Clear shopping basket
         shopping_basket.clear()
@@ -337,11 +343,14 @@ def payment():
 
 @routes_bp.route('/payment/success/<order_id>')
 def payment_success(order_id):
+    tracking_number = session.get('last_order_tracking', order_id)
+    
     return render_template('payment.html', 
                            payment_status='success',
                            cart_items=[],
                            total_amount=0,
                            order_id=order_id,
+                           tracking_number=tracking_number,
                            now=datetime.now())
 
 
@@ -672,3 +681,57 @@ def search_products():
         filtered_products = all_products
     
     return render_template('all_products.html', products=filtered_products, search_query=query)
+
+
+@routes_bp.route('/previous-orders', methods=['GET', 'POST'])
+def previous_orders():
+    tracking_number = None
+    order = None
+    user_orders = []
+    
+    if request.method == 'GET' and 'tracking' in request.args:
+        tracking_number = request.args.get('tracking', '').strip()
+        if tracking_number:
+            try:
+                if tracking_number.startswith('GUEST-'):
+                    order = mongo.db.orders.find_one({"guest_order_id": tracking_number})
+                else:
+                    order = mongo.db.orders.find_one({"_id": ObjectId(tracking_number)})
+                
+                if not order:
+                    flash('No order found with that tracking number.', 'danger')
+                else:
+                    if '_id' in order:
+                        order['id'] = str(order['_id'])
+            except Exception as e:
+                flash(f'Error retrieving order: Invalid tracking number format.', 'danger')
+    
+    if request.method == 'POST':
+        tracking_number = request.form.get('tracking_number', '').strip()
+    
+    if current_user.is_authenticated:
+        user_orders = list(mongo.db.orders.find({"user_id": current_user.get_id()})
+                          .sort("created_at", -1)
+                          .limit(5))
+        
+        if not tracking_number:
+            flash('Please enter a valid tracking number.', 'danger')
+        else:
+            try:
+                if tracking_number.startswith('GUEST-'):
+                    order = mongo.db.orders.find_one({"guest_order_id": tracking_number})
+                else:
+                    order = mongo.db.orders.find_one({"_id": ObjectId(tracking_number)})
+                
+                if not order:
+                    flash('No order found with that tracking number.', 'danger')
+                else:
+                    if '_id' in order:
+                        order['id'] = str(order['_id'])
+            except Exception as e:
+                flash(f'Error retrieving order: Invalid tracking number format.', 'danger')
+    
+    return render_template('previous_orders.html', 
+                          tracking_number=tracking_number, 
+                          order=order,
+                          user_orders=user_orders)

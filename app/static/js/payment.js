@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setupFormFormatting();
     
     setupFormSubmission();
+    
+    setupTrackingCopy();
 });
 
 function loadCartData() {
@@ -18,7 +20,9 @@ function loadCartData() {
         if (emptyCartMessage) {
             emptyCartMessage.style.display = 'block';
         }
-        cartTotal.textContent = '£0.00';
+        if (cartTotal) {
+            cartTotal.textContent = '£0.00';
+        }
         return;
     }
     
@@ -31,6 +35,8 @@ function loadCartData() {
     if (emptyCartMessage) {
         emptyCartMessage.style.display = 'none';
     }
+    
+    if (!orderItems || !cartTotal) return;
     
     orderItems.innerHTML = '';
     
@@ -125,4 +131,73 @@ function setupFormSubmission() {
             this.submit();
         });
     }
+}
+
+function setupTrackingCopy() {
+    const copyTrackingBtn = document.getElementById('copy-tracking');
+    
+    if (copyTrackingBtn) {
+        copyTrackingBtn.addEventListener('click', function() {
+            const trackingNumber = this.getAttribute('data-tracking');
+            
+            navigator.clipboard.writeText(trackingNumber)
+                .then(() => {
+                    showCopyConfirmation(this);
+                })
+                .catch(() => {
+                    fallbackCopyToClipboard(trackingNumber, this);
+                });
+        });
+    }
+}
+
+function fallbackCopyToClipboard(text, button) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showCopyConfirmation(button);
+        } else {
+            showCopyError();
+        }
+    } catch (err) {
+        showCopyError();
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function showCopyConfirmation(button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    button.classList.add('copy-success');
+    
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove('copy-success');
+    }, 2000);
+}
+
+function showCopyError() {
+    const notification = document.createElement('div');
+    notification.className = 'copy-notification error';
+    notification.textContent = 'Failed to copy. Please try again.';
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }

@@ -173,10 +173,85 @@
     font-size: 18px;
 }
 
+.success-message .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.success-message .btn-primary,
+.success-message .btn-secondary {
+    min-width: 180px;
+    padding: 12px 20px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
 .success-message .btn-primary {
-    max-width: 250px;
-    margin: 0 auto;
-    display: block;
+    background-color: #2f1c0e;
+    color: white;
+}
+
+.success-message .btn-secondary {
+    background-color: #e6be73;
+    color: #2f1c0e;
+    border: none;
+    font-size: 16px;
+}
+
+.success-message .btn-primary:hover {
+    background-color: #4a2e1c;
+}
+
+.success-message .btn-secondary:hover {
+    background-color: #d0ac69;
+}
+
+.tracking-info {
+    background-color: #f9f5e9;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 30px auto;
+    max-width: 500px;
+    text-align: center;
+}
+
+.tracking-info h3 {
+    color: #2f1c0e;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.tracking-number {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2f1c0e;
+    padding: 12px;
+    background-color: white;
+    border: 1px dashed #e6be73;
+    border-radius: 6px;
+    margin: 10px 0;
+}
+
+.tracking-note {
+    font-size: 14px;
+    color: #666;
+    margin: 15px 0;
+}
+
+.tracking-note a {
+    color: #2f1c0e;
+    text-decoration: underline;
+}
+
+#copy-tracking {
+    padding: 8px 16px;
+    font-size: 14px;
 }
 
 .empty-cart-message {

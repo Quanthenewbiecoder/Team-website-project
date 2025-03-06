@@ -19,7 +19,20 @@
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo">
             <h2>Thank You for Your Payment!</h2>
             <p>Your transaction was successful. We will process your order shortly.</p>
-            <a href="{{ url_for('routes.home') }}" class="btn-primary">Return to Home</a>
+            
+            <div class="tracking-info">
+                <h3>Your Order Tracking Number:</h3>
+                <div class="tracking-number">{{ tracking_number }}</div>
+                <p class="tracking-note">Save this number to track your order status. You can track your order on the <a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a> page.</p>
+                <button id="copy-tracking" data-tracking="{{ tracking_number }}" class="btn-secondary">
+                    <i class="fas fa-copy"></i> Copy Tracking Number
+                </button>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('routes.home') }}" class="btn-primary">Return to Home</a>
+                <a href="{{ url_for('routes.previous_orders') }}?tracking={{ tracking_number }}" class="btn-secondary">Track My Order</a>
+            </div>
         </div>
     {% else %}
         <div class="payment-content">
@@ -72,7 +85,6 @@
         </div>
     {% endif %}
 </div>
-
 {% endblock %}
 
 {% block scripts %}
