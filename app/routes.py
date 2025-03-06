@@ -556,38 +556,41 @@ def remove_subscription():
 def search_products():
     query = request.args.get('query', '')
 
-    # Base MongoDB query (empty dict means "fetch all")
+    # Base MongoDB query (empty if no filters applied)
     mongo_query = {}
 
+    # Apply search filter if query exists
     if query:
         mongo_query = {
             "$or": [
-                {"name": {"$regex": query, "$options": "i"}},         # Match name (case-insensitive)
-                {"description": {"$regex": query, "$options": "i"}},  # Match description
-                {"collection": {"$regex": query, "$options": "i"}},   # Match collection
-                {"type": {"$regex": query, "$options": "i"}}          # Match product type
+                {"name": {"$regex": query, "$options": "i"}},  # Case-insensitive search
+                {"description": {"$regex": query, "$options": "i"}},
+                {"collection": {"$regex": query, "$options": "i"}},
+                {"type": {"$regex": query, "$options": "i"}}
             ]
         }
 
-    # Fetch filtered products from MongoDB
-    products_cursor = mongo.db.products.find(mongo_query)
+    # Fetch only the filtered products from MongoDB
+    filtered_products_cursor = mongo.db.products.find(mongo_query)
 
-    # Convert cursor to list of dictionaries
+    # Convert MongoDB cursor to a list of dictionaries
     filtered_products = [
         {
-            "id": str(product["_id"]),  # Convert ObjectId to string
+            "id": str(product["_id"]),
             "name": product["name"],
             "price": product["price"],
             "description": product["description"],
-            "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),  # ✅ FIXED HERE
+            "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
             "product_type": product["type"],
             "collection": product.get("collection", "None"),
             "in_stock": product["in_stock"]
         }
-        for product in products_cursor
+        for product in filtered_products_cursor
     ]
 
+    #  Pass only the filtered products to the template
     return render_template('all_products.html', products=filtered_products, search_query=query)
+
 
 @routes_bp.route('/previous-orders', methods=['GET', 'POST'])
 def previous_orders():
