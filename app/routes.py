@@ -163,7 +163,7 @@ def api_products():
         "name": product["name"],
         "type": product["type"],
         "price": product["price"],
-        "image_url": url_for('static', filename=product["image_url"]),  # ✅ Ensures correct path
+        "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
         "collection": product.get("collection", "None"),
         "description": product["description"],
         "in_stock": bool(product["in_stock"])
@@ -555,133 +555,39 @@ def remove_subscription():
 @routes_bp.route('/search')
 def search_products():
     query = request.args.get('query', '')
-    
-    all_products = [
-        {
-            'id': 1,
-            'name': 'Crystal Ring',
-            'price': 180.00,
-            'description': 'Exquisite crystal ring designed to catch the light with every angle.',
-            'image_url': 'images/crystal_ring_1.jpg',
-            'product_type': 'Rings',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 2,
-            'name': 'Crystal Necklace',
-            'price': 250.00,
-            'description': 'Elegant crystal necklace that adds sparkle to any outfit.',
-            'image_url': 'images/crystal_necklace_1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 3,
-            'name': 'Crystal Bracelet',
-            'price': 150.00,
-            'description': 'Stunning crystal bracelet that wraps your wrist in elegance.',
-            'image_url': 'images/crystal_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 4,
-            'name': 'Leaf Ring',
-            'price': 150.00,
-            'description': 'Elegant leaf design to enhance your style. Crafted with precision and care.',
-            'image_url': 'images/leaf ring 1`.webp',
-            'product_type': 'Rings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 5,
-            'name': 'Leaf Necklace',
-            'price': 120.00,
-            'description': 'Delicate leaf pendant necklace, a symbol of nature\'s grace.',
-            'image_url': 'images/leaf necklace 1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 6, 
-            'name': 'Leaf Earrings',
-            'price': 85.00,
-            'description': 'Chic earrings featuring the elegant shape of leaves, perfect for any occasion.',
-            'image_url': 'images/leaf earring 1.jpg',
-            'product_type': 'Earrings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 7,
-            'name': 'Leaf Bracelet',
-            'price': 135.00,
-            'description': 'Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.',
-            'image_url': 'images/leaf bracelet 1.webp',
-            'product_type': 'Bracelets',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 8,
-            'name': 'Pearl Ring',
-            'price': 220.00,
-            'description': 'A beautiful and timeless pearl ring, perfect for any occasion.',
-            'image_url': 'images/pearl ring 1.webp',
-            'product_type': 'Rings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 9,
-            'name': 'Pearl Necklace',
-            'price': 250.00,
-            'description': 'A stunning necklace featuring lustrous pearls for an elegant look.',
-            'image_url': 'images/pearl necklace 3.webp',
-            'product_type': 'Necklaces',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 10,
-            'name': 'Pearl Earrings',
-            'price': 180.00,
-            'description': 'Elegant pearl earrings that add a touch of sophistication to your look.',
-            'image_url': 'images/pearl earring 1.avif',
-            'product_type': 'Earrings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 11,
-            'name': 'Pearl Bracelet',
-            'price': 180.00,
-            'description': 'A beautiful pearl bracelet, perfect for adding elegance to your wrist.',
-            'image_url': 'images/pearl_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Pearl',
-            'in_stock': True
-        }
-    ]
-    
-    if query:
-        filtered_products = [
-            product for product in all_products 
-            if query.lower() in product['name'].lower() or 
-               query.lower() in product['description'].lower() or
-               query.lower() in product['collection'].lower() or
-               query.lower() in product['product_type'].lower()
-        ]
-    else:
-        filtered_products = all_products
-    
-    return render_template('all_products.html', products=filtered_products, search_query=query)
 
+    # Base MongoDB query (empty dict means "fetch all")
+    mongo_query = {}
+
+    if query:
+        mongo_query = {
+            "$or": [
+                {"name": {"$regex": query, "$options": "i"}},         # Match name (case-insensitive)
+                {"description": {"$regex": query, "$options": "i"}},  # Match description
+                {"collection": {"$regex": query, "$options": "i"}},   # Match collection
+                {"type": {"$regex": query, "$options": "i"}}          # Match product type
+            ]
+        }
+
+    # Fetch filtered products from MongoDB
+    products_cursor = mongo.db.products.find(mongo_query)
+
+    # Convert cursor to list of dictionaries
+    filtered_products = [
+        {
+            "id": str(product["_id"]),  # Convert ObjectId to string
+            "name": product["name"],
+            "price": product["price"],
+            "description": product["description"],
+            "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),  # ✅ FIXED HERE
+            "product_type": product["type"],
+            "collection": product.get("collection", "None"),
+            "in_stock": product["in_stock"]
+        }
+        for product in products_cursor
+    ]
+
+    return render_template('all_products.html', products=filtered_products, search_query=query)
 
 @routes_bp.route('/previous-orders', methods=['GET', 'POST'])
 def previous_orders():
