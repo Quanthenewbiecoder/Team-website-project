@@ -24,24 +24,23 @@
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
       </a>
     </div>
-
+  
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
+      <li><a href="{{ url_for('routes.products') }}">Shop</a></li>
       <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-      <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
       <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
-
+  
       {% if not current_user.is_authenticated %}
-          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+        <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+        <li><a href="{{ url_for('routes.register') }}">Register</a></li>
       {% else %}
-          <li><a href="{{ url_for('routes.history') }}">Dashboard</a></li>
-          <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
-          <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
+        <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
       {% endif %}
     </ul>
-
+  
     <div class="right-section">
       <div class="search-bar">
         <form id="searchForm" action="{{ url_for('routes.search_products') }}" method="GET">
