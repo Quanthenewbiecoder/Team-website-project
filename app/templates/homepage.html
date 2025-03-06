@@ -25,34 +25,74 @@
         <div class="collections-grid">
             <a href="{{ url_for('routes.crystalcollection') }}" class="collection-item">
                 <div class="collection-title">Crystal Collection</div>
-                <img src="{{ url_for('static', filename='images/crystal_collection.png') }}" alt="Crystal collection">
+                <img src="{{ url_for('static', filename='images/crystal_collection.png') }}" alt="Crystal Collection">
             </a>
             <a href="{{ url_for('routes.leafcollection') }}" class="collection-item">
                 <div class="collection-title">Leaf Collection</div>
-                <img src="{{ url_for('static', filename='images/leaf_collection.png') }}" alt="Leaf collection">
+                <img src="{{ url_for('static', filename='images/leaf_collection.png') }}" alt="Leaf Collection">
             </a>
             <a href="{{ url_for('routes.pearlcollection') }}" class="collection-item">
                 <div class="collection-title">Pearl Collection</div>
-                <img src="{{ url_for('static', filename='images/pearl_collection.png') }}" alt="Pearl collection">
+                <img src="{{ url_for('static', filename='images/pearl_collection.png') }}" alt="Pearl Collection">
             </a>
         </div>
     </div>
 </section>
 
+<!-- Newsletter Popup Modal -->
+<div id="newsletter-popup" class="newsletter-popup">
+    <div class="popup-content">
+        <!-- Fixed image path using url_for -->
+        <img src="{{ url_for('static', filename='images/news_popup.png') }}" alt="Newsletter" class="popup-image">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Get the latest updates and exclusive offers directly to your inbox!</p>
+        <form id="newsletter-form">
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-    let currentIndex = 0;
-    const images = document.querySelectorAll('.slider-images img');
-    const totalImages = images.length;
+    // Newsletter Popup Display Logic
+    window.onload = function() {
+        const popup = document.getElementById('newsletter-popup');
+        popup.style.display = 'block';
+    };
 
-    function changeSlide() {
-        currentIndex = (currentIndex + 1) % totalImages; 
-        const offset = -currentIndex * 100; 
-        document.querySelector('.slider-images').style.transform = `translateX(${offset}%)`;
-    }
+    // Newsletter form submission
+    document.getElementById('newsletter-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
 
-    setInterval(changeSlide, 3000);
+        // Send email to the backend for subscription logic
+        fetch('/subscribe-newsletter', {
+            method: 'POST',
+            body: JSON.stringify({ email: email }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }).then(response => {
+            if (response.ok) {
+                alert('Thank you for subscribing to our newsletter!');
+                document.getElementById('newsletter-popup').style.display = 'none';
+            } else {
+                alert('There was an error with your subscription. Please try again.');
+            }
+        }).catch(error => {
+            alert('Error: ' + error);
+        });
+    });
+
+    // Close popup if user clicks outside the modal
+    window.onclick = function(event) {
+        const popup = document.getElementById('newsletter-popup');
+        if (event.target === popup) {
+            popup.style.display = 'none';
+        }
+    };
 </script>
 {% endblock %}
