@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         products.forEach(product => {
-            // ✅ Remove any extra 'static/' from the path
+            //  Remove any extra 'static/' from the path
             let correctedImageURL = product.image_url.replace(/\s/g, "_");
     
             const productDiv = document.createElement("div");
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (filterForm) {
         filterForm.addEventListener("submit", function(event) {
             event.preventDefault();
-            applyFilters(); // ✅ This ensures dynamic filtering without page reload
+            applyFilters(); //  This ensures dynamic filtering without page reload
         });
     }    
 
@@ -149,22 +149,22 @@ document.addEventListener("DOMContentLoaded", function () {
     
             let shouldShow = true;
     
-            // ✅ Search Query Filtering
+            //  Search Query Filtering
             if (searchQuery && !productName.includes(searchQuery)) {
                 shouldShow = false;
             }
     
-            // ✅ Collection Filtering
+            //  Collection Filtering
             if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
                 shouldShow = false;
             }
     
-            // ✅ Product Type Filtering
+            //  Product Type Filtering
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
                 shouldShow = false;
             }
     
-            // ✅ In-Stock Filtering
+            //  In-Stock Filtering
             if (inStockChecked && product.in_stock !== true) {
                 shouldShow = false;
             }
@@ -174,14 +174,14 @@ document.addEventListener("DOMContentLoaded", function () {
     
         console.log("Filtered Products:", filteredProducts); // 🔥 Debugging Log
     
-        // ✅ Apply sorting before rendering
+        //  Apply sorting before rendering
         if (sortOption !== 'Recommended') {
             sortProducts(filteredProducts, sortOption);
         } else {
             renderProducts(filteredProducts);
         }
     
-        // ✅ Show/hide "no results found" message
+        //  Show/hide "no results found" message
         if (filteredProducts.length === 0) {
             showEmptyState();
         } else {
@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return sortOption === 'HighLow' ? priceB - priceA : priceA - priceB;
         });
     
-        renderProducts(products); // ✅ Ensure rendering updates after sorting
+        renderProducts(products); //  Ensure rendering updates after sorting
     }   
 
     function showEmptyState() {
