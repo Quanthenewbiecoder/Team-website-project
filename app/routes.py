@@ -164,7 +164,7 @@ def api_products():
         "name": product["name"],
         "type": product["type"],
         "price": product["price"],
-        "image_url": url_for('static', filename=product["image_url"]),  # ✅ Ensures correct path
+        "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
         "collection": product.get("collection", "None"),
         "description": product["description"],
         "in_stock": bool(product["in_stock"])
@@ -314,6 +314,9 @@ def payment():
             )
             result = mongo.db.orders.insert_one(new_order.__dict__)  #  Save to MongoDB
             order_id = str(result.inserted_id)  #  Convert ObjectId to string
+            
+            # Store tracking number in session for payment success page
+            session['last_order_tracking'] = order_id
         else:
             #  Guest order with random ID
             order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -326,6 +329,9 @@ def payment():
                 "guest_order_id": order_id
             }
             mongo.db.orders.insert_one(guest_order)  #  Save guest order to MongoDB
+            
+            # Store tracking number in session for payment success page
+            session['last_order_tracking'] = order_id
 
         #  Clear shopping basket
         shopping_basket.clear()
@@ -338,11 +344,14 @@ def payment():
 
 @routes_bp.route('/payment/success/<order_id>')
 def payment_success(order_id):
+    tracking_number = session.get('last_order_tracking', order_id)
+    
     return render_template('payment.html', 
                            payment_status='success',
                            cart_items=[],
                            total_amount=0,
                            order_id=order_id,
+                           tracking_number=tracking_number,
                            now=datetime.now())
 
 
@@ -547,131 +556,40 @@ def remove_subscription():
 @routes_bp.route('/search')
 def search_products():
     query = request.args.get('query', '')
-    
-    all_products = [
-        {
-            'id': 1,
-            'name': 'Crystal Ring',
-            'price': 180.00,
-            'description': 'Exquisite crystal ring designed to catch the light with every angle.',
-            'image_url': 'images/crystal_ring_1.jpg',
-            'product_type': 'Rings',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 2,
-            'name': 'Crystal Necklace',
-            'price': 250.00,
-            'description': 'Elegant crystal necklace that adds sparkle to any outfit.',
-            'image_url': 'images/crystal_necklace_1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 3,
-            'name': 'Crystal Bracelet',
-            'price': 150.00,
-            'description': 'Stunning crystal bracelet that wraps your wrist in elegance.',
-            'image_url': 'images/crystal_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Crystal',
-            'in_stock': True
-        },
-        {
-            'id': 4,
-            'name': 'Leaf Ring',
-            'price': 150.00,
-            'description': 'Elegant leaf design to enhance your style. Crafted with precision and care.',
-            'image_url': 'images/leaf ring 1`.webp',
-            'product_type': 'Rings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 5,
-            'name': 'Leaf Necklace',
-            'price': 120.00,
-            'description': 'Delicate leaf pendant necklace, a symbol of nature\'s grace.',
-            'image_url': 'images/leaf necklace 1.jpg',
-            'product_type': 'Necklaces',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 6, 
-            'name': 'Leaf Earrings',
-            'price': 85.00,
-            'description': 'Chic earrings featuring the elegant shape of leaves, perfect for any occasion.',
-            'image_url': 'images/leaf earring 1.jpg',
-            'product_type': 'Earrings',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 7,
-            'name': 'Leaf Bracelet',
-            'price': 135.00,
-            'description': 'Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.',
-            'image_url': 'images/leaf bracelet 1.webp',
-            'product_type': 'Bracelets',
-            'collection': 'Leaf',
-            'in_stock': True
-        },
-        {
-            'id': 8,
-            'name': 'Pearl Ring',
-            'price': 220.00,
-            'description': 'A beautiful and timeless pearl ring, perfect for any occasion.',
-            'image_url': 'images/pearl ring 1.webp',
-            'product_type': 'Rings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 9,
-            'name': 'Pearl Necklace',
-            'price': 250.00,
-            'description': 'A stunning necklace featuring lustrous pearls for an elegant look.',
-            'image_url': 'images/pearl necklace 3.webp',
-            'product_type': 'Necklaces',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 10,
-            'name': 'Pearl Earrings',
-            'price': 180.00,
-            'description': 'Elegant pearl earrings that add a touch of sophistication to your look.',
-            'image_url': 'images/pearl earring 1.avif',
-            'product_type': 'Earrings',
-            'collection': 'Pearl',
-            'in_stock': True
-        },
-        {
-            'id': 11,
-            'name': 'Pearl Bracelet',
-            'price': 180.00,
-            'description': 'A beautiful pearl bracelet, perfect for adding elegance to your wrist.',
-            'image_url': 'images/pearl_bracelet_1.jpg',
-            'product_type': 'Bracelets',
-            'collection': 'Pearl',
-            'in_stock': True
-        }
-    ]
-    
+
+    # Base MongoDB query (empty if no filters applied)
+    mongo_query = {}
+
+    # Apply search filter if query exists
     if query:
-        filtered_products = [
-            product for product in all_products 
-            if query.lower() in product['name'].lower() or 
-               query.lower() in product['description'].lower() or
-               query.lower() in product['collection'].lower() or
-               query.lower() in product['product_type'].lower()
-        ]
-    else:
-        filtered_products = all_products
-    
+        mongo_query = {
+            "$or": [
+                {"name": {"$regex": query, "$options": "i"}},  # Case-insensitive search
+                {"description": {"$regex": query, "$options": "i"}},
+                {"collection": {"$regex": query, "$options": "i"}},
+                {"type": {"$regex": query, "$options": "i"}}
+            ]
+        }
+
+    # Fetch only the filtered products from MongoDB
+    filtered_products_cursor = mongo.db.products.find(mongo_query)
+
+    # Convert MongoDB cursor to a list of dictionaries
+    filtered_products = [
+        {
+            "id": str(product["_id"]),
+            "name": product["name"],
+            "price": product["price"],
+            "description": product["description"],
+            "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
+            "product_type": product["type"],
+            "collection": product.get("collection", "None"),
+            "in_stock": product["in_stock"]
+        }
+        for product in filtered_products_cursor
+    ]
+
+    #  Pass only the filtered products to the template
     return render_template('all_products.html', products=filtered_products, search_query=query)
 
 
@@ -689,3 +607,58 @@ def check_subscription():
     else:
         flash("Not subscribed", "info")
     return redirect(url_for('routes.home'))
+
+
+
+@routes_bp.route('/previous-orders', methods=['GET', 'POST'])
+def previous_orders():
+    tracking_number = None
+    order = None
+    user_orders = []
+    
+    if request.method == 'GET' and 'tracking' in request.args:
+        tracking_number = request.args.get('tracking', '').strip()
+        if tracking_number:
+            try:
+                if tracking_number.startswith('GUEST-'):
+                    order = mongo.db.orders.find_one({"guest_order_id": tracking_number})
+                else:
+                    order = mongo.db.orders.find_one({"_id": ObjectId(tracking_number)})
+                
+                if not order:
+                    flash('No order found with that tracking number.', 'danger')
+                else:
+                    if '_id' in order:
+                        order['id'] = str(order['_id'])
+            except Exception as e:
+                flash(f'Error retrieving order: Invalid tracking number format.', 'danger')
+    
+    if request.method == 'POST':
+        tracking_number = request.form.get('tracking_number', '').strip()
+    
+    if current_user.is_authenticated:
+        user_orders = list(mongo.db.orders.find({"user_id": current_user.get_id()})
+                          .sort("created_at", -1)
+                          .limit(5))
+        
+        if not tracking_number:
+            flash('Please enter a valid tracking number.', 'danger')
+        else:
+            try:
+                if tracking_number.startswith('GUEST-'):
+                    order = mongo.db.orders.find_one({"guest_order_id": tracking_number})
+                else:
+                    order = mongo.db.orders.find_one({"_id": ObjectId(tracking_number)})
+                
+                if not order:
+                    flash('No order found with that tracking number.', 'danger')
+                else:
+                    if '_id' in order:
+                        order['id'] = str(order['_id'])
+            except Exception as e:
+                flash(f'Error retrieving order: Invalid tracking number format.', 'danger')
+    
+    return render_template('previous_orders.html', 
+                          tracking_number=tracking_number, 
+                          order=order,
+                          user_orders=user_orders)

@@ -24,23 +24,23 @@
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine Logo">
       </a>
     </div>
-
+  
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-      <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
+      <li><a href="{{ url_for('routes.products') }}">Shop</a></li>
       <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-      <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
       <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
-
+  
       {% if not current_user.is_authenticated %}
-          <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-          <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
+        <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+        <li><a href="{{ url_for('routes.register') }}">Register</a></li>
       {% else %}
-          <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
-          <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
+        <li><a href="{{ url_for('routes.home') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
       {% endif %}
     </ul>
-
+  
     <div class="right-section">
       <div class="search-bar">
         <form id="searchForm" action="{{ url_for('routes.search_products') }}" method="GET">
@@ -91,6 +91,7 @@
                 <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
                  <!-- subscribe  -->
                <li><a href="{{ url_for('routes.subscription') }}">Subscribe for News & Offers</a></li>
+                <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
             </ul>
         </div>
 
@@ -103,6 +104,26 @@
             </ul>
         </div>
     </footer>
+
+    
+    <div id="shopping-bag-popup" class="shopping-bag-popup" style="display: none;">
+      <div class="popup-content">
+          <span class="close-btn" id="close-popup">&times;</span>
+          <h2>SHOPPING BAG (<span id="cart-count">1</span>)</h2>
+          <div id="cart-items"></div>
+          <hr>
+          <div class="subtotal">
+              <p><strong>SUBTOTAL</strong></p>
+              <p>incl. VAT</p>
+              <p><strong id="subtotal-price">£0</strong></p>
+          </div>
+          <button class="checkout-btn">PROCEED TO CHECKOUT</button>
+          <p class="or-text">Or</p>
+          <button class="paypal-btn">
+              <img src="{{ url_for('static', filename='images/payPalLOGO.png') }}" alt="PayPal Checkout">
+          </button>
+      </div>
+  </div>
 
     {% block scripts %}{% endblock %}
 

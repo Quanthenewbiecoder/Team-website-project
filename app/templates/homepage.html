@@ -3,8 +3,10 @@
 {% block title %}Homepage - The Divine Jewelry{% endblock %}
 
 {% block content %}
+<!-- Link the CSS file -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/homepagecss.css') }}">
 
+<!-- Image Slider -->
 <section class="slider">
     <div class="slider-images">
         <img src="{{ url_for('static', filename='images/slide1.webp') }}" alt="Jewelry 1">
@@ -13,46 +15,50 @@
     </div>
 </section>
 
+<!-- About Section -->
 <section id="about" class="about-section">
     <div class="container">
         <img src="{{ url_for('static', filename='images/mission.jpg') }}" alt="Our Mission">
     </div>
 </section>
 
+<!-- Featured Collections -->
 <section id="collections" class="collections-section">
     <div class="container">
         <h2>Featured Collections</h2>
         <div class="collections-grid">
             <a href="{{ url_for('routes.crystalcollection') }}" class="collection-item">
                 <div class="collection-title">Crystal Collection</div>
-                <img src="{{ url_for('static', filename='images/crystal_collection.png') }}" alt="Crystal collection">
+                <img src="{{ url_for('static', filename='images/crystal_collection.png') }}" alt="Crystal Collection">
             </a>
             <a href="{{ url_for('routes.leafcollection') }}" class="collection-item">
                 <div class="collection-title">Leaf Collection</div>
-                <img src="{{ url_for('static', filename='images/leaf_collection.png') }}" alt="Leaf collection">
+                <img src="{{ url_for('static', filename='images/leaf_collection.png') }}" alt="Leaf Collection">
             </a>
             <a href="{{ url_for('routes.pearlcollection') }}" class="collection-item">
                 <div class="collection-title">Pearl Collection</div>
-                <img src="{{ url_for('static', filename='images/pearl_collection.png') }}" alt="Pearl collection">
+                <img src="{{ url_for('static', filename='images/pearl_collection.png') }}" alt="Pearl Collection">
             </a>
         </div>
     </div>
 </section>
 
+<!-- Newsletter Popup Modal -->
+<div id="newsletter-popup" class="newsletter-popup">
+    <div class="popup-content">
+        <span class="close-btn" id="close-popup">&times;</span> <!-- X Button -->
+        <img src="{{ url_for('static', filename='images/news_popup.png') }}" alt="Newsletter" class="popup-image">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Get the latest updates and exclusive offers directly to your inbox!</p>
+        <form id="newsletter-form">
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    let currentIndex = 0;
-    const images = document.querySelectorAll('.slider-images img');
-    const totalImages = images.length;
-
-    function changeSlide() {
-        currentIndex = (currentIndex + 1) % totalImages; 
-        const offset = -currentIndex * 100; 
-        document.querySelector('.slider-images').style.transform = `translateX(${offset}%)`;
-    }
-
-    setInterval(changeSlide, 3000);
-</script>
+<!-- Link the external JavaScript file -->
+<script src="{{ url_for('static', filename='js/newsletter.js') }}"></script>
 {% endblock %}

@@ -5,6 +5,7 @@
     font-family: "Nunito", sans-serif;
 }
 
+/* Updated Navigation Bar CSS */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -15,97 +16,57 @@
     background-color: #2f1c0e;
     transition: background-color 0.3s, backdrop-filter 0.3s;
     position: relative;
-}
-
-.navbar_bg {
+  }
+  
+  .navbar_bg {
     background-color: #2f1c0e;
-}
-
-.navbar .logo {
+  }
+  
+  .navbar .logo {
     margin-right: 20px;
-}
-
-.navbar .logo img {
+  }
+  
+  .navbar .logo img {
     height: 50px;
     width: auto;
-}
-
-.right-section {
+  }
+  
+  .menu {
+    display: flex;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    max-width: 800px;
+  }
+  
+  .menu li {
+    margin: 0 10px;
+  }
+  
+  .menu li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    transition: color 0.3s, transform 0.3s;
+    padding: 5px;
+    white-space: nowrap;
+  }
+  
+  .menu li a:hover {
+    color: #f5900d;
+    transform: scale(1.1);
+  }
+  
+  .right-section {
     display: flex;
     align-items: center;
     gap: 15px;
-}
-
-.menu {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    list-style-type: none;
-}
-
-.menu li {
-    margin: 0 20px;  
-}
-
-.menu li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1em;
-    transition: color 0.3s, transform 0.3s;
-    padding: 5px;
-}
-
-.menu li a:hover {
-    color: #f5900d;
-    transform: scale(1.1);
-}
-
-.navbar.sticky {
-    position: fixed;
-    top: 0;
-    background-color: #2f1c0e;
-    backdrop-filter: blur(10px);
-}
-
-.navbar ul {
-    display: -webkit-inline-box;
-    list-style-type: none;
-}
-
-.navbar ul li {
-    margin-left: 25px;
-}
-
-.navbar ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1em;
-    transition: color 0.3s, transform 0.3s;
-    padding: 5px;
-}
-
-.navbar ul li a:hover {
-    color: #f5900d;
-    transform: scale(1.1);
-}
-
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-.hamburger div {
-    width: 37px;
-    height: 3px;
-    border-radius: 10px;
-    background-color: #fff;
-    margin: 4px 0;
-    transition: transform 0.3s ease;
-}
-
-.search-bar {
+    margin-left: 20px;
+  }
+  
+  .search-bar {
     display: flex;
     align-items: center;
     background-color: rgba(255, 255, 255, 0.2);
@@ -113,14 +74,14 @@
     border-radius: 5px;
     padding: 5px 10px;
     transition: background-color 0.3s, border 0.3s;
-}
-
-.search-bar form {
+  }
+  
+  .search-bar form {
     display: flex;
     align-items: center;
-}
-
-.search-bar input {
+  }
+  
+  .search-bar input {
     border: none;
     background: transparent;
     color: #fff;
@@ -128,21 +89,88 @@
     outline: none;
     width: 150px;
     transition: width 0.3s;
-}
-
-.search-bar button {
+  }
+  
+  .search-bar button {
     background: none;
     border: none;
     color: #fff;
     font-size: 1.2em;
     cursor: pointer;
     padding-left: 5px;
-}
-
-.search-bar:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.8);
-}
+  }
+  
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  
+  .hamburger div {
+    width: 37px;
+    height: 3px;
+    border-radius: 10px;
+    background-color: #fff;
+    margin: 4px 0;
+    transition: transform 0.3s ease;
+  }
+  
+  /* Media queries for responsive design */
+  @media (max-width: 1024px) {
+    .menu li {
+      margin: 0 8px;
+    }
+    
+    .menu li a {
+      font-size: 0.9em;
+    }
+  }
+  
+  @media (max-width: 900px) {
+    .menu {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 69px;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      text-align: center;
+      z-index: 100;
+    }
+    
+    .menu.show {
+      display: flex;
+    }
+    
+    .menu li {
+      margin: 10px 0;
+    }
+    
+    .hamburger {
+      display: flex;
+    }
+    
+    .search-bar {
+      margin-right: 15px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .search-bar {
+      max-width: 120px;
+    }
+    
+    .search-bar input {
+      width: 80px;
+    }
+    
+    .navbar {
+      padding: 15px 10px;
+    }
+  }
 
 .footer {
     background-color: #2f1c0e;
@@ -309,4 +337,55 @@
     color: #856404;
     background-color: #fff3cd;
     border-color: #ffeeba;
+}
+
+./* Popup css */
+.shopping-bag-popup {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+  border-radius: 10px;
+}
+
+.popup-content {
+  padding: 20px;
+}
+
+.popup-image {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 15px;
+}
+
+/* Close Button Styles */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #555;
+}
+
+.close-btn:hover {
+  color: #000;
+} {
+  display: none; /* Initially hidden */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  text-align: center;
+  border-radius: 10px;
 }
