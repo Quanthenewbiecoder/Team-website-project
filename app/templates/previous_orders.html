@@ -4,16 +4,39 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/previous_orders.css') }}">
+<style>
+    .clear-history-btn {
+        background-color: #d9534f;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-left: 10px;
+    }
+    
+    .clear-history-btn:hover {
+        background-color: #c9302c;
+    }
+    
+    .header-with-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="previous-orders-container">
     <div class="order-lookup-section">
         <h2>Track Your Order</h2>
-        <form id="tracking-form" class="order-lookup-form" method="POST" action="{{ url_for('routes.previous_orders') }}">
+        <form id="tracking-form" class="order-lookup-form" method="GET" action="{{ url_for('routes.previous_orders') }}">
             <div class="form-group">
                 <label for="tracking-number">Order Tracking Number</label>
-                <input type="text" id="tracking-number" name="tracking_number" placeholder="Enter your order tracking number" value="{{ tracking_number or '' }}">
+                <input type="text" id="tracking-number" name="tracking" placeholder="Enter your order tracking number" value="{{ tracking_number or '' }}">
                 <div id="form-error" style="color: red; margin-top: 5px; display: none;"></div>
             </div>
             <button type="submit" class="btn-primary">Track Order</button>
@@ -41,17 +64,30 @@
         <div class="order-items">
             <h3>Items</h3>
             {% if order.items %}
-                {% for item in order.items %}
-                <div class="order-item">
-                    <img class="item-image" src="{{ url_for('static', filename=item.image) if item.image else url_for('static', filename='images/default-product.jpg') }}" alt="{{ item.name }}">
-                    <div class="item-details">
-                        <p class="item-name">{{ item.name }}</p>
-                        <p class="item-price">£{{ item.price }} <span class="item-quantity">x{{ item.quantity }}</span></p>
+                <!-- Safely check if items is a list before iterating -->
+                {% if order.items is sequence and order.items is not string %}
+                    {% for item in order.items %}
+                    <div class="order-item">
+                        <!-- Handle image path if it exists -->
+                        {% if item.image %}
+                            <img class="item-image" src="{{ url_for('static', filename=item.image.replace('static/', '')) if item.image.startswith('static/') else url_for('static', filename=item.image) }}" alt="{{ item.name }}">
+                        {% else %}
+                            <img class="item-image" src="{{ url_for('static', filename='images/default-product.jpg') }}" alt="Product Image">
+                        {% endif %}
+                        
+                        <div class="item-details">
+                            <p class="item-name">{{ item.name }}</p>
+                            <p class="item-price">£{{ item.price }} <span class="item-quantity">x{{ item.quantity }}</span></p>
+                        </div>
                     </div>
-                </div>
-                {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    <p>Your order contains the following items:</p>
+                    <p>Order Total: £{{ order.total_price }}</p>
+                {% endif %}
             {% else %}
-                <p>No items found in this order.</p>
+                <p>Your order has been received and is being processed.</p>
+                <p>Order Total: £{{ order.total_price }}</p>
             {% endif %}
         </div>
 
@@ -133,42 +169,49 @@
     {% endif %}
 
     {% if current_user.is_authenticated %}
-<div class="current-orders-section">
-    <h2>Your Recent Orders</h2>
-    
-    {% if user_orders %}
-    <table class="orders-table">
-        <thead>
-            <tr>
-                <th>Order #</th>
-                <th>Date</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user_order in user_orders %}
-            <tr>
-                <td>{{ user_order._id }}</td>
-                <td>{{ user_order.created_at.strftime('%d %b %Y') if user_order.created_at else 'N/A' }}</td>
-                <td>£{{ user_order.total_price }}</td>
-                <td>{{ user_order.status }}</td>
-                <td><a href="{{ url_for('routes.track_order', order_id=user_order._id) }}">View Order</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="empty-state">
-        <div class="empty-icon">📦</div>
-        <h3>No recent orders</h3>
-        <p>You don't have any recent orders. Start shopping to see your orders here.</p>
-        <a href="{{ url_for('routes.products') }}" class="btn-primary">Shop Now</a>
+    <div class="current-orders-section">
+        <div class="header-with-button">
+            <h2>Your Recent Orders</h2>
+            {% if user_orders %}
+            <form action="{{ url_for('routes.clear_order_history') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear your order history? This cannot be undone.');">
+                <button type="submit" class="clear-history-btn">Clear Order History</button>
+            </form>
+            {% endif %}
+        </div>
+        
+        {% if user_orders %}
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_order in user_orders %}
+                <tr>
+                    <td>{{ user_order.id }}</td>
+                    <td>{{ user_order.created_at.strftime('%d %b %Y') if user_order.created_at else 'N/A' }}</td>
+                    <td>£{{ user_order.total_price }}</td>
+                    <td>{{ user_order.status }}</td>
+                    <td><a href="{{ url_for('routes.track_order', order_id=user_order.id) }}">View Order</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>No recent orders</h3>
+            <p>You don't have any recent orders. Start shopping to see your orders here.</p>
+            <a href="{{ url_for('routes.products') }}" class="btn-primary">Shop Now</a>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
-</div>
-{% endif %}
 </div>
 {% endblock %}
 

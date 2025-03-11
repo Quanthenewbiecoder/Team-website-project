@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const trackingForm = document.getElementById('tracking-form');
     if (trackingForm) {
         trackingForm.addEventListener('submit', function(e) {
-            // Form validation is handled by the server
             const trackingNumber = document.getElementById('tracking-number').value.trim();
             if (!trackingNumber) {
                 e.preventDefault();
@@ -23,14 +22,36 @@ document.addEventListener('DOMContentLoaded', function() {
     if (copyTrackingBtn) {
         copyTrackingBtn.addEventListener('click', function() {
             const trackingNumber = this.getAttribute('data-tracking');
-            navigator.clipboard.writeText(trackingNumber).then(function() {
-                showNotification('Tracking number copied to clipboard!');
-            }, function() {
-                showNotification('Failed to copy tracking number', true);
-            });
+            
+            navigator.clipboard.writeText(trackingNumber)
+                .then(function() {
+                    showNotification('Tracking number copied to clipboard!');
+                })
+                .catch(function() {
+                    fallbackCopyToClipboard(trackingNumber);
+                });
         });
     }
 });
+
+function fallbackCopyToClipboard(text) {
+    // Create a temporary input element
+    const tempInput = document.createElement('input');
+    tempInput.style.position = 'absolute';
+    tempInput.style.left = '-9999px';
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    
+    // Select and copy the text
+    tempInput.select();
+    document.execCommand('copy');
+    
+    // Remove the temporary element
+    document.body.removeChild(tempInput);
+    
+    // Show notification
+    showNotification('Tracking number copied to clipboard!');
+}
 
 function showFormError(message) {
     const errorElement = document.getElementById('form-error');

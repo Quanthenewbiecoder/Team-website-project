@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     
         products.forEach(product => {
-            //  Remove any extra 'static/' from the path
             let correctedImageURL = product.image_url.replace(/\s/g, "_");
     
             const productDiv = document.createElement("div");
@@ -48,9 +47,9 @@ document.addEventListener("DOMContentLoaded", function () {
             productDiv.innerHTML = `
                 <img src="${correctedImageURL}" alt="${product.name}">
                 <h3>${product.name}</h3>
-                <p class="price">£${product.price.toFixed(2)}</p>
+                <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${parseFloat(product.price).toFixed(2)}">
                     Add to Cart
                 </button>
             `;
@@ -80,20 +79,20 @@ document.addEventListener("DOMContentLoaded", function () {
     async function addToCart(id, name, price, image) {
         try {
             let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
-
+    
             if (cart[id]) {
                 cart[id].quantity += 1;
             } else {
                 cart[id] = {
                     name: name,
-                    price: price,
+                    price: parseFloat(price),
                     quantity: 1,
                     image: image
                 };
             }
-
+    
             sessionStorage.setItem('divinecart', JSON.stringify(cart));
-
+    
             showNotification(`${name} added to cart`);
         } catch (error) {
             console.error('Error adding to cart:', error);

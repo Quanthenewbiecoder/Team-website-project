@@ -137,7 +137,7 @@ Products - The Divine
             <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
                 <img src="{{ product.image_url }}" alt="{{ product.name }}">
                 <h3>{{ product.name }}</h3>
-                <p class="price">£{{ product.price }}</p>
+                <p class="price">£{{ "%.2f"|format(product.price) }}</p>
                 <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
                     Add to Cart
                 </button>
