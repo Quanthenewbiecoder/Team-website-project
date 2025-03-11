@@ -64,3 +64,8 @@ class DiscountForm(FlaskForm):
     percentage = DecimalField('Percentage', places=2, validators=[NumberRange(min=0, max=100)])
     flat_amount = DecimalField('Flat Amount', places=2, validators=[NumberRange(min=0)])
     submit = SubmitField('Apply Discount')
+
+#SubscriptionForm
+class SubscriptionForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Subscribe')

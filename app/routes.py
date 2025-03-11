@@ -8,7 +8,8 @@ from app import mongo
 from app.models import *
 from app.forms import *
 from app.database import products_collection
-
+from app.models import Subscription
+from app.forms import SubscriptionForm
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
 
@@ -672,3 +673,19 @@ def search_products():
         filtered_products = all_products
     
     return render_template('all_products.html', products=filtered_products, search_query=query)
+
+
+# Check subscription status
+@routes_bp.route('/check_subscription', methods=['GET'])
+def check_subscription():
+    email = request.form.get('email')
+    if not email:
+        flash("Email is required", "danger")
+        return redirect(url_for('routes.home'))
+
+    subscription = Subscription.find_by_email(email)
+    if subscription:
+        flash(f"Subscribed since {subscription.subscribed_at}", "info")
+    else:
+        flash("Not subscribed", "info")
+    return redirect(url_for('routes.home'))

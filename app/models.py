@@ -9,6 +9,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from bson import ObjectId
+from app.database import subscriptions_collection
 
 #  Connect to MongoDB Atlas
 client = MongoClient(Config.MONGO_URI)
@@ -192,3 +193,28 @@ class Review:
     def delete(self):
         """Delete review from MongoDB"""
         db.reviews.delete_one({"_id": self._id})
+
+
+
+#Subscription part 
+class Subscription:
+    def __init__(self, email, _id=None):
+        self.email = email
+        self.subscribed_at = datetime.utcnow()
+        self._id = ObjectId(_id) if _id else ObjectId()
+
+    def save(self):
+        """Save subscription to MongoDB"""
+        subscriptions_collection.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=True)
+
+    @staticmethod
+    def find_by_email(email):
+        """Check if an email is already subscribed"""
+        subscription = subscriptions_collection.find_one({"email": email})
+        return Subscription(**subscription) if subscription else None
+
+    @staticmethod
+    def delete(email):
+        """Remove subscription from MongoDB"""
+        result = subscriptions_collection.delete_one({"email": email})
+        return result.deleted_count > 0  # Returns True if deleted, False if not found

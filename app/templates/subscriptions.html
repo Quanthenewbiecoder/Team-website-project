@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/F.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="subscription-container">
+    <h2>Manage Your Subscription</h2>
+
+    <!-- Subscribe Form -->
+    <div class="form-container">
+      <h3>Subscribe</h3>
+      <form id="subscription-form" method="POST" action="{{ url_for('routes.subscribe') }}">
+        <div class="form-group">
+          <label for="email">Enter your email to subscribe:</label>
+          <input type="email" name="email" id="email" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn-submit">Subscribe</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Unsubscribe Form -->
+    <div class="form-container">
+      <h3>Unsubscribe</h3>
+      <form method="POST" action="{{ url_for('routes.unsubscribe') }}">
+        <div class="form-group">
+          <label for="email">Enter your email to unsubscribe:</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn-submit">Unsubscribe</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Check Subscription Status Form -->
+    <div class="form-container">
+      <h3>Check Subscription Status</h3>
+      <form method="POST" action="{{ url_for('routes.check_subscription') }}">
+        <div class="form-group">
+          <label for="email">Enter your email to check subscription status:</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn-submit">Check Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Coupon Modal -->
+  <div id="coupon-modal" class="modal">
+      <div class="modal-content">
+          <span class="close">&times;</span>
+          <img src="{{ url_for('static', filename='Images/coupon.jpg') }}" alt="Coupon Offer">
+      </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("subscription-form");
+    const modal = document.getElementById("coupon-modal");
+    const closeModal = document.querySelector(".close");
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const response = await fetch("{{ url_for('routes.subscribe') }}", {
+            method: "POST",
+            body: JSON.stringify({ email }),
+            headers: { "Content-Type": "application/json" }
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            modal.style.display = "block";  // Show the coupon modal
+        } else {
+            alert(result.error);
+        }
+    });
+
+    closeModal.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    window.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+});
+</script>
+{% endblock %}
