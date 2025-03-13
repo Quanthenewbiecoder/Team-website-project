@@ -378,6 +378,16 @@ def payment_success(order_id):
         flash(f"Error displaying payment success: {str(e)}", "danger")
         return redirect(url_for('routes.home'))
 
+@routes_bp.route('/api/get_user', methods=['GET'])
+@login_required
+def get_user():
+    """API to get the logged-in user's email."""
+    try:
+        return jsonify({'success': True, 'user_email': current_user.email}), 200
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return jsonify({'success': False, 'error': 'User not logged in'}), 401
+
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
     data = request.json
@@ -683,12 +693,13 @@ def clear_order_history():
     
     return redirect(url_for('routes.previous_orders'))
 
-### order-details-headerCREATE ORDER (Guest or Registered User) ###
 @routes_bp.route('/api/orders', methods=['POST'])
 def create_order():
     """Create a new order for guests or registered users."""
     try:
-        data = request.json  # Ensure request data is JSON
+        data = request.json
+
+        print(f"DEBUG: Incoming order data → {json.dumps(data, indent=2)}")
 
         if not data or 'total_price' not in data or 'items' not in data:
             return jsonify({'success': False, 'error': 'Invalid order data'}), 400
@@ -697,21 +708,18 @@ def create_order():
         guest_email = data.get('guest_email')
 
         if not user_id and not guest_email:
+            print("ERROR: Both user_id and guest_email are missing!")
             return jsonify({'success': False, 'error': 'User ID or guest email is required'}), 400
 
-        # Ensure total_price is a float
-        try:
-            total_price = float(data['total_price'])
-        except ValueError:
-            return jsonify({'success': False, 'error': 'Total price must be a number'}), 400
+        print(f"Order Accepted: user_id={user_id}, guest_email={guest_email}")
 
-        # Ensure items are a list of dictionaries
+        total_price = float(data['total_price'])
+
         if not isinstance(data['items'], list) or not all(isinstance(item, dict) for item in data['items']):
             return jsonify({'success': False, 'error': 'Items must be a list of objects'}), 400
 
-        # Fix: Generate a tracking number if this is a guest order
         guest_order_id = None
-        if not user_id:  # This means it's a guest order
+        if not user_id:
             guest_order_id = "GUEST-" + ''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=8))
 
         order = {
@@ -721,17 +729,18 @@ def create_order():
             "items": data['items'],
             "status": "Pending",
             "created_at": datetime.utcnow(),
-            "guest_order_id": guest_order_id  # Now guest orders will always have a tracking number!
+            "guest_order_id": guest_order_id
         }
 
-        result = mongo.db.orders.insert_one(order)  # Insert order into MongoDB
+        result = mongo.db.orders.insert_one(order)
         order_id = str(result.inserted_id)
 
         return jsonify({'success': True, 'order_id': order_id, 'tracking_number': guest_order_id or order_id}), 201
 
     except Exception as e:
-        print(f"Error creating order: {str(e)}")  # Log error in terminal
+        print(f"ERROR CREATING ORDER: {str(e)}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
+
 
 ### order-details-headerGET ORDER BY ID (User or Guest) ###
 @routes_bp.route('/api/orders/<order_id>', methods=['GET'])
@@ -769,7 +778,7 @@ def get_orders_by_user(user_id):
             order['_id'] = str(order['_id'])  # Convert ObjectId to string
         return jsonify({'success': True, 'orders': orders}), 200
     except Exception as e:
-        print(f"🚨 Error retrieving user orders: {e}")
+        print(f"order-details-headerError retrieving user orders: {e}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 ### order-details-headerGET ORDERS BY GUEST EMAIL
@@ -786,7 +795,7 @@ def get_orders_by_guest():
             order['_id'] = str(order['_id'])  # Convert ObjectId to string
         return jsonify({'success': True, 'orders': orders}), 200
     except Exception as e:
-        print(f"🚨 Error retrieving guest orders: {e}")
+        print(f"order-details-headerError retrieving guest orders: {e}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 ### order-details-headerTRACK ORDER BY TRACKING NUMBER OR GUEST EMAIL
@@ -820,7 +829,7 @@ def track_order():
         return jsonify({'success': True, 'order': order}), 200
 
     except Exception as e:
-        print(f"🚨 Error tracking order: {e}")
+        print(f"order-details-headerError tracking order: {e}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 ### order-details-headerORDER TRACKING PAGE
