@@ -106,32 +106,66 @@ function setupFormSubmission() {
     if (paymentForm) {
         paymentForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
-            const expiry = document.getElementById('expiry').value;
-            const cvv = document.getElementById('cvv').value;
-            
-            if (cardNumber.length !== 16) {
-                alert('Please enter a valid 16-digit card number');
+
+            const cartDataString = sessionStorage.getItem('divinecart');
+            if (!cartDataString || cartDataString === '{}') {
+                alert('Your cart is empty!');
                 return;
             }
-            
-            if (!expiry.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/)) {
-                alert('Please enter a valid expiry date (MM/YY)');
+
+            const cartData = JSON.parse(cartDataString);
+            let totalPrice = 0;
+            let items = [];
+
+            Object.entries(cartData).forEach(([id, item]) => {
+                totalPrice += item.price * item.quantity;
+                items.push({
+                    product_name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                });
+            });
+
+            // Check if user is logged in
+            const userId = localStorage.getItem('user_id'); // Retrieve from localStorage if logged in
+            const guestEmail = document.getElementById('guest-email')?.value || null;
+
+            if (!userId && !guestEmail) {
+                alert('Please provide an email to continue as a guest.');
                 return;
             }
-            
-            if (cvv.length !== 3) {
-                alert('Please enter a valid 3-digit CVV');
-                return;
-            }
-            
-            sessionStorage.removeItem('divinecart');
-            
-            this.submit();
+
+            const orderData = {
+                user_id: userId,
+                guest_email: guestEmail,
+                total_price: totalPrice,
+                items: items
+            };
+
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => {
+                console.log(" Raw Response:", response);
+                return response.json(); // Convert response to JSON
+            })
+            .then(data => {
+                console.log(" API Response:", data);
+                if (data.success) {
+                    alert('Payment successful! Your order has been placed.');
+                    sessionStorage.removeItem('divinecart');
+                    window.location.href = `/order-tracking?order_id=${data.order_id}`;
+                } else {
+                    alert('Error processing your order: ' + data.error);
+                }
+            })
+            .catch(error => console.error('🚨 Fetch error:', error));            
         });
     }
 }
+
 
 function setupTrackingCopy() {
     const copyTrackingBtn = document.getElementById('copy-tracking');

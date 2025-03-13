@@ -10,6 +10,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from bson import ObjectId
 from app.database import subscriptions_collection
+import random
+
 
 #  Connect to MongoDB Atlas
 client = MongoClient(Config.MONGO_URI)
@@ -50,10 +52,21 @@ class User(UserMixin):
         return User(**user_data) if user_data else None
 
     @staticmethod
-    def find_by_email(email):
-        """Find user by email for authentication"""
-        user_data = db.users.find_one({"email": email})
-        return User(**user_data) if user_data else None
+    def find_by_id(order_id):
+        """Find an order by MongoDB _id or guest_order_id"""
+        try:
+            # If order_id is a valid ObjectId, search by `_id`
+            if ObjectId.is_valid(order_id):
+                order_data = mongo.db.orders.find_one({"_id": ObjectId(order_id)})
+            else:
+                # If not an ObjectId, search by `guest_order_id`
+                order_data = mongo.db.orders.find_one({"guest_order_id": order_id})
+            
+            return Order(**order_data) if order_data else None
+        except Exception as e:
+            print(f"🚨 Error finding order: {e}")
+            return None
+
 
     def delete(self):
         """Delete user from MongoDB"""
@@ -218,3 +231,85 @@ class Subscription:
         """Remove subscription from MongoDB"""
         result = subscriptions_collection.delete_one({"email": email})
         return result.deleted_count > 0  # Returns True if deleted, False if not found
+    
+from datetime import datetime
+from bson import ObjectId
+from app import mongo  # Ensure your database connection is imported
+
+class Order:
+    def __init__(self, total_price, items, user_id=None, guest_email=None, guest_order_id=None, status="Pending", created_at=None, _id=None):
+        if not user_id and not guest_email:
+            raise ValueError("Either user_id or guest_email must be provided")
+
+        self.user_id = ObjectId(user_id) if user_id and ObjectId.is_valid(user_id) else None  # Ensure user_id is valid
+        self.guest_email = guest_email  # Guest user email
+        self.total_price = total_price
+        self.status = status  # 'Pending', 'Completed', 'Canceled'
+        self.created_at = created_at if created_at else datetime.utcnow()
+        self.items = items  # List of purchased items
+        self._id = ObjectId(_id) if _id and ObjectId.is_valid(_id) else ObjectId()
+
+        # Fix: Store Tracking Number for Guest Orders
+        self.guest_order_id = guest_order_id if guest_order_id else (
+            f"GUEST-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}" if guest_email else None
+        )
+
+    def save(self):
+        """Save the order to MongoDB"""
+        mongo.db.orders.update_one({"_id": self._id}, {"$set": self.to_dict()}, upsert=True)
+
+    def to_dict(self):
+        """Convert order object to dictionary for JSON response"""
+        return {
+            "_id": str(self._id),
+            "user_id": str(self.user_id) if self.user_id else None,
+            "guest_email": self.guest_email,
+            "guest_order_id": self.guest_order_id,  # Now included!
+            "total_price": self.total_price,
+            "status": self.status,
+            "created_at": self.created_at,
+            "items": self.items
+        }
+
+    @staticmethod
+    def find_by_id(order_id):
+        """Find an order by MongoDB _id or guest_order_id"""
+        try:
+            # Fix: Check for Guest Orders by guest_order_id
+            order_data = mongo.db.orders.find_one(
+                {"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}]}
+            )
+            return Order(**order_data) if order_data else None
+        except Exception as e:
+            print(f"Error finding order: {e}")
+            return None
+
+    @staticmethod
+    def find_by_user(user_id):
+        """Find all orders of a logged-in user"""
+        if not ObjectId.is_valid(user_id):
+            return []  # Prevent invalid ObjectId errors
+        orders = mongo.db.orders.find({"user_id": ObjectId(user_id)})
+        return [Order(**order) for order in orders]
+
+    @staticmethod
+    def find_by_guest_email(email):
+        """Find orders made by a guest (email-based lookup)"""
+        orders = mongo.db.orders.find({"guest_email": email})
+        return [Order(**order) for order in orders]
+
+    def update_status(self, new_status):
+        """Update order status"""
+        self.status = new_status
+        mongo.db.orders.update_one({"_id": self._id}, {"$set": {"status": new_status}})
+
+    @staticmethod
+    def delete_by_id(order_id):
+        """Delete an order by ID"""
+        try:
+            # Fix: Delete by both _id and guest_order_id
+            result = mongo.db.orders.delete_one({"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}]})
+            return result.deleted_count > 0
+        except Exception as e:
+            print(f"Error deleting order: {e}")
+            return False

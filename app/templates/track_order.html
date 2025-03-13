@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Tracking - The Divine Jewelry{% endblock %}
+
+{% block content %}
+<div class="order-tracking-container">
+    <h2>Order Tracking</h2>
+
+    {% if order %}
+    <p><strong>Tracking Number:</strong> {{ tracking_number }}</p>
+    <p><strong>Status:</strong> {{ order.status }}</p>
+    <p><strong>Total Price:</strong> £{{ order.total_price }}</p>
+
+    <h3>Items Ordered:</h3>
+    <ul>
+        {% for item in order.items %}
+            <li>{{ item.product_name }} - £{{ item.price }} x {{ item.quantity }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Order not found.</p>
+    {% endif %}
+
+    <a href="{{ url_for('routes.previous_orders') }}" class="btn btn-primary">Go Back</a>
+</div>
+{% endblock %}

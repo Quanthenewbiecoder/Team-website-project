@@ -1,103 +1,97 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("DEBUG: JavaScript Loaded");
+
     const trackingForm = document.getElementById('tracking-form');
-    if (trackingForm) {
-        trackingForm.addEventListener('submit', function(e) {
-            const trackingNumber = document.getElementById('tracking-number').value.trim();
-            if (!trackingNumber) {
-                e.preventDefault();
-                showFormError('Please enter a valid tracking number');
-            }
-        });
+
+    if (!trackingForm) {
+        console.error("ERROR: Tracking form not found!");
+        return;
     }
-    
-    const orderDetailsSection = document.getElementById('order-details-section');
-    if (orderDetailsSection && orderDetailsSection.getAttribute('data-show') === 'true') {
-        orderDetailsSection.classList.add('show');
-    }
-    
-    const copyTrackingBtn = document.getElementById('copy-tracking');
-    if (copyTrackingBtn) {
-        copyTrackingBtn.addEventListener('click', function() {
-            const trackingNumber = this.getAttribute('data-tracking');
-            
-            navigator.clipboard.writeText(trackingNumber)
-                .then(function() {
-                    showNotification('Tracking number copied to clipboard!');
-                })
-                .catch(function() {
-                    fallbackCopyToClipboard(trackingNumber);
-                });
-        });
-    }
+
+    trackingForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const trackingNumber = document.getElementById('tracking-number').value.trim();
+        const guestEmail = document.getElementById('guest-email').value.trim();
+
+        console.log("DEBUG: Tracking Number:", trackingNumber);
+        console.log("DEBUG: Guest Email:", guestEmail);
+
+        if (!trackingNumber && !guestEmail) {
+            showFormError('Please enter a tracking number or email.');
+            return;
+        }
+
+        let url = `/api/orders/track?tracking=${trackingNumber}`;
+        if (guestEmail) {
+            url += `&guest_email=${guestEmail}`;
+        }
+
+        console.log("DEBUG: Fetching from URL:", url);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log("DEBUG: API Response", data);
+
+                if (data.success && data.order) {
+                    displayOrderDetails(data.order);
+                } else {
+                    showFormError('Order not found. Please check your details.');
+                }
+            })
+            .catch(error => console.error('ERROR: Fetch Failed', error));
+    });
 });
 
-function fallbackCopyToClipboard(text) {
-    const tempInput = document.createElement('input');
-    tempInput.style.position = 'absolute';
-    tempInput.style.left = '-9999px';
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    
-    tempInput.select();
-    document.execCommand('copy');
-    
-    document.body.removeChild(tempInput);
-    
-    showNotification('Tracking number copied to clipboard!');
+function displayOrderDetails(order) {
+    console.log("DEBUG: Displaying Order Details", order);
+
+    const orderDetailsSection = document.getElementById('order-details-section');
+    const orderDetails = document.getElementById('order-details');
+
+    if (!orderDetailsSection || !orderDetails) {
+        console.error("ERROR: Order details elements not found!");
+        return;
+    }
+
+    // Make sure the section is visible
+    orderDetailsSection.style.display = 'block';
+
+    // Ensure guest_order_id is used if _id is missing
+    const trackingId = order.guest_order_id || order._id || "Unknown ID";
+
+    // Convert MongoDB date format
+    const createdAt = order.created_at ? new Date(order.created_at.$date).toLocaleString() : "N/A";
+
+    orderDetails.innerHTML = `
+        <h2>Order Details</h2>
+        <p><strong>Order ID:</strong> ${trackingId}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Total Price:</strong> £${order.total_price.toFixed(2)}</p>
+        <p><strong>Order Date:</strong> ${createdAt}</p>
+        <h4>Items:</h4>
+        <ul>
+            ${order.items.length > 0 
+                ? order.items.map(item => `
+                    <li>${item.product_name} - £${item.price.toFixed(2)} x${item.quantity}</li>
+                `).join('')
+                : '<li>No items in this order.</li>'}
+        </ul>
+    `;
+
+    console.log("DEBUG: Order details updated successfully.");
 }
 
+// Function to show error message
 function showFormError(message) {
     const errorElement = document.getElementById('form-error');
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.style.display = 'block';
-        
+
         setTimeout(() => {
             errorElement.style.display = 'none';
         }, 3000);
-    }
-}
-
-function showNotification(message, isError = false) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${isError ? 'error' : 'success'}`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
-}
-
-function updateOrderStatus(status) {
-    const statusElement = document.getElementById('order-status-badge');
-    if (statusElement) {
-        statusElement.textContent = status;
-        
-        statusElement.className = 'status-badge';
-        switch(status.toLowerCase()) {
-            case 'processing':
-                statusElement.classList.add('status-processing');
-                break;
-            case 'shipped':
-                statusElement.classList.add('status-shipped');
-                break;
-            case 'delivered':
-                statusElement.classList.add('status-delivered');
-                break;
-            case 'cancelled':
-                statusElement.classList.add('status-cancelled');
-                break;
-            default:
-                statusElement.classList.add('status-default');
-        }
     }
 }

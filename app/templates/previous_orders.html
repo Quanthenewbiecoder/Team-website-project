@@ -1,215 +1,41 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 
 {% block title %}Previous Orders - The Divine Jewelry{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/previous_orders.css') }}">
-<style>
-    .clear-history-btn {
-        background-color: #d9534f;
-        color: white;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        margin-left: 10px;
-    }
-    
-    .clear-history-btn:hover {
-        background-color: #c9302c;
-    }
-    
-    .header-with-button {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
 <div class="previous-orders-container">
     <div class="order-lookup-section">
         <h2>Track Your Order</h2>
-        <form id="tracking-form" class="order-lookup-form" method="GET" action="{{ url_for('routes.previous_orders') }}">
+        <form id="tracking-form" class="order-lookup-form" method="POST" action="{{ url_for('routes.previous_orders') }}">
             <div class="form-group">
                 <label for="tracking-number">Order Tracking Number</label>
-                <input type="text" id="tracking-number" name="tracking" placeholder="Enter your order tracking number" value="{{ tracking_number or '' }}">
-                <div id="form-error" style="color: red; margin-top: 5px; display: none;"></div>
+                <input type="text" id="tracking-number" name="tracking_number" placeholder="Enter your order tracking number" value="{{ tracking_number or '' }}">
             </div>
+
+            <div class="form-group">
+                <label for="guest-email">Guest Email (if you ordered as a guest)</label>
+                <input type="email" id="guest-email" name="guest_email" placeholder="Enter your email to track order" value="{{ guest_email or '' }}">
+            </div>
+
+            <div id="form-error" style="color: red; margin-top: 5px; display: none;"></div>
             <button type="submit" class="btn-primary">Track Order</button>
         </form>
     </div>
 
-    {% if order %}
-    <div id="order-details-section" class="order-details-section" data-show="true">
-        <h2>Order Details</h2>
-        <div class="order-details-header">
-            <div class="order-number">
-                <span>Order #:</span> {{ order.id }}
-                <button id="copy-tracking" data-tracking="{{ order.id }}" class="btn-sm" style="background: none; border: none; cursor: pointer;">
-                    <i class="fas fa-copy" style="color: #777; margin-left: 5px;"></i>
-                </button>
-            </div>
-            <div class="order-date">
-                <span>Order Date:</span> {{ order.created_at.strftime('%d %b %Y') if order.created_at else 'N/A' }}
-            </div>
-            <div class="order-status">
-                <span>Status:</span> <span id="order-status-badge" class="status-badge">{{ order.status }}</span>
-            </div>
-        </div>
-
-        <div class="order-items">
-            <h3>Items</h3>
-            {% if order.items %}
-                <!-- Safely check if items is a list before iterating -->
-                {% if order.items is sequence and order.items is not string %}
-                    {% for item in order.items %}
-                    <div class="order-item">
-                        <!-- Handle image path if it exists -->
-                        {% if item.image %}
-                            <img class="item-image" src="{{ url_for('static', filename=item.image.replace('static/', '')) if item.image.startswith('static/') else url_for('static', filename=item.image) }}" alt="{{ item.name }}">
-                        {% else %}
-                            <img class="item-image" src="{{ url_for('static', filename='images/default-product.jpg') }}" alt="Product Image">
-                        {% endif %}
-                        
-                        <div class="item-details">
-                            <p class="item-name">{{ item.name }}</p>
-                            <p class="item-price">£{{ item.price }} <span class="item-quantity">x{{ item.quantity }}</span></p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <p>Your order contains the following items:</p>
-                    <p>Order Total: £{{ order.total_price }}</p>
-                {% endif %}
-            {% else %}
-                <p>Your order has been received and is being processed.</p>
-                <p>Order Total: £{{ order.total_price }}</p>
-            {% endif %}
-        </div>
-
-        <div class="shipping-details">
-            <h3>Shipping Information</h3>
-            <div class="detail-row">
-                <span class="detail-label">Delivery Method:</span>
-                <span class="detail-value">Standard Delivery</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Estimated Delivery:</span>
-                <span class="detail-value">
-                    {% set delivery_date = order.created_at.replace(day=order.created_at.day + 7) if order.created_at else None %}
-                    {{ delivery_date.strftime('%d %b %Y') if delivery_date else 'N/A' }}
-                </span>
-            </div>
-        </div>
-
-        <div class="payment-details">
-            <h3>Payment Information</h3>
-            <div class="detail-row">
-                <span class="detail-label">Payment Method:</span>
-                <span class="detail-value">Credit Card</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Subtotal:</span>
-                <span class="detail-value">£{{ order.total_price }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="detail-label">Shipping:</span>
-                <span class="detail-value">£4.99</span>
-            </div>
-        </div>
-
-        <div class="order-total">
-            <strong>Total:</strong> £{{ (order.total_price + 4.99)|round(2) }}
-        </div>
-
-        <div class="tracking-info">
-            <h3>Tracking Information</h3>
-            <div class="tracking-timeline">
-                <div class="timeline-item">
-                    <div class="timeline-date">{{ order.created_at.strftime('%d %b %Y, %H:%M') if order.created_at else 'N/A' }}</div>
-                    <div class="timeline-status">Order Confirmed</div>
-                </div>
-                
-                {% if order.status != 'Pending' %}
-                <div class="timeline-item">
-                    {% set processing_date = order.created_at.replace(day=order.created_at.day + 1) if order.created_at else None %}
-                    <div class="timeline-date">{{ processing_date.strftime('%d %b %Y, %H:%M') if processing_date else 'N/A' }}</div>
-                    <div class="timeline-status">Processing</div>
-                </div>
-                {% endif %}
-                
-                {% if order.status == 'Shipped' or order.status == 'Delivered' %}
-                <div class="timeline-item">
-                    {% set shipped_date = order.created_at.replace(day=order.created_at.day + 3) if order.created_at else None %}
-                    <div class="timeline-date">{{ shipped_date.strftime('%d %b %Y, %H:%M') if shipped_date else 'N/A' }}</div>
-                    <div class="timeline-status">Shipped</div>
-                </div>
-                {% endif %}
-                
-                {% if order.status == 'Delivered' %}
-                <div class="timeline-item">
-                    {% set delivered_date = order.created_at.replace(day=order.created_at.day + 7) if order.created_at else None %}
-                    <div class="timeline-date">{{ delivered_date.strftime('%d %b %Y, %H:%M') if delivered_date else 'N/A' }}</div>
-                    <div class="timeline-status">Delivered</div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+    <!-- Always render order details section, but hide initially -->
+    <div id="order-details-section" class="order-details-section" style="display: none;">
+        <div id="order-details"></div>
     </div>
-    {% elif tracking_number %}
+
+    {% if tracking_number and not order %}
     <div class="empty-state">
         <div class="empty-icon">🔍</div>
         <h3>No order found</h3>
         <p>We couldn't find an order with the tracking number you provided. Please check the number and try again.</p>
-    </div>
-    {% endif %}
-
-    {% if current_user.is_authenticated %}
-    <div class="current-orders-section">
-        <div class="header-with-button">
-            <h2>Your Recent Orders</h2>
-            {% if user_orders %}
-            <form action="{{ url_for('routes.clear_order_history') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear your order history? This cannot be undone.');">
-                <button type="submit" class="clear-history-btn">Clear Order History</button>
-            </form>
-            {% endif %}
-        </div>
-        
-        {% if user_orders %}
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Date</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user_order in user_orders %}
-                <tr>
-                    <td>{{ user_order.id }}</td>
-                    <td>{{ user_order.created_at.strftime('%d %b %Y') if user_order.created_at else 'N/A' }}</td>
-                    <td>£{{ user_order.total_price }}</td>
-                    <td>{{ user_order.status }}</td>
-                    <td><a href="{{ url_for('routes.track_order', order_id=user_order.id) }}">View Order</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="empty-state">
-            <div class="empty-icon">📦</div>
-            <h3>No recent orders</h3>
-            <p>You don't have any recent orders. Start shopping to see your orders here.</p>
-            <a href="{{ url_for('routes.products') }}" class="btn-primary">Shop Now</a>
-        </div>
-        {% endif %}
     </div>
     {% endif %}
 </div>

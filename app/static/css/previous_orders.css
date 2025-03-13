@@ -363,3 +363,25 @@
 .orders-table td a:hover {
   color: #e6be73;
 }
+
+.clear-history-btn {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.clear-history-btn:hover {
+  background-color: #c9302c;
+}
+
+.header-with-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}

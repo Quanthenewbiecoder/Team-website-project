@@ -22,7 +22,12 @@
             
             <div class="tracking-info">
                 <h3>Your Order Tracking Number:</h3>
-                <div class="tracking-number">{{ tracking_number }}</div>
+                {% if tracking_number %}
+                    <div class="tracking-number">Your Tracking Number: <strong>{{ tracking_number }}</strong></div>
+                {% else %}
+                    <div class="tracking-number">Tracking Number Not Found</div>
+                {% endif %}
+                
                 <p class="tracking-note">Save this number to track your order status. You can track your order on the <a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a> page.</p>
                 <button id="copy-tracking" data-tracking="{{ tracking_number }}" class="btn-secondary">
                     <i class="fas fa-copy"></i> Copy Tracking Number
@@ -52,29 +57,33 @@
             <form class="payment-form" method="POST">
                 <h2>Payment Details</h2>
 
+                <!-- Only show this field if the user is NOT logged in -->
+                {% if not current_user.is_authenticated %}
+                <div class="form-group">
+                    <label for="guest-email">Guest Email</label>
+                    <input type="email" id="guest-email" name="guest_email" required placeholder="Enter your email to track order">
+                </div>
+                {% endif %}
+
                 <div class="form-group">
                     <label for="cardholder-name">Cardholder Name</label>
-                    <input type="text" id="cardholder-name" name="cardholder_name" required 
-                           placeholder="John Doe">
+                    <input type="text" id="cardholder-name" name="cardholder_name" required placeholder="John Doe">
                 </div>
 
                 <div class="form-group">
                     <label for="card-number">Card Number</label>
-                    <input type="text" id="card-number" name="card_number" required 
-                           placeholder="1234 5678 9012 3456" maxlength="19">
+                    <input type="text" id="card-number" name="card_number" required placeholder="1234 5678 9012 3456" maxlength="19">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="expiry">Expiry Date</label>
-                        <input type="text" id="expiry" name="expiry" required 
-                               placeholder="MM/YY" maxlength="5">
+                        <input type="text" id="expiry" name="expiry" required placeholder="MM/YY" maxlength="5">
                     </div>
 
                     <div class="form-group">
                         <label for="cvv">CVV</label>
-                        <input type="text" id="cvv" name="cvv" required 
-                               placeholder="123" maxlength="3">
+                        <input type="text" id="cvv" name="cvv" required placeholder="123" maxlength="3">
                     </div>
                 </div>
                 
