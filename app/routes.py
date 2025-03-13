@@ -39,6 +39,7 @@ def home():
     return render_template('homepage.html', now=datetime.now())
 
 # Authentication Routes
+# Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -92,8 +93,6 @@ def register():
         mongo.db.users.insert_one(new_user.__dict__)
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('routes.login'))
-
-    return render_template('register.html', form=form)
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
@@ -485,6 +484,11 @@ def product_reviews(product_id):
 def feedback():
     return render_template('feedback.html')
 
+@routes_bp.route('/dashboard')
+@login_required
+def user_dashboard():
+    return render_template('user-dashboard.html')
+
 # Admin and Staff Routes
 @routes_bp.route('/admin')
 @login_required
@@ -705,7 +709,7 @@ def create_order():
         if not isinstance(data['items'], list) or not all(isinstance(item, dict) for item in data['items']):
             return jsonify({'success': False, 'error': 'Items must be a list of objects'}), 400
 
-        # 🔥 Fix: Generate a tracking number if this is a guest order
+        # Fix: Generate a tracking number if this is a guest order
         guest_order_id = None
         if not user_id:  # This means it's a guest order
             guest_order_id = "GUEST-" + ''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=8))

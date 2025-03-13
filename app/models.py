@@ -27,7 +27,7 @@ class User(UserMixin):
         self.role = role
         self.created_at = created_at if created_at else datetime.utcnow()  #  Ensure correct handling of MongoDB field
         self.password_hash = password_hash  #  Ensure password_hash is set if loaded from MongoDB
-        self._id = ObjectId(_id) if _id else ObjectId()  #  Ensure _id is an ObjectId
+        self._id = str(ObjectId(_id)) if _id else str(ObjectId())  #  Ensure _id is an ObjectId
 
         if password and not password_hash:
             self.set_password(password)  #  Only hash password if it's newly set
@@ -64,8 +64,26 @@ class User(UserMixin):
             
             return Order(**order_data) if order_data else None
         except Exception as e:
-            print(f"🚨 Error finding order: {e}")
+            print(f"Error finding order: {e}")
             return None
+        
+    @staticmethod
+    def find_by_email(email):
+        """Find a user by email and return a `User` object instead of a dictionary."""
+        user_data = mongo.db.users.find_one({"email": email})
+        
+        if user_data:
+            return User(
+                username=user_data.get("username"),
+                email=user_data.get("email"),
+                name=user_data.get("name"),
+                surname=user_data.get("surname"),
+                role=user_data.get("role", "Customer"),
+                password_hash=user_data.get("password_hash"),  # Ensure we set the hash properly
+                _id=user_data.get("_id"),
+                created_at=user_data.get("created_at")
+            )
+        return None  # Return None if no user found
 
 
     def delete(self):

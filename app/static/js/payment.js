@@ -127,10 +127,10 @@ function setupFormSubmission() {
             });
 
             // Check if user is logged in
-            const userId = localStorage.getItem('user_id'); // Retrieve from localStorage if logged in
+            const userId = localStorage.getItem('user_email'); // Retrieve from localStorage if logged in
             const guestEmail = document.getElementById('guest-email')?.value || null;
 
-            if (!userId && !guestEmail) {
+            if (!userEmail && !guestEmail) {
                 alert('Please provide an email to continue as a guest.');
                 return;
             }
