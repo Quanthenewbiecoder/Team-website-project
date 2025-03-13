@@ -846,3 +846,27 @@ def order_tracking():
     except Exception as e:
         flash(f'Error tracking order: {str(e)}', 'danger')
         return redirect(url_for('routes.previous_orders'))
+
+@routes_bp.route('/save-inquiry', methods=['POST'])
+def save_inquiry():
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    inquiry = data.get('inquiry')
+
+    if not name or not email or not inquiry:
+        return jsonify({"error": "Name, email, and inquiry are required"}), 400
+
+    # Save inquiry to MongoDB
+    inquiry_data = {
+        "name": name,
+        "email": email,
+        "inquiry": inquiry,
+        "created_at": datetime.utcnow(),
+        "status": "Pending"
+    }
+
+    # Insert into MongoDB (assuming you have a collection named 'inquiries')
+    mongo.db.inquiries.insert_one(inquiry_data)
+
+    return jsonify({"message": "Inquiry saved successfully!"}), 200
