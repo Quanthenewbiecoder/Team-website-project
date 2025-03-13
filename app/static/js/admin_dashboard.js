@@ -1,0 +1,554 @@
+document.addEventListener('DOMContentLoaded', function() {
+    initTabs();
+    
+    loadDashboardStats();
+    initCharts();
+    loadRecentActivity();
+    
+    initUserManagement();
+    
+    initProductManagement();
+    
+    initOrderManagement();
+    
+    initSubscriptionManagement();
+    
+
+    loadAdminProfile();
+    initPasswordForm();
+    
+    initModals();
+    initNotifications();
+});
+
+function initTabs() {
+    const menuItems = document.querySelectorAll('.admin-menu li');
+    
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            menuItems.forEach(i => i.classList.remove('active'));
+            
+            this.classList.add('active');
+            
+            const tabs = document.querySelectorAll('.admin-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const tabToShow = document.getElementById(`${this.dataset.tab}-tab`);
+            if (tabToShow) {
+                tabToShow.classList.add('active');
+            }
+        });
+    });
+}
+
+function loadDashboardStats() {
+    fetch('/api/admin/users/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-users').textContent = data.count || 0;
+        })
+        .catch(error => {
+            console.error('Error fetching user count:', error);
+            document.getElementById('total-users').textContent = 'Error';
+        });
+    
+    fetch('/api/admin/orders/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-orders').textContent = data.count || 0;
+        })
+        .catch(error => {
+            console.error('Error fetching order count:', error);
+            document.getElementById('total-orders').textContent = 'Error';
+        });
+    
+    fetch('/api/admin/products/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-products').textContent = data.count || 0;
+        })
+        .catch(error => {
+            console.error('Error fetching product count:', error);
+            document.getElementById('total-products').textContent = 'Error';
+        });
+    
+    fetch('/api/admin/subscriptions/count')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-subscribers').textContent = data.count || 0;
+        })
+        .catch(error => {
+            console.error('Error fetching subscription count:', error);
+            document.getElementById('total-subscribers').textContent = 'Error';
+        });
+}
+
+function initCharts() {
+    fetch('/api/admin/orders/stats')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('ordersChartCanvas').getContext('2d');
+            
+            const chartData = data.chartData || {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                values: [12, 19, 3, 5, 2, 3]
+            };
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Orders',
+                        data: chartData.values,
+                        borderColor: '#2f1c0e',
+                        backgroundColor: 'rgba(47, 28, 14, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading orders chart:', error);
+            document.getElementById('orders-chart').innerHTML = '<p class="loading">Error loading chart data</p>';
+        });
+    
+    fetch('/api/admin/products/stats')
+        .then(response => response.json())
+        .then(data => {
+            const ctx = document.getElementById('productsChartCanvas').getContext('2d');
+            
+            const chartData = data.chartData || {
+                labels: ['Crystal Ring', 'Leaf Earrings', 'Pearl Necklace', 'Leaf Bracelet', 'Pearl Earrings'],
+                values: [25, 20, 15, 10, 8]
+            };
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Sales',
+                        data: chartData.values,
+                        backgroundColor: '#e6be73',
+                        borderColor: '#2f1c0e',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error loading products chart:', error);
+            document.getElementById('products-chart').innerHTML = '<p class="loading">Error loading chart data</p>';
+        });
+}
+
+function loadRecentActivity() {
+    const activityList = document.getElementById('activity-list');
+    
+    fetch('/api/admin/activity')
+        .then(response => response.json())
+        .then(data => {
+            activityList.innerHTML = '';
+            
+            if (data.length === 0) {
+                activityList.innerHTML = '<li class="activity-item">No recent activity found</li>';
+                return;
+            }
+            
+            data.forEach(activity => {
+                const li = document.createElement('li');
+                li.className = 'activity-item';
+                
+                let iconClass = 'fas fa-info-circle';
+                let iconClassType = '';
+                
+                if (activity.type === 'user') {
+                    iconClass = 'fas fa-user';
+                    iconClassType = 'activity-icon-user';
+                } else if (activity.type === 'order') {
+                    iconClass = 'fas fa-shopping-cart';
+                    iconClassType = 'activity-icon-order';
+                } else if (activity.type === 'product') {
+                    iconClass = 'fas fa-gem';
+                    iconClassType = 'activity-icon-product';
+                }
+                
+                const activityDate = new Date(activity.time);
+                const formattedTime = formatRelativeTime(activityDate);
+                
+                li.innerHTML = `
+                    <i class="${iconClass} ${iconClassType}"></i>
+                    <span>${activity.message}</span>
+                    <span class="activity-time">${formattedTime}</span>
+                `;
+                
+                activityList.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading activity:', error);
+            activityList.innerHTML = '<li class="activity-item">Error loading activity data</li>';
+        });
+}
+
+function initUserManagement() {
+    loadUsers(1);
+    
+    const searchInput = document.getElementById('user-search');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadUsers(1, this.value);
+        }, 500);
+    });
+    
+    document.getElementById('refresh-users').addEventListener('click', function() {
+        searchInput.value = '';
+        loadUsers(1);
+    });
+    
+    document.getElementById('add-user').addEventListener('click', function() {
+        document.getElementById('edit-user-form').reset();
+        document.getElementById('user-modal-title').textContent = 'Add New User';
+        
+        const modal = document.getElementById('edit-user-modal');
+        modal.classList.add('show');
+    });
+    
+    document.getElementById('edit-user-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const userId = document.getElementById('edit-user-id').value;
+        const formData = new FormData(this);
+        const userData = {
+            username: formData.get('username'),
+            name: formData.get('name'),
+            surname: formData.get('surname'),
+            email: formData.get('email'),
+            role: formData.get('role')
+        };
+        
+        if (userId) {
+            fetch(`/api/admin/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update user');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('User updated successfully', 'success');
+                document.getElementById('edit-user-modal').classList.remove('show');
+                loadUsers(currentPage, searchInput.value);
+            })
+            .catch(error => {
+                console.error('Error updating user:', error);
+                showNotification('Error updating user', 'error');
+            });
+        } else {
+            userData.password = 'DefaultPassword123';
+            
+            fetch('/api/admin/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create user');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('User created successfully', 'success');
+                document.getElementById('edit-user-modal').classList.remove('show');
+                loadUsers(1, searchInput.value);
+            })
+            .catch(error => {
+                console.error('Error creating user:', error);
+                showNotification('Error creating user', 'error');
+            });
+        }
+    });
+    
+    document.getElementById('reset-password-btn').addEventListener('click', function() {
+        const userId = document.getElementById('edit-user-id').value;
+        
+        if (!userId) {
+            showNotification('No user selected', 'error');
+            return;
+        }
+        
+        showConfirmation('Are you sure you want to reset this user\'s password?', () => {
+            fetch(`/api/admin/users/${userId}/reset-password`, {
+                method: 'POST'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to reset password');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('Password reset successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error resetting password:', error);
+                showNotification('Error resetting password', 'error');
+            });
+        });
+    });
+    
+    document.getElementById('prev-page').addEventListener('click', function() {
+        if (currentPage > 1) {
+            loadUsers(currentPage - 1, searchInput.value);
+        }
+    });
+    
+    document.getElementById('next-page').addEventListener('click', function() {
+        loadUsers(currentPage + 1, searchInput.value);
+    });
+}
+
+let currentPage = 1;
+let totalPages = 1;
+
+function loadUsers(page, search = '') {
+    const usersTable = document.getElementById('users-table').querySelector('tbody');
+    usersTable.innerHTML = '<tr class="loading-row"><td colspan="7">Loading users...</td></tr>';
+    
+    currentPage = page;
+    
+    fetch(`/api/admin/users?page=${page}&search=${encodeURIComponent(search)}`)
+        .then(response => response.json())
+        .then(data => {
+            usersTable.innerHTML = '';
+            
+            if (data.users.length === 0) {
+                usersTable.innerHTML = '<tr><td colspan="7">No users found</td></tr>';
+                return;
+            }
+            
+            totalPages = data.totalPages || 1;
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+            
+            document.getElementById('prev-page').disabled = currentPage <= 1;
+            document.getElementById('next-page').disabled = currentPage >= totalPages;
+            
+            data.users.forEach(user => {
+                const tr = document.createElement('tr');
+                
+                const formattedDate = new Date(user.created_at).toLocaleDateString();
+                
+                tr.innerHTML = `
+                    <td>${user._id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.name} ${user.surname}</td>
+                    <td>${user.email}</td>
+                    <td>${user.role}</td>
+                    <td>${formattedDate}</td>
+                    <td class="table-actions">
+                        <button class="action-btn edit-btn" data-id="${user._id}" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${user._id}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                usersTable.appendChild(tr);
+                
+                const editBtn = tr.querySelector('.edit-btn');
+                const deleteBtn = tr.querySelector('.delete-btn');
+                
+                editBtn.addEventListener('click', function() {
+                    editUser(user._id);
+                });
+                
+                deleteBtn.addEventListener('click', function() {
+                    deleteUser(user._id);
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error loading users:', error);
+            usersTable.innerHTML = '<tr><td colspan="7">Error loading users</td></tr>';
+        });
+}
+
+function editUser(userId) {
+    fetch(`/api/admin/users/${userId}`)
+        .then(response => response.json())
+        .then(user => {
+            document.getElementById('edit-user-id').value = user._id;
+            document.getElementById('edit-username').value = user.username;
+            document.getElementById('edit-name').value = user.name;
+            document.getElementById('edit-surname').value = user.surname;
+            document.getElementById('edit-email').value = user.email;
+            document.getElementById('edit-role').value = user.role;
+            
+            document.getElementById('user-modal-title').textContent = 'Edit User';
+            
+            document.getElementById('edit-user-modal').classList.add('show');
+        })
+        .catch(error => {
+            console.error('Error fetching user details:', error);
+            showNotification('Error fetching user details', 'error');
+        });
+}
+
+function deleteUser(userId) {
+    showConfirmation('Are you sure you want to delete this user?', () => {
+        fetch(`/api/admin/users/${userId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete user');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showNotification('User deleted successfully', 'success');
+            loadUsers(currentPage, document.getElementById('user-search').value);
+        })
+        .catch(error => {
+            console.error('Error deleting user:', error);
+            showNotification('Error deleting user', 'error');
+        });
+    });
+}
+
+function initProductManagement() {
+    loadProducts(1);
+    
+    const searchInput = document.getElementById('product-search');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadProducts(1, this.value);
+        }, 500);
+    });
+    
+    document.getElementById('refresh-products').addEventListener('click', function() {
+        searchInput.value = '';
+        loadProducts(1);
+    });
+    
+    document.getElementById('add-product').addEventListener('click', function() {
+        document.getElementById('edit-product-form').reset();
+        document.getElementById('product-modal-title').textContent = 'Add New Product';
+        
+        const modal = document.getElementById('edit-product-modal');
+        modal.classList.add('show');
+    });
+    
+    document.getElementById('edit-product-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const productId = document.getElementById('edit-product-id').value;
+        const formData = new FormData(this);
+        const productData = {
+            name: formData.get('name'),
+            type: formData.get('type'),
+            collection: formData.get('collection'),
+            price: parseFloat(formData.get('price')),
+            description: formData.get('description'),
+            in_stock: formData.get('in_stock') === 'on',
+            image_url: formData.get('image_url')
+        };
+        
+        if (productId) {
+            fetch(`/api/admin/products/${productId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update product');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('Product updated successfully', 'success');
+                document.getElementById('edit-product-modal').classList.remove('show');
+                loadProducts(currentProductsPage, searchInput.value);
+            })
+            .catch(error => {
+                console.error('Error updating product:', error);
+                showNotification('Error updating product', 'error');
+            });
+        } else {
+            fetch('/api/admin/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to create product');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showNotification('Product created successfully', 'success');
+                document.getElementById('edit-product-modal').classList.remove('show');
+                loadProducts(1, searchInput.value);
+            })
+            .catch(error => {
+                console.error('Error creating product:', error);
+                showNotification('Error creating product', 'error');
+            });
+        }
+    });
+}

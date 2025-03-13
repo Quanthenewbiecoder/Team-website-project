@@ -288,15 +288,9 @@ def payment():
     cart_items = []
     total_amount = 0
     
-    # Print the shopping basket for debugging
-    print(f"Shopping basket contents: {shopping_basket}")
-    
     # Extract shopping basket data
     if shopping_basket:
         for product_id, item in shopping_basket.items():
-            # Debug print item details
-            print(f"Processing item: {product_id}: {item}")
-            
             # Ensure proper types for all values
             product_name = item.get('product_name', 'Unknown Product')
             price = float(item.get('price', 0))
@@ -318,12 +312,6 @@ def payment():
             # Add the item to our list
             cart_items.append(cart_item)
             total_amount += price * quantity
-            
-            # Debug print the cart item we're adding
-            print(f"Added cart item: {cart_item}")
-
-    # Debug print final cart and total
-    print(f"Final cart items: {len(cart_items)} items, total: {total_amount}")
 
     if request.method == 'POST':
         if current_user.is_authenticated:
@@ -336,15 +324,8 @@ def payment():
                 "created_at": datetime.utcnow()
             }
             
-            # Debug print the order we're about to save
-            print(f"About to save order: {new_order}")
-            
             result = mongo.db.orders.insert_one(new_order)
             order_id = str(result.inserted_id)
-            
-            # Verify the order was saved correctly
-            saved_order = mongo.db.orders.find_one({"_id": result.inserted_id})
-            print(f"Order saved with ID {order_id}. Saved data: {saved_order}")
             
             # Store tracking number in session for payment success page
             session['last_order_tracking'] = order_id
@@ -360,14 +341,7 @@ def payment():
                 "guest_order_id": order_id
             }
             
-            # Debug print the guest order we're about to save
-            print(f"About to save guest order: {guest_order}")
-            
             result = mongo.db.orders.insert_one(guest_order)
-            
-            # Verify the guest order was saved correctly
-            saved_order = mongo.db.orders.find_one({"guest_order_id": order_id})
-            print(f"Guest order saved with ID {order_id}. Saved data: {saved_order}")
             
             # Store tracking number in session for payment success page
             session['last_order_tracking'] = order_id
@@ -401,9 +375,6 @@ def add_to_basket():
     price = float(data.get('price', 0))
     quantity = int(data.get('quantity', 1))
     image = data.get('image', '')
-    
-    # Log the data being added to the basket
-    print(f"Adding to basket: {product_id}, {product_name}, {price}, {quantity}, {image}")
 
     if product_id in shopping_basket:
         shopping_basket[product_id]['quantity'] += quantity
@@ -414,9 +385,6 @@ def add_to_basket():
             'price': price,
             'image': image
         }
-    
-    # Log the current basket state
-    print(f"Current basket: {shopping_basket}")
 
     return jsonify({
         'message': 'Product added to basket',
@@ -525,8 +493,24 @@ def track_order(order_id):
             except:
                 # If parsing fails, use current time
                 order['created_at'] = datetime.utcnow()
+                
+        # Process items data if it exists to ensure it's usable in the template
+        if 'items' in order and order['items']:
+            # Make sure item data has the necessary fields
+            for item in order['items']:
+                # Ensure item has all needed fields
+                if 'image' in item and item['image'] and not item['image'].startswith('http'):
+                    # Fix image paths if needed
+                    if item['image'].startswith('static/'):
+                        item['image'] = item['image']
+                    else:
+                        item['image'] = f"images/{item['image'].split('/')[-1]}" if '/' in item['image'] else f"images/{item['image']}"
+                
+                # Add default image if missing
+                if 'image' not in item or not item['image']:
+                    item['image'] = "images/default-product.jpg"
         
-        return render_template('track_order.html', order=order)
+        return render_template('previous_orders.html', order=order, tracking_number=order_id)
     
     except Exception as e:
         flash(f'Error tracking order: {str(e)}', 'danger')
@@ -687,6 +671,22 @@ def previous_orders():
                     except:
                         order_data['created_at'] = datetime.utcnow()
                 
+                # Process items data if it exists to ensure it's usable in the template
+                if 'items' in order_data and order_data['items']:
+                    # Make sure item data has the necessary fields
+                    for item in order_data['items']:
+                        # Ensure item has all needed fields
+                        if 'image' in item and item['image'] and not item['image'].startswith('http'):
+                            # Fix image paths if needed
+                            if item['image'].startswith('static/'):
+                                item['image'] = item['image']
+                            else:
+                                item['image'] = f"images/{item['image'].split('/')[-1]}" if '/' in item['image'] else f"images/{item['image']}"
+                        
+                        # Add default image if missing
+                        if 'image' not in item or not item['image']:
+                            item['image'] = "images/default-product.jpg"
+                
                 order = order_data
             else:
                 flash('No order found with that tracking number.', 'danger')
@@ -725,50 +725,3 @@ def clear_order_history():
         flash(f"Error clearing order history: {str(e)}", "danger")
     
     return redirect(url_for('routes.previous_orders'))
-
-@routes_bp.route('/debug_order/<order_id>')
-def debug_order(order_id):
-    try:
-        if order_id.startswith("GUEST-"):
-            order = mongo.db.orders.find_one({"guest_order_id": order_id})
-        else:
-            try:
-                obj_id = ObjectId(order_id)
-                order = mongo.db.orders.find_one({"_id": obj_id})
-            except:
-                return f"Invalid order ID format: {order_id}"
-        
-        if not order:
-            return f"Order not found: {order_id}"
-        
-        import json
-        from bson.json_util import dumps
-        
-        order_str = dumps(order, indent=4)
-        
-        return f"<pre>{order_str}</pre>"
-    
-    except Exception as e:
-        return f"Error debugging order: {str(e)}"
-    
-@routes_bp.route('/debug_basket')
-def debug_basket():
-    """Debug endpoint to view the current shopping basket contents."""
-    try:
-        import json
-        
-        basket_content = json.dumps(shopping_basket, indent=4)
-        
-        return f"""
-        <html>
-        <head><title>Shopping Basket Debug</title></head>
-        <body>
-            <h1>Shopping Basket Contents</h1>
-            <pre>{basket_content}</pre>
-            <h2>Item Count: {len(shopping_basket)}</h2>
-            <h2>Total Items: {sum(item.get('quantity', 0) for item in shopping_basket.values())}</h2>
-        </body>
-        </html>
-        """
-    except Exception as e:
-        return f"Error debugging basket: {str(e)}"

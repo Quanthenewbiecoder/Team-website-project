@@ -37,6 +37,9 @@
         <li><a href="{{ url_for('routes.login') }}">Login</a></li>
         <li><a href="{{ url_for('routes.register') }}">Register</a></li>
       {% else %}
+        {% if current_user.role == 'admin' %}
+        <li><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+        {% endif %}
         <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
       {% endif %}
     </ul>
@@ -89,9 +92,7 @@
                 <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
                 <li><a href="{{ url_for('routes.login') }}">Login</a></li>
                 <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
-                 <!-- subscribe  -->
                 <li><a href="{{ url_for('routes.add_subscription') }}">Subscribe for News & Offers</a></li>
-                <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
             </ul>
         </div>
 

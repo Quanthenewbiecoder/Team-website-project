@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Setup form submission
     const trackingForm = document.getElementById('tracking-form');
     if (trackingForm) {
         trackingForm.addEventListener('submit', function(e) {
@@ -11,13 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Check if order details should be shown (based on server-side data)
     const orderDetailsSection = document.getElementById('order-details-section');
     if (orderDetailsSection && orderDetailsSection.getAttribute('data-show') === 'true') {
         orderDetailsSection.classList.add('show');
     }
     
-    // Copy tracking number to clipboard functionality
     const copyTrackingBtn = document.getElementById('copy-tracking');
     if (copyTrackingBtn) {
         copyTrackingBtn.addEventListener('click', function() {
@@ -35,21 +32,17 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function fallbackCopyToClipboard(text) {
-    // Create a temporary input element
     const tempInput = document.createElement('input');
     tempInput.style.position = 'absolute';
     tempInput.style.left = '-9999px';
     tempInput.value = text;
     document.body.appendChild(tempInput);
     
-    // Select and copy the text
     tempInput.select();
     document.execCommand('copy');
     
-    // Remove the temporary element
     document.body.removeChild(tempInput);
     
-    // Show notification
     showNotification('Tracking number copied to clipboard!');
 }
 
@@ -66,20 +59,16 @@ function showFormError(message) {
 }
 
 function showNotification(message, isError = false) {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification ${isError ? 'error' : 'success'}`;
     notification.textContent = message;
     
-    // Add to document
     document.body.appendChild(notification);
     
-    // Show notification (with animation)
     setTimeout(() => {
         notification.classList.add('show');
     }, 10);
     
-    // Hide and remove notification after delay
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -88,13 +77,11 @@ function showNotification(message, isError = false) {
     }, 3000);
 }
 
-// Function to update the order status in the UI
 function updateOrderStatus(status) {
     const statusElement = document.getElementById('order-status-badge');
     if (statusElement) {
         statusElement.textContent = status;
         
-        // Update color based on status
         statusElement.className = 'status-badge';
         switch(status.toLowerCase()) {
             case 'processing':

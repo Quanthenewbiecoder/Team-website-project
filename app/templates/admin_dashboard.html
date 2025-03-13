@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - The Divine Jewelry{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-sidebar">
+        <h2>Admin Panel</h2>
+        <ul class="admin-menu">
+            <li class="active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</li>
+            <li data-tab="users"><i class="fas fa-users"></i> Users</li>
+            <li data-tab="products"><i class="fas fa-gem"></i> Products</li>
+            <li data-tab="orders"><i class="fas fa-shopping-cart"></i> Orders</li>
+            <li data-tab="subscriptions"><i class="fas fa-envelope"></i> Subscriptions</li>
+            <li data-tab="settings"><i class="fas fa-cog"></i> Settings</li>
+        </ul>
+    </div>
+
+    <div class="admin-content">
+        <div class="admin-tab active" id="dashboard-tab">
+            <h2>Dashboard Overview</h2>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <h3>Total Users</h3>
+                        <p class="stat-number" id="total-users">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="stat-content">
+                        <h3>Total Orders</h3>
+                        <p class="stat-number" id="total-orders">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-gem"></i></div>
+                    <div class="stat-content">
+                        <h3>Products</h3>
+                        <p class="stat-number" id="total-products">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="stat-content">
+                        <h3>Subscribers</h3>
+                        <p class="stat-number" id="total-subscribers">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-charts">
+                <div class="chart-container">
+                    <h3>Recent Orders</h3>
+                    <div class="chart" id="orders-chart">
+                        <canvas id="ordersChartCanvas"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>Top Products</h3>
+                    <div class="chart" id="products-chart">
+                        <canvas id="productsChartCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <ul class="activity-list" id="activity-list">
+                    <li class="activity-item loading">Loading recent activity...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="admin-tab" id="users-tab">
+            <div class="tab-header">
+                <h2>User Management</h2>
+                <div class="actions">
+                    <input type="text" id="user-search" placeholder="Search users...">
+                    <button class="btn-primary" id="refresh-users"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn-primary" id="add-user"><i class="fas fa-plus"></i> Add New User</button>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="7">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="users-pagination">
+                <button class="pagination-btn" id="prev-page" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="pagination-info">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+                <button class="pagination-btn" id="next-page"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="admin-tab" id="products-tab">
+            <div class="tab-header">
+                <h2>Product Management</h2>
+                <div class="actions">
+                    <input type="text" id="product-search" placeholder="Search products...">
+                    <button class="btn-primary" id="refresh-products"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn-primary" id="add-product"><i class="fas fa-plus"></i> Add New Product</button>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Collection</th>
+                            <th>Price</th>
+                            <th>In Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="8">Loading products...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="products-pagination">
+                <button class="pagination-btn" id="products-prev-page" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="pagination-info">Page <span id="products-current-page">1</span> of <span id="products-total-pages">1</span></span>
+                <button class="pagination-btn" id="products-next-page"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="admin-tab" id="orders-tab">
+            <div class="tab-header">
+                <h2>Order Management</h2>
+                <div class="actions">
+                    <input type="text" id="order-search" placeholder="Search orders...">
+                    <button class="btn-primary" id="refresh-orders"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="7">Loading orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="orders-pagination">
+                <button class="pagination-btn" id="orders-prev-page" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="pagination-info">Page <span id="orders-current-page">1</span> of <span id="orders-total-pages">1</span></span>
+                <button class="pagination-btn" id="orders-next-page"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="admin-tab" id="subscriptions-tab">
+            <div class="tab-header">
+                <h2>Newsletter Subscriptions</h2>
+                <div class="actions">
+                    <input type="text" id="subscription-search" placeholder="Search email...">
+                    <button class="btn-primary" id="refresh-subscriptions"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn-primary" id="export-subscribers"><i class="fas fa-file-export"></i> Export</button>
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table" id="subscriptions-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Date Subscribed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="loading-row">
+                            <td colspan="4">Loading subscriptions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="subscriptions-pagination">
+                <button class="pagination-btn" id="subscriptions-prev-page" disabled><i class="fas fa-chevron-left"></i></button>
+                <span class="pagination-info">Page <span id="subscriptions-current-page">1</span> of <span id="subscriptions-total-pages">1</span></span>
+                <button class="pagination-btn" id="subscriptions-next-page"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="admin-tab" id="settings-tab">
+            <h2>Admin Settings</h2>
+            
+            <div class="settings-section">
+                <h3>Account Settings</h3>
+                <form id="admin-profile-form" class="settings-form">
+                    <div class="form-group">
+                        <label for="admin-username">Username</label>
+                        <input type="text" id="admin-username" name="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-email">Email</label>
+                        <input type="email" id="admin-email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-name">Name</label>
+                        <input type="text" id="admin-name" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin-surname">Surname</label>
+                        <input type="text" id="admin-surname" name="surname">
+                    </div>
+                    <button type="submit" class="btn-primary">Update Profile</button>
+                </form>
+            </div>
+
+            <div class="settings-section">
+                <h3>Change Password</h3>
+                <form id="change-password-form" class="settings-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="current_password">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" name="new_password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password">
+                    </div>
+                    <button type="submit" class="btn-primary">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="edit-user-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="user-modal-title">Edit User</h2>
+        <form id="edit-user-form">
+            <input type="hidden" id="edit-user-id" name="user_id">
+            <div class="form-group">
+                <label for="edit-username">Username</label>
+                <input type="text" id="edit-username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-name">Name</label>
+                <input type="text" id="edit-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-surname">Surname</label>
+                <input type="text" id="edit-surname" name="surname" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-email">Email</label>
+                <input type="email" id="edit-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-role">Role</label>
+                <select id="edit-role" name="role" required>
+                    <option value="Customer">Customer</option>
+                    <option value="staff">Staff</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <button type="button" class="btn-secondary" id="reset-password-btn">Reset Password</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="edit-product-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="product-modal-title">Edit Product</h2>
+        <form id="edit-product-form">
+            <input type="hidden" id="edit-product-id" name="product_id">
+            <div class="form-group">
+                <label for="edit-product-name">Product Name</label>
+                <input type="text" id="edit-product-name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-type">Type</label>
+                <select id="edit-product-type" name="type" required>
+                    <option value="Rings">Rings</option>
+                    <option value="Necklaces">Necklaces</option>
+                    <option value="Bracelets">Bracelets</option>
+                    <option value="Earrings">Earrings</option>
+                    <option value="Watches">Watches</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-collection">Collection</label>
+                <select id="edit-product-collection" name="collection">
+                    <option value="">None</option>
+                    <option value="Crystal">Crystal</option>
+                    <option value="Leaf">Leaf</option>
+                    <option value="Pearl">Pearl</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-price">Price (£)</label>
+                <input type="number" id="edit-product-price" name="price" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-description">Description</label>
+                <textarea id="edit-product-description" name="description" rows="4" required></textarea>
+            </div>
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="edit-product-stock" name="in_stock">
+                <label for="edit-product-stock">In Stock</label>
+            </div>
+            <div class="form-group">
+                <label for="edit-product-image">Image URL</label>
+                <input type="text" id="edit-product-image" name="image_url">
+                <p class="help-text">Relative path to image file (e.g. images/product.jpg)</p>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="order-details-modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Order Details</h2>
+        <div class="order-info" id="order-info">
+            <div class="order-header">
+                <p><strong>Order ID:</strong> <span id="detail-order-id"></span></p>
+                <p><strong>Date:</strong> <span id="detail-order-date"></span></p>
+                <p><strong>Status:</strong> <span id="detail-order-status"></span></p>
+            </div>
+            
+            <div class="order-customer">
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <span id="detail-customer-name"></span></p>
+                <p><strong>Email:</strong> <span id="detail-customer-email"></span></p>
+            </div>
+            
+            <div class="order-items">
+                <h3>Order Items</h3>
+                <table class="order-items-table" id="order-items-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="order-totals">
+                <p><strong>Subtotal:</strong> £<span id="detail-subtotal"></span></p>
+                <p><strong>Shipping:</strong> £<span id="detail-shipping">4.99</span></p>
+                <p><strong>Total:</strong> £<span id="detail-total"></span></p>
+            </div>
+            
+            <div class="order-actions">
+                <h3>Update Order Status</h3>
+                <form id="update-order-status-form">
+                    <select id="update-status" name="status">
+                        <option value="Pending">Pending</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Canceled">Canceled</option>
+                    </select>
+                    <button type="submit" class="btn-primary">Update Status</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="confirmation-modal">
+    <div class="modal-content confirmation-content">
+        <span class="close-modal">&times;</span>
+        <h2>Confirmation</h2>
+        <p id="confirmation-message">Are you sure you want to proceed?</p>
+        <div class="confirmation-actions">
+            <button class="btn-primary" id="confirm-yes">Yes</button>
+            <button class="btn-secondary" id="confirm-no">No</button>
+        </div>
+    </div>
+</div>
+
+<div class="notification" id="notification">
+    <span id="notification-message"></span>
+    <span class="notification-close">&times;</span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+{% endblock %}
