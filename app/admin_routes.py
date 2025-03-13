@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from app.models import User
 from bson import ObjectId
 from functools import wraps
-from app.database import db, users_collection, products_collection, orders_collection, subscriptions_collection
+from app.database import db, users_collection, orders_collection
 from datetime import datetime
 import json
 import csv
@@ -45,25 +45,10 @@ def get_orders_count():
     count = orders_collection.count_documents({})
     return jsonify({'count': count})
 
-@admin_bp.route('/api/admin/products/count')
-@login_required
-@admin_required
-def get_products_count():
-    count = products_collection.count_documents({})
-    return jsonify({'count': count})
-
-@admin_bp.route('/api/admin/subscriptions/count')
-@login_required
-@admin_required
-def get_subscriptions_count():
-    count = subscriptions_collection.count_documents({})
-    return jsonify({'count': count})
-
 @admin_bp.route('/api/admin/orders/stats')
 @login_required
 @admin_required
 def get_orders_stats():
-    # Sample data for monthly order count
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
     values = [12, 19, 3, 5, 2, 3]
     
@@ -74,27 +59,11 @@ def get_orders_stats():
         }
     })
 
-@admin_bp.route('/api/admin/products/stats')
-@login_required
-@admin_required
-def get_products_stats():
-    # Sample data for top products
-    products = ['Crystal Ring', 'Leaf Earrings', 'Pearl Necklace', 'Leaf Bracelet', 'Pearl Earrings']
-    values = [25, 20, 15, 10, 8]
-    
-    return jsonify({
-        'chartData': {
-            'labels': products,
-            'values': values
-        }
-    })
 
 @admin_bp.route('/api/admin/activity')
 @login_required
 @admin_required
 def get_activity():
-    # In a real application, you would store activities in a collection
-    # For now, return sample activity data
     
     activities = [
         {
@@ -265,18 +234,15 @@ def delete_user(user_id):
 @admin_required
 def reset_user_password(user_id):
     try:
-        default_password = 'DefaultPassword123'  # In production, use a secure random password generator
+        default_password = 'DefaultPassword123'
         
-        # Get user
         user_data = users_collection.find_one({"_id": ObjectId(user_id)})
         if not user_data:
             return jsonify({'error': 'User not found'}), 404
         
-        # Create temporary User object to hash password
         user = User(**user_data)
         user.set_password(default_password)
         
-        # Update password in database
         result = users_collection.update_one(
             {"_id": ObjectId(user_id)},
             {"$set": {"password_hash": user.password_hash}}
@@ -284,140 +250,14 @@ def reset_user_password(user_id):
         
         return jsonify({
             'message': 'Password reset successfully',
-            'password': default_password  # This would normally be sent to the user via email
+            'password': default_password
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# ----- PRODUCT MANAGEMENT API -----
-@admin_bp.route('/api/admin/products')
-@login_required
-@admin_required
-def get_products():
-    page = int(request.args.get('page', 1))
-    search = request.args.get('search', '')
-    per_page = 10
-    
-    # Create filter based on search term
-    filter_query = {}
-    if search:
-        # Search in name, description, type, collection
-        filter_query = {
-            "$or": [
-                {"name": {"$regex": search, "$options": "i"}},
-                {"description": {"$regex": search, "$options": "i"}},
-                {"type": {"$regex": search, "$options": "i"}},
-                {"collection": {"$regex": search, "$options": "i"}}
-            ]
-        }
-    
-    # Count total records for pagination
-    total_records = products_collection.count_documents(filter_query)
-    total_pages = (total_records // per_page) + (1 if total_records % per_page > 0 else 0)
-    
-    # Get products with pagination
-    skip = (page - 1) * per_page
-    products_cursor = products_collection.find(filter_query).skip(skip).limit(per_page).sort("name", 1)
-    
-    # Convert to list and prepare for JSON
-    products = []
-    for product in products_cursor:
-        product['_id'] = str(product['_id'])  # Convert ObjectId to string
-        products.append(product)
-    
-    return jsonify({
-        'products': products,
-        'totalPages': total_pages,
-        'currentPage': page,
-        'totalRecords': total_records
-    })
 
-@admin_bp.route('/api/admin/products/<product_id>')
-@login_required
-@admin_required
-def get_product(product_id):
-    try:
-        product = products_collection.find_one({"_id": ObjectId(product_id)})
-        if not product:
-            return jsonify({'error': 'Product not found'}), 404
-        
-        product['_id'] = str(product['_id'])  # Convert ObjectId to string
-        return jsonify(product)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/products', methods=['POST'])
-@login_required
-@admin_required
-def add_product():
-    try:
-        data = request.json
-        
-        # Create product object
-        product = {
-            'name': data['name'],
-            'type': data['type'],
-            'collection': data['collection'],
-            'price': float(data['price']),
-            'description': data['description'],
-            'in_stock': bool(data['in_stock']),
-            'image_url': data['image_url']
-        }
-        
-        # Insert into MongoDB
-        result = products_collection.insert_one(product)
-        
-        return jsonify({
-            'message': 'Product created successfully',
-            'id': str(result.inserted_id)
-        }), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@admin_bp.route('/api/admin/products/<product_id>', methods=['PUT'])
-@login_required
-@admin_required
-def update_product(product_id):
-    try:
-        data = request.json
-        
-        # Update product
-        result = products_collection.update_one(
-            {"_id": ObjectId(product_id)},
-            {"$set": {
-                "name": data['name'],
-                "type": data['type'],
-                "collection": data['collection'],
-                "price": float(data['price']),
-                "description": data['description'],
-                "in_stock": bool(data['in_stock']),
-                "image_url": data['image_url']
-            }}
-        )
-        
-        if result.matched_count == 0:
-            return jsonify({'error': 'Product not found'}), 404
-        
-        return jsonify({'message': 'Product updated successfully'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@admin_bp.route('/api/admin/products/<product_id>', methods=['DELETE'])
-@login_required
-@admin_required
-def delete_product(product_id):
-    try:
-        # Delete product
-        result = products_collection.delete_one({"_id": ObjectId(product_id)})
-        
-        if result.deleted_count == 0:
-            return jsonify({'error': 'Product not found'}), 404
-        
-        return jsonify({'message': 'Product deleted successfully'}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-# ----- ORDER MANAGEMENT API -----
 @admin_bp.route('/api/admin/orders')
 @login_required
 @admin_required
@@ -426,16 +266,12 @@ def get_orders():
     search = request.args.get('search', '')
     per_page = 10
     
-    # Create filter based on search term
     filter_query = {}
     if search:
-        # Search in order ID and user details
         try:
-            # Check if search is a valid ObjectId (order ID)
             if ObjectId.is_valid(search):
                 filter_query["_id"] = ObjectId(search)
             else:
-                # Search in other fields
                 filter_query = {
                     "$or": [
                         {"user_id": {"$regex": search, "$options": "i"}},
@@ -445,7 +281,6 @@ def get_orders():
                     ]
                 }
         except:
-            # If not a valid ObjectId, use other search criteria
             filter_query = {
                 "$or": [
                     {"user_id": {"$regex": search, "$options": "i"}},
@@ -455,20 +290,16 @@ def get_orders():
                 ]
             }
     
-    # Count total records for pagination
     total_records = orders_collection.count_documents(filter_query)
     total_pages = (total_records // per_page) + (1 if total_records % per_page > 0 else 0)
     
-    # Get orders with pagination
     skip = (page - 1) * per_page
     orders_cursor = orders_collection.find(filter_query).skip(skip).limit(per_page).sort("created_at", -1)
     
-    # Convert to list and prepare for JSON
     orders = []
     for order in orders_cursor:
-        order['_id'] = str(order['_id'])  # Convert ObjectId to string
+        order['_id'] = str(order['_id'])
         
-        # Add user details if available
         if 'user_id' in order and order['user_id'] != 'guest':
             try:
                 user = users_collection.find_one({"_id": ObjectId(order['user_id'])})
@@ -492,7 +323,6 @@ def get_orders():
 @admin_required
 def get_order(order_id):
     try:
-        # Handle both ObjectId and string IDs (for guest orders)
         order = None
         if order_id.startswith('GUEST-'):
             order = orders_collection.find_one({"guest_order_id": order_id})
@@ -502,11 +332,9 @@ def get_order(order_id):
         if not order:
             return jsonify({'error': 'Order not found'}), 404
         
-        # Convert ObjectId to string
         if '_id' in order:
             order['_id'] = str(order['_id'])
         
-        # Add user details if available
         if 'user_id' in order and order['user_id'] != 'guest':
             try:
                 user = users_collection.find_one({"_id": ObjectId(order['user_id'])})
@@ -531,7 +359,6 @@ def update_order_status(order_id):
         if not new_status:
             return jsonify({'error': 'Status is required'}), 400
         
-        # Update order status
         if order_id.startswith('GUEST-'):
             result = orders_collection.update_one(
                 {"guest_order_id": order_id},
@@ -555,7 +382,7 @@ def update_order_status(order_id):
 @admin_required
 def delete_order(order_id):
     try:
-        # Delete order
+        
         if order_id.startswith('GUEST-'):
             result = orders_collection.delete_one({"guest_order_id": order_id})
         else:

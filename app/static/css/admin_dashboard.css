@@ -57,7 +57,6 @@
     font-weight: bold;
 }
 
-/* Content Styles */
 .admin-content {
     flex-grow: 1;
     padding: 25px;
@@ -80,7 +79,6 @@
     border-bottom: 2px solid #e6be73;
 }
 
-/* Dashboard Stats Cards */
 .stats-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -135,10 +133,9 @@
     color: #2f1c0e;
 }
 
-/* Dashboard Charts */
 .dashboard-charts {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 25px;
     margin-bottom: 30px;
 }
@@ -163,7 +160,6 @@
     width: 100%;
 }
 
-/* Recent Activity */
 .recent-activity {
     background-color: white;
     border-radius: 8px;
@@ -216,10 +212,6 @@
     background-color: #87c7ff !important;
 }
 
-.activity-icon-product {
-    background-color: #a4e0a4 !important;
-}
-
 .activity-time {
     color: #777;
     font-size: 12px;
@@ -232,7 +224,6 @@
     font-style: italic;
 }
 
-/* Tab Header */
 .tab-header {
     display: flex;
     justify-content: space-between;
@@ -263,7 +254,6 @@
     box-shadow: 0 0 0 2px rgba(230, 190, 115, 0.1);
 }
 
-/* Table Styles */
 .data-table-container {
     background-color: white;
     border-radius: 8px;
@@ -301,24 +291,12 @@
     color: #777;
 }
 
-.table-product-image {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
 .table-status {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 13px;
     font-weight: 500;
-}
-
-.status-active {
-    background-color: #dff0d8;
-    color: #3c763d;
 }
 
 .status-pending {
@@ -385,7 +363,6 @@
     background-color: #e6c3c3;
 }
 
-/* Pagination */
 .pagination {
     display: flex;
     justify-content: center;
@@ -423,7 +400,6 @@
     color: #666;
 }
 
-/* Settings Tab */
 .settings-section {
     background-color: white;
     border-radius: 8px;
@@ -474,27 +450,12 @@
     box-shadow: 0 0 0 2px rgba(230, 190, 115, 0.1);
 }
 
-.checkbox-group {
+.form-actions {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    margin-top: 25px;
 }
 
-.checkbox-group input {
-    width: auto;
-    margin-right: 10px;
-}
-
-.checkbox-group label {
-    margin-bottom: 0;
-}
-
-.help-text {
-    font-size: 12px;
-    color: #777;
-    margin-top: 5px;
-}
-
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -545,13 +506,6 @@
     border-bottom: 1px solid #e6be73;
 }
 
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
-}
-
-/* Confirmation Modal */
 .confirmation-content {
     max-width: 400px;
     text-align: center;
@@ -564,7 +518,6 @@
     margin-top: 20px;
 }
 
-/* Order Details Modal */
 .order-header {
     display: flex;
     justify-content: space-between;
@@ -620,7 +573,6 @@
     flex-grow: 1;
 }
 
-/* Notification */
 .notification {
     position: fixed;
     top: 20px;
@@ -658,7 +610,6 @@
     font-size: 18px;
 }
 
-/* Buttons */
 .btn-primary {
     background-color: #2f1c0e;
     color: white;
@@ -696,7 +647,6 @@
     background-color: #e0e0e0;
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
     .dashboard-charts {
         grid-template-columns: 1fr;
@@ -762,5 +712,24 @@
     .order-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-content {
+        padding: 15px;
+    }
+    
+    .actions input[type="text"] {
+        width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .order-actions form {
+        flex-direction: column;
     }
 }

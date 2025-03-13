@@ -7,11 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initUserManagement();
     
-    initProductManagement();
     
     initOrderManagement();
     
-    initSubscriptionManagement();
     
 
     loadAdminProfile();
@@ -62,25 +60,7 @@ function loadDashboardStats() {
             document.getElementById('total-orders').textContent = 'Error';
         });
     
-    fetch('/api/admin/products/count')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('total-products').textContent = data.count || 0;
-        })
-        .catch(error => {
-            console.error('Error fetching product count:', error);
-            document.getElementById('total-products').textContent = 'Error';
-        });
-    
-    fetch('/api/admin/subscriptions/count')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('total-subscribers').textContent = data.count || 0;
-        })
-        .catch(error => {
-            console.error('Error fetching subscription count:', error);
-            document.getElementById('total-subscribers').textContent = 'Error';
-        });
+
 }
 
 function initCharts() {
@@ -129,48 +109,7 @@ function initCharts() {
             document.getElementById('orders-chart').innerHTML = '<p class="loading">Error loading chart data</p>';
         });
     
-    fetch('/api/admin/products/stats')
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('productsChartCanvas').getContext('2d');
-            
-            const chartData = data.chartData || {
-                labels: ['Crystal Ring', 'Leaf Earrings', 'Pearl Necklace', 'Leaf Bracelet', 'Pearl Earrings'],
-                values: [25, 20, 15, 10, 8]
-            };
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Sales',
-                        data: chartData.values,
-                        backgroundColor: '#e6be73',
-                        borderColor: '#2f1c0e',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        })
-        .catch(error => {
-            console.error('Error loading products chart:', error);
-            document.getElementById('products-chart').innerHTML = '<p class="loading">Error loading chart data</p>';
-        });
+    
 }
 
 function loadRecentActivity() {
@@ -199,9 +138,6 @@ function loadRecentActivity() {
                 } else if (activity.type === 'order') {
                     iconClass = 'fas fa-shopping-cart';
                     iconClassType = 'activity-icon-order';
-                } else if (activity.type === 'product') {
-                    iconClass = 'fas fa-gem';
-                    iconClassType = 'activity-icon-product';
                 }
                 
                 const activityDate = new Date(activity.time);
@@ -459,96 +395,5 @@ function deleteUser(userId) {
             console.error('Error deleting user:', error);
             showNotification('Error deleting user', 'error');
         });
-    });
-}
-
-function initProductManagement() {
-    loadProducts(1);
-    
-    const searchInput = document.getElementById('product-search');
-    let searchTimeout;
-    
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            loadProducts(1, this.value);
-        }, 500);
-    });
-    
-    document.getElementById('refresh-products').addEventListener('click', function() {
-        searchInput.value = '';
-        loadProducts(1);
-    });
-    
-    document.getElementById('add-product').addEventListener('click', function() {
-        document.getElementById('edit-product-form').reset();
-        document.getElementById('product-modal-title').textContent = 'Add New Product';
-        
-        const modal = document.getElementById('edit-product-modal');
-        modal.classList.add('show');
-    });
-    
-    document.getElementById('edit-product-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const productId = document.getElementById('edit-product-id').value;
-        const formData = new FormData(this);
-        const productData = {
-            name: formData.get('name'),
-            type: formData.get('type'),
-            collection: formData.get('collection'),
-            price: parseFloat(formData.get('price')),
-            description: formData.get('description'),
-            in_stock: formData.get('in_stock') === 'on',
-            image_url: formData.get('image_url')
-        };
-        
-        if (productId) {
-            fetch(`/api/admin/products/${productId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(productData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to update product');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showNotification('Product updated successfully', 'success');
-                document.getElementById('edit-product-modal').classList.remove('show');
-                loadProducts(currentProductsPage, searchInput.value);
-            })
-            .catch(error => {
-                console.error('Error updating product:', error);
-                showNotification('Error updating product', 'error');
-            });
-        } else {
-            fetch('/api/admin/products', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(productData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to create product');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showNotification('Product created successfully', 'success');
-                document.getElementById('edit-product-modal').classList.remove('show');
-                loadProducts(1, searchInput.value);
-            })
-            .catch(error => {
-                console.error('Error creating product:', error);
-                showNotification('Error creating product', 'error');
-            });
-        }
     });
 }
