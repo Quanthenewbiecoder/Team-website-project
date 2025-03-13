@@ -37,12 +37,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success && data.order) {
                     displayOrderDetails(data.order);
                 } else {
-                    showFormError('Order not found. Please check your details.');
+                    showFormError(data.error || 'Order not found. Please check your details.');
                 }
             })
             .catch(error => console.error('ERROR: Fetch Failed', error));
     });
 });
+
+// Function to parse MongoDB date format
+function parseMongoDate(dateObj) {
+    if (!dateObj) return "N/A";
+
+    // Handle MongoDB's extended JSON format
+    let dateStr = dateObj.$date || dateObj;
+
+    let parsedDate = new Date(dateStr);
+    return isNaN(parsedDate.getTime()) ? "N/A" : parsedDate.toLocaleString();
+}
 
 function displayOrderDetails(order) {
     console.log("DEBUG: Displaying Order Details", order);
@@ -55,29 +66,34 @@ function displayOrderDetails(order) {
         return;
     }
 
-    // Make sure the section is visible
     orderDetailsSection.style.display = 'block';
 
-    // Ensure guest_order_id is used if _id is missing
+    const createdAt = parseMongoDate(order.created_at);
     const trackingId = order.guest_order_id || order._id || "Unknown ID";
+    const totalPrice = order.total_price ? order.total_price.toFixed(2) : "0.00";
 
-    // Convert MongoDB date format
-    const createdAt = order.created_at ? new Date(order.created_at.$date).toLocaleString() : "N/A";
+    console.log("DEBUG: Order Items:", order.items);
+
+    let itemsHTML = "";
+    if (Array.isArray(order.items) && order.items.length > 0) {
+        itemsHTML = order.items.map(item => `
+            <li>
+                <strong>${item.product_name}</strong> - 
+                £${item.price.toFixed(2)} x${item.quantity}
+            </li>
+        `).join('');
+    } else {
+        itemsHTML = "<li>No items found.</li>";
+    }
 
     orderDetails.innerHTML = `
         <h2>Order Details</h2>
         <p><strong>Order ID:</strong> ${trackingId}</p>
         <p><strong>Status:</strong> ${order.status}</p>
-        <p><strong>Total Price:</strong> £${order.total_price.toFixed(2)}</p>
+        <p><strong>Total Price:</strong> £${totalPrice}</p>
         <p><strong>Order Date:</strong> ${createdAt}</p>
         <h4>Items:</h4>
-        <ul>
-            ${order.items.length > 0 
-                ? order.items.map(item => `
-                    <li>${item.product_name} - £${item.price.toFixed(2)} x${item.quantity}</li>
-                `).join('')
-                : '<li>No items in this order.</li>'}
-        </ul>
+        <ul id="order-items-list">${itemsHTML}</ul>
     `;
 
     console.log("DEBUG: Order details updated successfully.");
@@ -94,4 +110,41 @@ function showFormError(message) {
             errorElement.style.display = 'none';
         }, 3000);
     }
+}
+
+// Function to copy tracking number to clipboard
+document.addEventListener('click', function (event) {
+    if (event.target.id === "copy-tracking" || event.target.closest("#copy-tracking")) {
+        const trackingNumber = event.target.dataset.tracking || event.target.closest("#copy-tracking").dataset.tracking;
+
+        if (!trackingNumber) {
+            console.error("ERROR: No tracking number found to copy.");
+            return;
+        }
+
+        navigator.clipboard.writeText(trackingNumber).then(() => {
+            showNotification("Tracking number copied!", "success");
+        }).catch(err => {
+            console.error("ERROR: Failed to copy tracking number", err);
+        });
+    }
+});
+
+// Function to show notifications
+function showNotification(message, type = "success") {
+    const notification = document.createElement("div");
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.classList.add("show");
+    }, 100);
+
+    setTimeout(() => {
+        notification.classList.remove("show");
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 2500);
 }

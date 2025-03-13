@@ -147,21 +147,19 @@ function setupFormSubmission() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
             })
-            .then(response => {
-                console.log(" Raw Response:", response);
-                return response.json(); // Convert response to JSON
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log(" API Response:", data);
                 if (data.success) {
                     alert('Payment successful! Your order has been placed.');
                     sessionStorage.removeItem('divinecart');
-                    window.location.href = `/order-tracking?order_id=${data.order_id}`;
+            
+                    // Fix: Redirect to payment success page with tracking number
+                    window.location.href = `/payment?payment_status=success&tracking_number=${data.tracking_number}`;
                 } else {
-                    alert('Error processing your order: ' + data.error);
+                    alert('Error processing your order. Please try again.');
                 }
             })
-            .catch(error => console.error('🚨 Fetch error:', error));            
+            .catch(error => console.error('Error:', error));                     
         });
     }
 }
