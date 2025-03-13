@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${parseFloat(product.price).toFixed(2)}">
                     Add to Cart
                 </button>
+                <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
             `;
     
             productsGrid.appendChild(productDiv);
