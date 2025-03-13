@@ -70,3 +70,20 @@ function removeItem(element) {
 
     element.parentElement.remove();
 }
+
+
+function openPopup(img) {
+  const popupOverlay = document.querySelector('.popup-overlay');
+  const popupImage = document.getElementById('popup-image');
+  if (popupOverlay && popupImage) {
+    popupImage.src = img.src;
+    popupOverlay.style.display = 'flex';
+  }
+}
+
+function closePopup() {
+  const popupOverlay = document.querySelector('.popup-overlay');
+  if (popupOverlay) {
+    popupOverlay.style.display = 'none';
+  }
+}
