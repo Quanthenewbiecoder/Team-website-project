@@ -39,7 +39,6 @@ def home():
     return render_template('homepage.html', now=datetime.now())
 
 # Authentication Routes
-# Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -93,6 +92,9 @@ def register():
         mongo.db.users.insert_one(new_user.__dict__)
         flash('Your account has been created! You can now log in.', 'success')
         return redirect(url_for('routes.login'))
+    
+    return render_template('register.html', form=form)
+
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
