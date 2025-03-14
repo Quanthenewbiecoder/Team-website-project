@@ -4,6 +4,7 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboardstyles.css') }}">
+
 <div class="dashboard-container">
     <h2>Welcome to Your Dashboard, {{ current_user.name }}</h2>
     <p>Manage your profile and order history.</p>
@@ -38,8 +39,8 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
-                    <td>{{ order._id }}</td>
-                    <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ order.user_order_id or order.guest_order_id or order._id }}</td>
+                    <td>{{ order.created_at }}</td>
                     <td>
                         <span class="badge 
                             {% if order.status == 'Completed' %} bg-success 
@@ -51,7 +52,7 @@
                     </td>
                     <td>£{{ order.total_price }}</td>
                     <td>
-                        <a href="{{ url_for('routes.track_order', tracking=order.guest_order_id or order._id) }}" class="btn btn-sm btn-primary">View</a>
+                        <a href="{{ url_for('routes.track_order', tracking=order.user_order_id or order.guest_order_id or order._id) }}" class="btn btn-sm btn-primary">View</a>
                     </td>
                 </tr>
                 {% endfor %}

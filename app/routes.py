@@ -497,7 +497,24 @@ def feedback():
 @routes_bp.route('/dashboard')
 @login_required
 def user_dashboard():
-    return render_template('user-dashboard.html')
+    """Fetch all orders linked to the logged-in user and display them on the dashboard."""
+    try:
+        user_id = ObjectId(current_user.get_id())  # Ensure user ID is an ObjectId
+        orders = list(mongo.db.orders.find(
+            {"$or": [{"user_id": user_id}, {"user_order_id": {"$exists": True, "$ne": None}}]}
+        ).sort("created_at", -1))  # Fetch orders in descending order
+
+        # Convert ObjectId to string for front-end compatibility
+        for order in orders:
+            order["_id"] = str(order["_id"])
+            order["created_at"] = order["created_at"].strftime('%d/%m/%Y')
+
+        return render_template('user-dashboard.html', orders=orders)
+    except Exception as e:
+        print(f"Error fetching orders: {e}")
+        flash("Error loading your orders.", "danger")
+        return render_template('user-dashboard.html', orders=[])
+
 
 # Admin and Staff Routes
 @routes_bp.route('/admin')
