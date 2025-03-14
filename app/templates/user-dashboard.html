@@ -4,7 +4,6 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboardstyles.css') }}">
-
 <div class="dashboard-container">
     <h2>Welcome to Your Dashboard, {{ current_user.name }}</h2>
     <p>Manage your profile and order history.</p>
@@ -39,20 +38,30 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
+                    <!-- Display the user_order_id if available, otherwise fallback to guest_order_id or MongoDB _id -->
                     <td>{{ order.user_order_id or order.guest_order_id or order._id }}</td>
+                    
+                    <!-- Display formatted order date -->
                     <td>{{ order.created_at }}</td>
+                    
+                    <!-- Order Status -->
                     <td>
                         <span class="badge 
                             {% if order.status == 'Completed' %} bg-success 
                             {% elif order.status == 'Processing' %} bg-info 
                             {% elif order.status == 'Cancelled' %} bg-danger 
-                            {% endif %}">
+                            {% else %} bg-secondary {% endif %}">
                             {{ order.status }}
                         </span>
                     </td>
+
+                    <!-- Order Total Price -->
                     <td>£{{ order.total_price }}</td>
+
+                    <!-- View Order Button -->
                     <td>
-                        <a href="{{ url_for('routes.track_order', tracking=order.user_order_id or order.guest_order_id or order._id) }}" class="btn btn-sm btn-primary">View</a>
+                        <a href="{{ url_for('routes.track_order', tracking=order.user_order_id or order.guest_order_id or order._id) }}" 
+                           class="btn btn-sm btn-primary">View</a>
                     </td>
                 </tr>
                 {% endfor %}

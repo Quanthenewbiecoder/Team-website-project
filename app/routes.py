@@ -499,17 +499,28 @@ def feedback():
 def user_dashboard():
     """Fetch all orders linked to the logged-in user and display them on the dashboard."""
     try:
-        user_id = ObjectId(current_user.get_id())  # Ensure user ID is an ObjectId
-        orders = list(mongo.db.orders.find(
-            {"$or": [{"user_id": user_id}, {"user_order_id": {"$exists": True, "$ne": None}}]}
-        ).sort("created_at", -1))  # Fetch orders in descending order
+        user_id_str = current_user.get_id()  # Get user ID as string
+        try:
+            user_id = ObjectId(user_id_str)  # Convert to ObjectId
+        except Exception:
+            user_id = user_id_str  # Fallback if it's already a string
 
-        # Convert ObjectId to string for front-end compatibility
+        # Fetch only orders that belong to the current user
+        orders = list(mongo.db.orders.find(
+            {"$or": [
+                {"user_id": user_id},  # Find by ObjectId (recommended)
+                {"user_id": user_id_str},  # Find by string ID (for edge cases)
+            ]}
+        ).sort("created_at", -1))  # Sort orders by newest first
+
+        # Convert `_id` and `created_at` for front-end compatibility
         for order in orders:
-            order["_id"] = str(order["_id"])
-            order["created_at"] = order["created_at"].strftime('%d/%m/%Y')
+            order["_id"] = str(order["_id"])  # Ensure ObjectId is string for Jinja
+            if "created_at" in order and isinstance(order["created_at"], datetime):
+                order["created_at"] = order["created_at"].strftime('%d/%m/%Y')
 
         return render_template('user-dashboard.html', orders=orders)
+
     except Exception as e:
         print(f"Error fetching orders: {e}")
         flash("Error loading your orders.", "danger")
