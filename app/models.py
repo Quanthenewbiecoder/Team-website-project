@@ -11,6 +11,7 @@ from flask_login import UserMixin
 from bson import ObjectId
 from app.database import subscriptions_collection
 import random
+from app import mongo  # Ensure your database connection is imported
 
 
 #  Connect to MongoDB Atlas
@@ -249,13 +250,9 @@ class Subscription:
         """Remove subscription from MongoDB"""
         result = subscriptions_collection.delete_one({"email": email})
         return result.deleted_count > 0  # Returns True if deleted, False if not found
-    
-from datetime import datetime
-from bson import ObjectId
-from app import mongo  # Ensure your database connection is imported
 
 class Order:
-    def __init__(self, total_price, items, user_id=None, guest_email=None, guest_order_id=None, status="Pending", created_at=None, _id=None):
+    def __init__(self, total_price, items, user_id=None, guest_email=None, guest_order_id=None, user_order_id=None, status="Pending", created_at=None, _id=None):
         if not user_id and not guest_email:
             raise ValueError("Either user_id or guest_email must be provided")
 
@@ -267,9 +264,12 @@ class Order:
         self.items = items  # List of purchased items
         self._id = ObjectId(_id) if _id and ObjectId.is_valid(_id) else ObjectId()
 
-        # Fix: Store Tracking Number for Guest Orders
+        # Fix: Store Tracking Number for Both Guest & User Orders
         self.guest_order_id = guest_order_id if guest_order_id else (
             f"GUEST-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}" if guest_email else None
+        )
+        self.user_order_id = user_order_id if user_order_id else (
+            f"USER-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}" if user_id else None
         )
 
     def save(self):
@@ -282,7 +282,8 @@ class Order:
             "_id": str(self._id),
             "user_id": str(self.user_id) if self.user_id else None,
             "guest_email": self.guest_email,
-            "guest_order_id": self.guest_order_id,  # Now included!
+            "guest_order_id": self.guest_order_id,  # Guest tracking number
+            "user_order_id": self.user_order_id,    # User tracking number
             "total_price": self.total_price,
             "status": self.status,
             "created_at": self.created_at,
@@ -291,11 +292,10 @@ class Order:
 
     @staticmethod
     def find_by_id(order_id):
-        """Find an order by MongoDB _id or guest_order_id"""
+        """Find an order by MongoDB _id, guest_order_id, or user_order_id"""
         try:
-            # Fix: Check for Guest Orders by guest_order_id
             order_data = mongo.db.orders.find_one(
-                {"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}]}
+                {"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}, {"user_order_id": order_id}]}
             )
             return Order(**order_data) if order_data else None
         except Exception as e:
@@ -304,7 +304,7 @@ class Order:
 
     @staticmethod
     def find_by_user(user_id):
-        """Find all orders of a logged-in user"""
+        """Find all orders of a registered user"""
         if not ObjectId.is_valid(user_id):
             return []  # Prevent invalid ObjectId errors
         orders = mongo.db.orders.find({"user_id": ObjectId(user_id)})
@@ -323,10 +323,11 @@ class Order:
 
     @staticmethod
     def delete_by_id(order_id):
-        """Delete an order by ID"""
+        """Delete an order by ID, guest_order_id, or user_order_id"""
         try:
-            # Fix: Delete by both _id and guest_order_id
-            result = mongo.db.orders.delete_one({"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}]})
+            result = mongo.db.orders.delete_one(
+                {"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}, {"user_order_id": order_id}]}
+            )
             return result.deleted_count > 0
         except Exception as e:
             print(f"Error deleting order: {e}")

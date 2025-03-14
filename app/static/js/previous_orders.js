@@ -55,6 +55,7 @@ function parseMongoDate(dateObj) {
     return isNaN(parsedDate.getTime()) ? "N/A" : parsedDate.toLocaleString();
 }
 
+// Function to display order details
 function displayOrderDetails(order) {
     console.log("DEBUG: Displaying Order Details", order);
 
@@ -69,7 +70,7 @@ function displayOrderDetails(order) {
     orderDetailsSection.style.display = 'block';
 
     const createdAt = parseMongoDate(order.created_at);
-    const trackingId = order.guest_order_id || order._id || "Unknown ID";
+    const trackingId = order.user_order_id || order.guest_order_id || order._id || "Unknown ID"; // Supports both user & guest orders
     const totalPrice = order.total_price ? order.total_price.toFixed(2) : "0.00";
 
     console.log("DEBUG: Order Items:", order.items);
@@ -86,9 +87,13 @@ function displayOrderDetails(order) {
         itemsHTML = "<li>No items found.</li>";
     }
 
+    // Added Order Type (Guest or Registered User)
+    const orderType = order.user_order_id ? "Registered User" : "Guest Order";
+
     orderDetails.innerHTML = `
         <h2>Order Details</h2>
-        <p><strong>Order ID:</strong> ${trackingId}</p>
+        <p><strong>Tracking Number:</strong> ${trackingId}</p>
+        <p><strong>Order Type:</strong> ${orderType}</p> 
         <p><strong>Status:</strong> ${order.status}</p>
         <p><strong>Total Price:</strong> £${totalPrice}</p>
         <p><strong>Order Date:</strong> ${createdAt}</p>
@@ -99,7 +104,7 @@ function displayOrderDetails(order) {
     console.log("DEBUG: Order details updated successfully.");
 }
 
-// Function to show error message
+// Function to show form errors
 function showFormError(message) {
     const errorElement = document.getElementById('form-error');
     if (errorElement) {

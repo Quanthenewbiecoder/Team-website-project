@@ -380,15 +380,13 @@ def payment_success(order_id):
         flash(f"Error displaying payment success: {str(e)}", "danger")
         return redirect(url_for('routes.home'))
 
-@routes_bp.route('/api/get_user', methods=['GET'])
-@login_required
-def get_user():
-    """API to get the logged-in user's email."""
-    try:
-        return jsonify({'success': True, 'user_email': current_user.email}), 200
-    except Exception as e:
-        print(f"ERROR: {e}")
-        return jsonify({'success': False, 'error': 'User not logged in'}), 401
+@routes_bp.route('/api/get-current-user', methods=['GET'])
+@login_required  # Ensure user is logged in
+def get_current_user():
+    """Fetch current logged-in user from the database."""
+    if current_user.is_authenticated:
+        return jsonify({'success': True, 'user': {'email': current_user.email}})
+    return jsonify({'success': False, 'error': 'User not logged in'}), 401
 
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
@@ -720,29 +718,44 @@ def create_order():
         if not isinstance(data['items'], list) or not all(isinstance(item, dict) for item in data['items']):
             return jsonify({'success': False, 'error': 'Items must be a list of objects'}), 400
 
+        # FIX: Convert `user_id` from email to ObjectId if it's a registered user
+        user_object_id = None
+        if user_id and user_id != "guest":
+            user_data = mongo.db.users.find_one({"email": user_id})  # Find user by email
+            if user_data:
+                user_object_id = user_data["_id"]  # Get user's ObjectId
+
+        # Generate tracking number
         guest_order_id = None
-        if not user_id:
-            guest_order_id = "GUEST-" + ''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=8))
+        user_order_id = None
+        if guest_email:
+            guest_order_id = f"GUEST-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}"
+        if user_object_id:
+            user_order_id = f"USER-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}"
 
         order = {
-            "user_id": user_id if user_id else "guest",
+            "user_id": user_object_id if user_object_id else "guest",
             "guest_email": guest_email if guest_email else None,
             "total_price": total_price,
             "items": data['items'],
             "status": "Pending",
             "created_at": datetime.utcnow(),
-            "guest_order_id": guest_order_id
+            "guest_order_id": guest_order_id,
+            "user_order_id": user_order_id
         }
 
         result = mongo.db.orders.insert_one(order)
         order_id = str(result.inserted_id)
 
-        return jsonify({'success': True, 'order_id': order_id, 'tracking_number': guest_order_id or order_id}), 201
+        return jsonify({'success': True, 'order_id': order_id, 'tracking_number': user_order_id or guest_order_id or order_id}), 201
 
     except Exception as e:
         print(f"ERROR CREATING ORDER: {str(e)}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
+    except Exception as e:
+        print(f"ERROR CREATING ORDER: {str(e)}")
+        return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 ### order-details-headerGET ORDER BY ID (User or Guest) ###
 @routes_bp.route('/api/orders/<order_id>', methods=['GET'])
@@ -813,14 +826,19 @@ def track_order():
     try:
         order = None
 
+        # Search for the order using `user_order_id`, `guest_order_id`, or `_id`
         if tracking_number:
-            if tracking_number.startswith("GUEST-"):
-                order = mongo.db.orders.find_one({"guest_order_id": tracking_number})
-            else:
-                order = mongo.db.orders.find_one({"_id": ObjectId(tracking_number)})
+            order = mongo.db.orders.find_one({
+                "$or": [
+                    {"user_order_id": tracking_number},
+                    {"guest_order_id": tracking_number},
+                    {"_id": ObjectId(tracking_number) if ObjectId.is_valid(tracking_number) else None}
+                ]
+            })
 
+        # If not found using tracking number, search by guest email
         if not order and guest_email:
-            order = mongo.db.orders.find_one({"guest_email": guest_email}, sort=[("created_at", DESCENDING)])
+            order = mongo.db.orders.find_one({"guest_email": guest_email}, sort=[("created_at", -1)])
 
         if not order:
             return jsonify({'success': False, 'error': 'Order not found'}), 404
@@ -831,26 +849,41 @@ def track_order():
         return jsonify({'success': True, 'order': order}), 200
 
     except Exception as e:
-        print(f"order-details-headerError tracking order: {e}")
+        print(f"Error tracking order: {e}")
         return jsonify({'success': False, 'error': 'Internal Server Error'}), 500
 
 ### order-details-headerORDER TRACKING PAGE
 @routes_bp.route('/order-tracking', methods=['GET'])
 def order_tracking():
-    """Renders the order tracking page with order details."""
+    """Render the order tracking page with order details."""
     order_id = request.args.get('order_id')
 
     if not order_id:
         flash("No tracking number provided.", "danger")
         return redirect(url_for('routes.previous_orders'))
 
-    order, error = get_order_by_id(order_id)
+    try:
+        # Search using `_id`, `guest_order_id`, or `user_order_id`
+        order = mongo.db.orders.find_one({
+            "$or": [
+                {"_id": ObjectId(order_id) if ObjectId.is_valid(order_id) else None},
+                {"guest_order_id": order_id},
+                {"user_order_id": order_id}
+            ]
+        })
 
-    if error:
-        flash(error, "danger")
+        if not order:
+            flash("Order not found!", "danger")
+            return redirect(url_for('routes.previous_orders'))
+
+        # Convert `_id` to string for template
+        order['_id'] = str(order['_id'])
+
+        return render_template('track_order.html', order=order, tracking_number=order_id)
+
+    except Exception as e:
+        flash(f"Error retrieving order: {str(e)}", "danger")
         return redirect(url_for('routes.previous_orders'))
-
-    return render_template('track_order.html', order=order, tracking_number=order_id)
 
 @routes_bp.route('/save-inquiry', methods=['POST'])
 def save_inquiry():
