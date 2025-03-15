@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Terms and Conditions - The Divine Jewelry{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styleaboutcontact.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Privacy Policy</h1>
+    <p><strong>Last Updated:</strong> 14/03/2025</p>
+
+<section>
+    <h2>1. Definitions</h2>
+    <ul>
+        <h3>Company: Refers to The Devine, Aston University, Birmingham.</h3>
+        <h3>Website: Refers to TheDevine.com.</h3>
+        <h3>User: Refers to any individual or entity accessing our website or services.</h3>
+        <h3>Services: Refers to any products, services, or features provided by The Devine.</h3>
+    </ul>
+    <h2>2. Use of Our Website</h2>
+    <ul>
+        <h3>You must be at least [Age Requirement] years old to use our website.</h3>
+        <h3>You agree to use our website only for lawful purposes and in a way that does not infringe the rights of others.</h3>
+        <h3>We reserve the right to suspend or terminate access to our website at any time without notice.</h3>
+    </ul>
+</section>
+<br>
+<section>
+    <h2>3. User Accounts</h2>
+    <ul>
+        <h3>When creating an account, you must provide accurate and complete information.</h3>
+        <h3>You are responsible for maintaining the confidentiality of your account and password.</h3>
+        <h3>We are not liable for any loss or damage arising from unauthorized access to your account.</h3>
+    </ul>
+</section>
+<br>
+<section>
+    <h2>4. Purchases and Payments</h2>
+    <ul>
+        <h3>By making a purchase, you agree to provide valid payment information.</h3>
+        <h3>We reserve the right to refuse or cancel any order at our discretion.</h3>
+        <h3>All prices are subject to change without notice.</h3>
+    </ul>
+</section>
+<br>
+<section>
+    <h2>5. Refund and Cancellation Policy</h2>
+    <h3>Refunds may be issued at our discretion, in accordance with our refund policy.</h3>
+    <h3>Orders may be canceled within 28 days if they have not yet been processed.</h3>
+</section>
+<br>
+<section>
+    <h2>6. Intellectual Property</h2>
+    <h3>All content on this website, including text, graphics, logos, and images, is the property of [Your Company Name] and is protected by copyright laws.</h3>
+</section>
+<br>
+<section>
+    <h2>7. Limitation of Liability</h2>
+    <h3>We are not liable for any direct, indirect, incidental, or consequential damages arising from your use of our website or services.</h3>
+</section>
+<br>
+<section>
+    <h2>8. Third-Party Links</h2>
+    <h3>Our website may contain links to third-party websites. We are not responsible for the content or policies of these websites.</h3>
+</section>
+<br>
+<section>
+    <h2>9. Privacy Policy</h2>
+    <h3>Your use of our website is also governed by our <a href="{{ url_for('routes.policy') }}">Privacy Policy</a>.</h3>
+</section>
+<br>
+<section>
+    <h2>10. Changes to These Terms</h2>
+    <h3>We reserve the right to modify these terms at any time. Any changes will be effective immediately upon posting on our website.</h3>
+</section>
+<br>
+<section>
+    <h2>11. Governing Law</h2>
+    <h3>These terms and conditions are governed by and interpreted in accordance with the laws of [Jurisdiction].</h3>
+</section>
+<br>
+<section>
+    <h2>12. Contact Information</h2>
+    <h3>If you have any questions, please contact us at:</h3>
+    <h3>The Devine<br>Aston University<br>support@thedivinejewelry.com<br>+44 7473 613 241</h3>
+</section>
+
+<footer>
+    <p>&copy; 2025 The Divine Jewelry. All rights reserved.</p>
+</footer>
+{% endblock %}
