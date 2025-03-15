@@ -4,7 +4,7 @@ import random
 import string
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
-from app import mongo
+from app import mongo, login_manager
 from app.models import *
 from app.forms import *
 from app.database import products_collection
@@ -682,20 +682,19 @@ def load_user(user_id):
     user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
 
     if user:
-        # 🔥 If session_version does not match, force logout
+        # If session_version does not match, force logout
         if session.get("session_version") != str(user.get("session_version")):
             session.clear()  # Log the user out
             return None
         
-        return User(user)
+        return User(**user)  # Convert MongoDB user data to `User` object
 
     return None
 
 @routes_bp.route('/api/admin/users/<user_id>/reset-password', methods=['POST'])
 @login_required
 @role_required('admin')
-def reset_user_password():
-    """Reset a user's password to a default value and log out all active sessions."""
+def reset_user_password(user_id):  # Make sure user_id is received as a parameter
     if not ObjectId.is_valid(user_id):
         return jsonify({"error": "Invalid User ID"}), 400
 
@@ -716,7 +715,7 @@ def reset_user_password():
 @login_required
 @role_required('admin', 'staff')
 def change_admin_password():
-    """Allow admin to change their password."""
+    """Allow admin to change their password and log out all other active sessions except the current one."""
     data = request.get_json()
 
     current_password = data.get("current_password")
@@ -725,14 +724,27 @@ def change_admin_password():
     if not current_user.check_password(current_password):
         return jsonify({"success": False, "error": "Incorrect current password"}), 400
 
-    # Update password
-    current_user.set_password(new_password)
+    # Hash the new password
+    hashed_password = generate_password_hash(new_password)
+
+    # Generate a new session version (force logout for other devices)
+    new_session_version = str(ObjectId())  # Unique session ID
+
+    # Update the password & session version in the database
     mongo.db.users.update_one(
-        {"_id": current_user.get_id()},
-        {"$set": {"password": current_user.password}}
+        {"_id": ObjectId(current_user.get_id())},
+        {
+            "$set": {
+                "password_hash": hashed_password,
+                "session_version": new_session_version
+            }
+        }
     )
 
-    return jsonify({"success": True, "message": "Password changed successfully"}), 200
+    # Keep the current session logged in by updating session data
+    session["session_version"] = new_session_version  # Store new session ID
+
+    return jsonify({"success": True, "message": "Password changed successfully. Other sessions have been logged out."}), 200
 
 # ORDER MANAGEMENT
 @routes_bp.route('/admin/orders', methods=['GET'])

@@ -365,38 +365,39 @@ function initUserManagement() {
     });
 
     // Reset password to the default ("Password123")
-    document.getElementById('reset-password-btn').addEventListener('click', function() {
-        const userId = document.getElementById('edit-user-id').value;
-    
+    document.getElementById("reset-password-btn").addEventListener("click", function () {
+        const userId = document.getElementById("edit-user-id").value;
+        
         if (!userId) {
-            showNotification('No user selected', 'error');
+            alert("User ID is missing!");
             return;
         }
     
-        // Confirmation before resetting password
-        if (!confirm('Are you sure you want to reset this user\'s password to DefaultPassword123?')) {
-            return;
+        // Show confirmation dialog before making the API call
+        if (!confirm("Are you sure you want to reset this user's password to default? (Password123)")) {
+            return; // Stop if the admin cancels
         }
     
         fetch(`/api/admin/users/${userId}/reset-password`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
-            }
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showNotification('Password reset to DefaultPassword123 successfully', 'success');
+                alert("Password reset successfully! The user must log in again.");
             } else {
-                showNotification(data.error || 'Failed to reset password', 'error');
+                alert("Error: " + data.error);
             }
         })
         .catch(error => {
-            console.error('Error resetting password:', error);
-            showNotification('Error resetting password', 'error');
+            console.error("Error:", error);
+            alert("An error occurred while resetting the password.");
         });
-    }); 
+    });    
     
     document.getElementById('prev-page').addEventListener('click', function() {
         if (currentPage > 1) {
