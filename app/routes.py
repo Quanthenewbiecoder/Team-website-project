@@ -11,6 +11,7 @@ from app.database import products_collection
 from bson import ObjectId
 from pymongo import DESCENDING  # Import DESCENDING for sorting
 import json
+from bson.errors import InvalidId
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -548,7 +549,25 @@ def admin_dashboard():
         total_orders=total_orders
     )
 
-from bson.errors import InvalidId
+@routes_bp.route('/api/admin/profile', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_admin_profile():
+    """Returns the profile details of the currently logged-in admin."""
+    admin = mongo.db.users.find_one({"email": current_user.email})
+
+    if not admin:
+        return jsonify({"success": False, "error": "Admin not found"}), 404
+
+    return jsonify({
+        "success": True,
+        "admin": {
+            "username": admin.get("username", ""),
+            "email": admin.get("email", ""),
+            "name": admin.get("name", ""),
+            "surname": admin.get("surname", ""),
+        }
+    }), 200
 
 @routes_bp.route('/admin/users', methods=['GET'])
 @login_required
@@ -621,6 +640,28 @@ def view_user(user_id):
         ]
     }), 200
 
+@routes_bp.route('/api/admin/change-password', methods=['POST'])
+@login_required
+@role_required('admin', 'staff')
+def change_admin_password():
+    """Allow admin to change their password."""
+    data = request.get_json()
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_user.check_password(current_password):
+        return jsonify({"success": False, "error": "Incorrect current password"}), 400
+
+    # Update password
+    current_user.set_password(new_password)
+    mongo.db.users.update_one(
+        {"_id": current_user.get_id()},
+        {"$set": {"password": current_user.password}}
+    )
+
+    return jsonify({"success": True, "message": "Password changed successfully"}), 200
+
 # ORDER MANAGEMENT
 @routes_bp.route('/admin/orders', methods=['GET'])
 @login_required
@@ -636,6 +677,85 @@ def manage_orders():
         "total_price": order.get("total_price"),
         "status": order.get("status")
     } for order in orders])
+
+@routes_bp.route('/api/admin/users/count', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_user_count():
+    """Returns total number of users."""
+    user_count = mongo.db.users.count_documents({})
+    return jsonify({"count": user_count}), 200
+
+@routes_bp.route('/api/admin/orders/count', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_order_count():
+    """Returns total number of orders."""
+    order_count = mongo.db.orders.count_documents({})
+    return jsonify({"count": order_count}), 200
+
+@routes_bp.route('/api/admin/orders/stats', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_order_stats():
+    """Returns stats for orders over the last 6 months."""
+    from datetime import datetime, timedelta
+
+    six_months_ago = datetime.utcnow() - timedelta(days=180)
+    orders = list(mongo.db.orders.find({"created_at": {"$gte": six_months_ago}}))
+
+    monthly_counts = {}
+    for order in orders:
+        month = order["created_at"].strftime('%b')  # 'Jan', 'Feb', etc.
+        monthly_counts[month] = monthly_counts.get(month, 0) + 1
+
+    return jsonify({"chartData": {"labels": list(monthly_counts.keys()), "values": list(monthly_counts.values())}}), 200
+
+@routes_bp.route('/api/admin/activity', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_recent_activity():
+    """Returns recent admin activity."""
+    activity = list(mongo.db.activity.find().sort("time", -1).limit(10))
+
+    return jsonify([
+        {"message": a.get("message", "Unknown activity"), "type": a.get("type", "info"), "time": a.get("time")}
+        for a in activity
+    ]), 200
+
+@routes_bp.route('/api/admin/users', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_all_users():
+    """Fetch paginated users."""
+    page = int(request.args.get('page', 1))
+    search = request.args.get('search', '').strip()
+
+    query = {}
+    if search:
+        query = {"$or": [
+            {"username": {"$regex": search, "$options": "i"}},
+            {"email": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": search, "$options": "i"}}
+        ]}
+
+    users_cursor = mongo.db.users.find(query).skip((page - 1) * 10).limit(10)
+    users = list(users_cursor)
+    total_users = mongo.db.users.count_documents(query)
+
+    return jsonify({
+        "users": [
+            {
+                "_id": str(user["_id"]),
+                "username": user.get("username", "N/A"),
+                "name": user.get("name", "N/A"),
+                "email": user.get("email", "N/A"),
+                "role": user.get("role", "Customer"),
+                "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
+            } for user in users
+        ],
+        "totalPages": (total_users // 10) + 1
+    }), 200
 
 @routes_bp.route('/admin/orders/update/<order_id>', methods=['POST'])
 @login_required
