@@ -52,7 +52,13 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash("Login successful!", "success")
-            return redirect(url_for('routes.home'))
+
+            # Redirect admins to the admin dashboard, users to user dashboard
+            if user.role == "admin":
+                return redirect(url_for('routes.admin_dashboard'))
+            else:
+                return redirect(url_for('routes.user_dashboard'))
+
         else:
             flash("Invalid email or password.", "danger")
 
@@ -527,18 +533,216 @@ def user_dashboard():
         return render_template('user-dashboard.html', orders=[])
 
 
-# Admin and Staff Routes
+#   Admin Dashboard Route
 @routes_bp.route('/admin')
 @login_required
 @role_required('admin', 'staff')
 def admin_dashboard():
-    return render_template('admin_dashboard.html')
+    """Admin panel to manage users, orders, and products."""
+    total_users = mongo.db.users.count_documents({})
+    total_orders = mongo.db.orders.count_documents({})
+    
+    return render_template(
+        'admin_dashboard.html', 
+        total_users=total_users, 
+        total_orders=total_orders
+    )
 
-@routes_bp.route('/admin/add_product', methods=['GET', 'POST'])
+from bson.errors import InvalidId
+
+@routes_bp.route('/admin/users', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def manage_users():
+    """List all users for management."""
+    users = list(mongo.db.users.find())
+
+    return jsonify([
+        {
+            "_id": str(user["_id"]),
+            "username": user.get("username", "N/A"),
+            "name": user.get("name", "N/A"),
+            "email": user.get("email", "N/A"),
+            "role": user.get("role", "Customer"),
+            "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
+        } 
+        for user in users
+    ]), 200
+
+@routes_bp.route('/admin/users/delete/<user_id>', methods=['POST'])
+@login_required
+@role_required('admin')
+def delete_user(user_id):
+    """Delete a user and their orders."""
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"error": "Invalid User ID"}), 400
+
+    result = mongo.db.users.delete_one({"_id": ObjectId(user_id)})
+
+    if result.deleted_count == 0:
+        return jsonify({"error": "User not found"}), 404
+
+    mongo.db.orders.delete_many({"user_id": ObjectId(user_id)})  # Remove all orders linked
+    flash("User deleted successfully!", "success")
+
+    return jsonify({"message": "User deleted"}), 200
+
+@routes_bp.route('/admin/user/<user_id>', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def view_user(user_id):
+    """View user profile and order history."""
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"error": "Invalid User ID"}), 400
+
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    orders = list(mongo.db.orders.find({"user_id": ObjectId(user_id)}))
+
+    return jsonify({
+        "user": {
+            "_id": str(user["_id"]),
+            "username": user.get("username", "N/A"),
+            "name": user.get("name", "N/A"),
+            "email": user.get("email", "N/A"),
+            "role": user.get("role", "Customer"),
+            "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
+        },
+        "orders": [
+            {
+                "_id": str(order["_id"]),
+                "created_at": order.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d'),
+                "status": order.get("status", "Pending"),
+                "total_price": order.get("total_price", 0)
+            }
+            for order in orders
+        ]
+    }), 200
+
+# ORDER MANAGEMENT
+@routes_bp.route('/admin/orders', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def manage_orders():
+    """List all orders."""
+    orders = list(mongo.db.orders.find().sort("created_at", -1))
+    return jsonify([{
+        "_id": str(order["_id"]),
+        "created_at": order.get("created_at", "").strftime('%Y-%m-%d'),
+        "user_id": str(order.get("user_id", "Guest")),
+        "guest_email": order.get("guest_email"),
+        "total_price": order.get("total_price"),
+        "status": order.get("status")
+    } for order in orders])
+
+@routes_bp.route('/admin/orders/update/<order_id>', methods=['POST'])
+@login_required
+@role_required('admin', 'staff')
+def update_order(order_id):
+    """Update order status."""
+    status = request.form.get("status")
+    if status not in ["Pending", "Processing", "Shipped", "Delivered", "Canceled"]:
+        return jsonify({"error": "Invalid status"}), 400
+
+    mongo.db.orders.update_one(
+        {"_id": ObjectId(order_id)}, 
+        {"$set": {"status": status}}
+    )
+    flash("Order status updated!", "success")
+    return jsonify({"message": "Order updated"}), 200
+
+# PRODUCT MANAGEMENT API
+@routes_bp.route('/api/products', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_all_products():
+    """Fetch all products for admin management."""
+    products = list(mongo.db.products.find())
+    return jsonify([{
+        "_id": str(product["_id"]),
+        "name": product["name"],
+        "type": product.get("type", ""),
+        "price": float(product.get("price", 0)),
+        "description": product.get("description", ""),
+        "image_url": product.get("image_url", ""),
+        "in_stock": product.get("in_stock", True)
+    } for product in products]), 200
+
+
+@routes_bp.route('/api/products/<product_id>', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_product(product_id):
+    """Fetch a single product by ID."""
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    product["_id"] = str(product["_id"])
+    return jsonify({"success": True, "product": product}), 200
+
+
+@routes_bp.route('/api/products', methods=['POST'])
 @login_required
 @role_required('admin', 'staff')
 def add_product():
-    return render_template('add_product.html')
+    """Add a new product via JSON request."""
+    try:
+        data = request.json
+        new_product = {
+            "name": data.get("name"),
+            "type": data.get("type", ""),
+            "price": float(data.get("price", 0)),
+            "description": data.get("description", ""),
+            "image_url": data.get("image_url", ""),
+            "in_stock": data.get("in_stock", True)
+        }
+        result = mongo.db.products.insert_one(new_product)
+        return jsonify({"success": True, "message": "Product added", "product_id": str(result.inserted_id)}), 201
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@routes_bp.route('/api/products/<product_id>', methods=['PUT'])
+@login_required
+@role_required('admin', 'staff')
+def update_product(product_id):
+    """Update an existing product."""
+    try:
+        data = request.json
+        update_data = {
+            "name": data.get("name"),
+            "type": data.get("type", ""),
+            "price": float(data.get("price", 0)),
+            "description": data.get("description", ""),
+            "image_url": data.get("image_url", ""),
+            "in_stock": data.get("in_stock", True)
+        }
+        result = mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": update_data})
+        if result.matched_count == 0:
+            return jsonify({"success": False, "error": "Product not found"}), 404
+        return jsonify({"success": True, "message": "Product updated"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@routes_bp.route('/api/products/<product_id>', methods=['DELETE'])
+@login_required
+@role_required('admin', 'staff')
+def delete_product(product_id):
+    """Delete a product by ID."""
+    try:
+        result = mongo.db.products.delete_one({"_id": ObjectId(product_id)})
+        if result.deleted_count == 0:
+            return jsonify({"success": False, "error": "Product not found"}), 404
+        return jsonify({"success": True, "message": "Product deleted"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @routes_bp.route('/admin/reports')
 @login_required
