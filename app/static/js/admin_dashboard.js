@@ -498,6 +498,13 @@ function editUser(userId) {
         });
 }
 
+function showConfirmation(message, onConfirm) {
+    const confirmed = confirm(message); // Simple browser confirmation dialog
+    if (confirmed) {
+        onConfirm();
+    }
+}
+
 function deleteUser(userId) {
     showConfirmation('Are you sure you want to delete this user?', () => {
         fetch(`/api/admin/users/${userId}`, {

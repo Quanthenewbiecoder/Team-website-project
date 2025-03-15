@@ -581,11 +581,11 @@ def get_admin_profile():
 
 # User management
 
-@routes_bp.route('/admin/users/delete/<user_id>', methods=['POST'])
+@routes_bp.route('/api/admin/users/<user_id>', methods=['DELETE'])
 @login_required
 @role_required('admin')
 def delete_user(user_id):
-    """Delete a user and their orders."""
+    """Delete a user by ID"""
     if not ObjectId.is_valid(user_id):
         return jsonify({"error": "Invalid User ID"}), 400
 
@@ -594,10 +594,7 @@ def delete_user(user_id):
     if result.deleted_count == 0:
         return jsonify({"error": "User not found"}), 404
 
-    mongo.db.orders.delete_many({"user_id": ObjectId(user_id)})  # Remove all orders linked
-    flash("User deleted successfully!", "success")
-
-    return jsonify({"message": "User deleted"}), 200
+    return jsonify({"message": "User deleted successfully"}), 200
 
 @routes_bp.route('/api/admin/users/<user_id>', methods=['GET'])
 @login_required
