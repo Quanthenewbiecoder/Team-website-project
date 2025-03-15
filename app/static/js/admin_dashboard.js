@@ -299,7 +299,7 @@ function initUserManagement() {
         const modal = document.getElementById('edit-user-modal');
         modal.classList.add('show');
     });
-    
+
     document.getElementById('edit-user-form').addEventListener('submit', function(e) {
         e.preventDefault();
         
@@ -363,41 +363,47 @@ function initUserManagement() {
             });
         }
     });
-    
+
+    // Reset password to the default ("Password123")
     document.getElementById('reset-password-btn').addEventListener('click', function() {
         const userId = document.getElementById('edit-user-id').value;
-        
+    
         if (!userId) {
             showNotification('No user selected', 'error');
             return;
         }
-        
-        showConfirmation('Are you sure you want to reset this user\'s password?', () => {
-            fetch(`/api/admin/users/${userId}/reset-password`, {
-                method: 'POST'
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to reset password');
-                }
-                return response.json();
-            })
-            .then(data => {
-                showNotification('Password reset successfully', 'success');
-            })
-            .catch(error => {
-                console.error('Error resetting password:', error);
-                showNotification('Error resetting password', 'error');
-            });
+    
+        // Confirmation before resetting password
+        if (!confirm('Are you sure you want to reset this user\'s password to DefaultPassword123?')) {
+            return;
+        }
+    
+        fetch(`/api/admin/users/${userId}/reset-password`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Password reset to DefaultPassword123 successfully', 'success');
+            } else {
+                showNotification(data.error || 'Failed to reset password', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error resetting password:', error);
+            showNotification('Error resetting password', 'error');
         });
-    });
+    }); 
     
     document.getElementById('prev-page').addEventListener('click', function() {
         if (currentPage > 1) {
             loadUsers(currentPage - 1, searchInput.value);
         }
     });
-    
+
     document.getElementById('next-page').addEventListener('click', function() {
         loadUsers(currentPage + 1, searchInput.value);
     });
@@ -483,7 +489,6 @@ function editUser(userId) {
             document.getElementById('edit-role').value = user.role;
             
             document.getElementById('user-modal-title').textContent = 'Edit User';
-            
             document.getElementById('edit-user-modal').classList.add('show');
         })
         .catch(error => {
@@ -512,4 +517,23 @@ function deleteUser(userId) {
             showNotification('Error deleting user', 'error');
         });
     });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    if (!notification) return;
+
+    notification.classList.remove('error', 'success', 'info');
+    notification.classList.add(type);
+
+    const messageElement = notification.querySelector('#notification-message');
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    notification.classList.add('show');
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 5000);
 }

@@ -12,6 +12,7 @@ from bson import ObjectId
 from pymongo import DESCENDING  # Import DESCENDING for sorting
 import json
 from bson.errors import InvalidId
+from werkzeug.security import generate_password_hash
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -534,7 +535,7 @@ def user_dashboard():
         return render_template('user-dashboard.html', orders=[])
 
 
-#   Admin Dashboard Route
+# Admin Dashboard Route
 @routes_bp.route('/admin')
 @login_required
 @role_required('admin', 'staff')
@@ -569,24 +570,7 @@ def get_admin_profile():
         }
     }), 200
 
-@routes_bp.route('/admin/users', methods=['GET'])
-@login_required
-@role_required('admin', 'staff')
-def manage_users():
-    """List all users for management."""
-    users = list(mongo.db.users.find())
-
-    return jsonify([
-        {
-            "_id": str(user["_id"]),
-            "username": user.get("username", "N/A"),
-            "name": user.get("name", "N/A"),
-            "email": user.get("email", "N/A"),
-            "role": user.get("role", "Customer"),
-            "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
-        } 
-        for user in users
-    ]), 200
+# User management
 
 @routes_bp.route('/admin/users/delete/<user_id>', methods=['POST'])
 @login_required
@@ -606,11 +590,11 @@ def delete_user(user_id):
 
     return jsonify({"message": "User deleted"}), 200
 
-@routes_bp.route('/admin/user/<user_id>', methods=['GET'])
+@routes_bp.route('/api/admin/users/<user_id>', methods=['GET'])
 @login_required
 @role_required('admin', 'staff')
 def view_user(user_id):
-    """View user profile and order history."""
+    """Fetch a user by ID."""
     if not ObjectId.is_valid(user_id):
         return jsonify({"error": "Invalid User ID"}), 400
 
@@ -621,14 +605,13 @@ def view_user(user_id):
     orders = list(mongo.db.orders.find({"user_id": ObjectId(user_id)}))
 
     return jsonify({
-        "user": {
-            "_id": str(user["_id"]),
-            "username": user.get("username", "N/A"),
-            "name": user.get("name", "N/A"),
-            "email": user.get("email", "N/A"),
-            "role": user.get("role", "Customer"),
-            "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
-        },
+        "_id": str(user["_id"]),
+        "username": user.get("username", "N/A"),
+        "name": user.get("name", "N/A"),
+        "surname": user.get("surname", "N/A"),
+        "email": user.get("email", "N/A"),
+        "role": user.get("role", "Customer"),
+        "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d'),
         "orders": [
             {
                 "_id": str(order["_id"]),
@@ -639,6 +622,86 @@ def view_user(user_id):
             for order in orders
         ]
     }), 200
+
+@routes_bp.route('/api/admin/users/<user_id>', methods=['GET', 'PUT'])
+@login_required
+@role_required('admin', 'staff')
+def edit_user(user_id):
+    """Fetch or update user information."""
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"error": "Invalid User ID"}), 400
+
+    if request.method == 'GET':  # Fetch user details
+        user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify({
+            "_id": str(user["_id"]),
+            "username": user.get("username", "N/A"),
+            "name": user.get("name", "N/A"),
+            "email": user.get("email", "N/A"),
+            "role": user.get("role", "Customer"),
+            "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
+        }), 200
+
+    elif request.method == 'PUT':  # Update user details
+        data = request.json
+
+        update_data = {}
+        if "username" in data:
+            update_data["username"] = data["username"]
+        if "name" in data:
+            update_data["name"] = data["name"]
+        if "email" in data:
+            update_data["email"] = data["email"]
+        if "role" in data:
+            update_data["role"] = data["role"]
+
+        result = mongo.db.users.update_one(
+            {"_id": ObjectId(user_id)}, {"$set": update_data}
+        )
+
+        if result.matched_count == 0:
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify({"message": "User updated successfully"}), 200
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load user and check session validity."""
+    user = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+
+    if user:
+        # 🔥 If session_version does not match, force logout
+        if session.get("session_version") != str(user.get("session_version")):
+            session.clear()  # Log the user out
+            return None
+        
+        return User(user)
+
+    return None
+
+@routes_bp.route('/api/admin/users/<user_id>/reset-password', methods=['POST'])
+@login_required
+@role_required('admin')
+def reset_user_password():
+    """Reset a user's password to a default value and log out all active sessions."""
+    if not ObjectId.is_valid(user_id):
+        return jsonify({"error": "Invalid User ID"}), 400
+
+    default_password = "Password123"
+    hashed_password = generate_password_hash(default_password)
+
+    result = mongo.db.users.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": {"password_hash": hashed_password, "session_version": ObjectId()}}  # Invalidate all sessions
+    )
+
+    if result.matched_count == 0:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"success": True, "message": "Password reset successfully. User must log in again."}), 200
 
 @routes_bp.route('/api/admin/change-password', methods=['POST'])
 @login_required
