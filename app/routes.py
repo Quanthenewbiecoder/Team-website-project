@@ -579,6 +579,22 @@ def get_admin_profile():
         }
     }), 200
 
+@routes_bp.route('/api/admin/users/count', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_user_count():
+    """Returns total number of users."""
+    user_count = mongo.db.users.count_documents({})
+    return jsonify({"count": user_count}), 200
+
+@routes_bp.route('/api/admin/orders/count', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_order_count():
+    """Returns total number of orders."""
+    order_count = mongo.db.orders.count_documents({})
+    return jsonify({"count": order_count}), 200
+
 # User management
 
 @routes_bp.route('/api/admin/users/<user_id>', methods=['DELETE'])
@@ -744,36 +760,36 @@ def change_admin_password():
     return jsonify({"success": True, "message": "Password changed successfully. Other sessions have been logged out."}), 200
 
 # ORDER MANAGEMENT
-@routes_bp.route('/admin/orders', methods=['GET'])
+@routes_bp.route('/api/admin/orders', methods=['GET'])
 @login_required
 @role_required('admin', 'staff')
 def manage_orders():
-    """List all orders."""
-    orders = list(mongo.db.orders.find().sort("created_at", -1))
-    return jsonify([{
-        "_id": str(order["_id"]),
-        "created_at": order.get("created_at", "").strftime('%Y-%m-%d'),
-        "user_id": str(order.get("user_id", "Guest")),
-        "guest_email": order.get("guest_email"),
-        "total_price": order.get("total_price"),
-        "status": order.get("status")
-    } for order in orders])
+    """List all orders with pagination."""
 
-@routes_bp.route('/api/admin/users/count', methods=['GET'])
-@login_required
-@role_required('admin', 'staff')
-def get_user_count():
-    """Returns total number of users."""
-    user_count = mongo.db.users.count_documents({})
-    return jsonify({"count": user_count}), 200
+    # Get page number (default = 1) and limit per page (default = 10)
+    page = int(request.args.get("page", 1))
+    per_page = 10
 
-@routes_bp.route('/api/admin/orders/count', methods=['GET'])
-@login_required
-@role_required('admin', 'staff')
-def get_order_count():
-    """Returns total number of orders."""
-    order_count = mongo.db.orders.count_documents({})
-    return jsonify({"count": order_count}), 200
+    # Get total order count
+    total_orders = mongo.db.orders.count_documents({})
+
+    # Fetch paginated orders
+    orders_cursor = mongo.db.orders.find().sort("created_at", -1).skip((page - 1) * per_page).limit(per_page)
+    orders = list(orders_cursor)
+
+    return jsonify({
+        "orders": [{
+            "_id": str(order["_id"]),
+            "created_at": order.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d'),
+            "user_id": str(order.get("user_id", "Guest")),
+            "guest_email": order.get("guest_email", ""),
+            "total_price": order.get("total_price", 0),
+            "status": order.get("status", "Pending"),
+            "items": order.get("items", [])  # Ensure items list is always present
+        } for order in orders],
+        "totalPages": (total_orders // per_page) + (1 if total_orders % per_page > 0 else 0),
+        "currentPage": page
+    }), 200
 
 @routes_bp.route('/api/admin/orders/stats', methods=['GET'])
 @login_required
@@ -791,6 +807,46 @@ def get_order_stats():
         monthly_counts[month] = monthly_counts.get(month, 0) + 1
 
     return jsonify({"chartData": {"labels": list(monthly_counts.keys()), "values": list(monthly_counts.values())}}), 200
+
+@routes_bp.route('/api/admin/orders/<order_id>', methods=['GET'])
+@login_required
+@role_required('admin', 'staff')
+def get_order_details(order_id):
+    """Fetch order details by ID"""
+    try:
+        order = mongo.db.orders.find_one({"_id": ObjectId(order_id)})
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+
+        return jsonify({
+            "_id": str(order["_id"]),
+            "created_at": order.get("created_at", "").strftime('%Y-%m-%d'),
+            "user_id": str(order.get("user_id", "Guest")),
+            "guest_email": order.get("guest_email"),
+            "total_price": order.get("total_price"),
+            "status": order.get("status"),
+            "items": order.get("items", [])
+        })
+
+    except Exception as e:
+        print(f"Error fetching order: {e}")
+        return jsonify({"error": "Invalid Order ID"}), 400
+
+@routes_bp.route('/admin/orders/update/<order_id>', methods=['POST'])
+@login_required
+@role_required('admin', 'staff')
+def update_order(order_id):
+    """Update order status."""
+    status = request.form.get("status")
+    if status not in ["Pending", "Processing", "Shipped", "Delivered", "Canceled"]:
+        return jsonify({"error": "Invalid status"}), 400
+
+    mongo.db.orders.update_one(
+        {"_id": ObjectId(order_id)}, 
+        {"$set": {"status": status}}
+    )
+    flash("Order status updated!", "success")
+    return jsonify({"message": "Order updated"}), 200
 
 @routes_bp.route('/api/admin/activity', methods=['GET'])
 @login_required
@@ -837,22 +893,6 @@ def get_all_users():
         ],
         "totalPages": (total_users // 10) + 1
     }), 200
-
-@routes_bp.route('/admin/orders/update/<order_id>', methods=['POST'])
-@login_required
-@role_required('admin', 'staff')
-def update_order(order_id):
-    """Update order status."""
-    status = request.form.get("status")
-    if status not in ["Pending", "Processing", "Shipped", "Delivered", "Canceled"]:
-        return jsonify({"error": "Invalid status"}), 400
-
-    mongo.db.orders.update_one(
-        {"_id": ObjectId(order_id)}, 
-        {"$set": {"status": status}}
-    )
-    flash("Order status updated!", "success")
-    return jsonify({"message": "Order updated"}), 200
 
 # PRODUCT MANAGEMENT API
 @routes_bp.route('/api/products', methods=['GET'])

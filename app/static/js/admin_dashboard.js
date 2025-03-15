@@ -6,9 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadRecentActivity();
     
     initUserManagement();
-    
-    
-    //initOrderManagement();
+    initOrderManagement();
     
     
 
@@ -116,18 +114,25 @@ function initPasswordForm() {
     });
 }
 
+let ordersChart = null;  // Store chart instance
+
 function initCharts() {
     fetch('/api/admin/orders/stats')
         .then(response => response.json())
         .then(data => {
             const ctx = document.getElementById('ordersChartCanvas').getContext('2d');
-            
+
             const chartData = data.chartData || {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 values: [12, 19, 3, 5, 2, 3]
             };
-            
-            new Chart(ctx, {
+
+            // If chart exists, destroy it before creating a new one
+            if (ordersChart) {
+                ordersChart.destroy();
+            }
+
+            ordersChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: chartData.labels,
@@ -145,14 +150,10 @@ function initCharts() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        }
+                        legend: { display: false }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                        y: { beginAtZero: true }
                     }
                 }
             });
@@ -161,9 +162,8 @@ function initCharts() {
             console.error('Error loading orders chart:', error);
             document.getElementById('orders-chart').innerHTML = '<p class="loading">Error loading chart data</p>';
         });
-    
-    
 }
+
 
 function initModals() {
     const modals = document.querySelectorAll('.modal');
@@ -544,4 +544,169 @@ function showNotification(message, type = 'info') {
     setTimeout(() => {
         notification.classList.remove('show');
     }, 5000);
+}
+
+let currentOrderPage = 1;
+let totalOrderPages = 1;
+
+function initOrderManagement() {
+    loadOrders(1);
+
+    const searchInput = document.getElementById('order-search');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            loadOrders(1, this.value);
+        }, 500);
+    });
+
+    document.getElementById('refresh-orders').addEventListener('click', function() {
+        searchInput.value = '';
+        loadOrders(1);
+    });
+
+    document.getElementById('orders-prev-page').addEventListener('click', function () {
+        if (currentOrderPage > 1) {
+            loadOrders(currentOrderPage - 1); // Move to previous page
+        }
+    });
+    
+    document.getElementById('orders-next-page').addEventListener('click', function () {
+        if (currentOrderPage < totalOrderPages) {
+            loadOrders(currentOrderPage + 1); // Move to next page
+        }
+    });
+}
+
+function loadOrders(page, search = '') {
+    const ordersTable = document.getElementById('orders-table').querySelector('tbody');
+    ordersTable.innerHTML = '<tr class="loading-row"><td colspan="8">Loading orders...</td></tr>'; // Adjust colspan
+
+    currentOrderPage = page;
+
+    fetch(`/api/admin/orders?page=${page}&search=${encodeURIComponent(search)}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("API Response:", data); // Log response for debugging
+
+            ordersTable.innerHTML = ''; // Clear previous content
+
+            if (!data.orders || data.orders.length === 0) {
+                console.warn("No orders found:", data); // Log warning
+                ordersTable.innerHTML = '<tr><td colspan="8">No orders found</td></tr>';
+                return;
+            }
+
+            totalOrderPages = data.totalPages || 1;
+            document.getElementById('orders-current-page').textContent = currentOrderPage;
+            document.getElementById('orders-total-pages').textContent = totalOrderPages;
+
+            document.getElementById('orders-prev-page').disabled = currentOrderPage <= 1;
+            document.getElementById('orders-next-page').disabled = currentOrderPage >= totalOrderPages;
+
+            data.orders.forEach((order, index) => {
+                const tr = document.createElement('tr');
+                const formattedDate = new Date(order.created_at).toLocaleDateString();
+
+                tr.innerHTML = `
+                    <td>${(currentOrderPage - 1) * 10 + (index + 1)}</td> <!-- Serial Number -->
+                    <td>${order._id}</td>
+                    <td>${order.user_id === "Guest" ? order.guest_email || "Guest User" : order.user_id}</td>
+                    <td>${formattedDate}</td>
+                    <td>${order.status}</td>
+                    <td>${order.items?.length || 0}</td>  <!-- Check for 'items' -->
+                    <td>£${order.total_price?.toFixed(2) || "0.00"}</td> <!-- Handle missing 'total_price' -->
+                    <td class="table-actions">
+                        <button class="action-btn view-btn" data-id="${order._id}" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn delete-btn" data-id="${order._id}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                ordersTable.appendChild(tr);
+
+                // Attach event listeners for actions
+                tr.querySelector('.view-btn').addEventListener('click', () => {
+                    viewOrderDetails(order._id);
+                });
+
+                tr.querySelector('.delete-btn').addEventListener('click', () => {
+                    deleteOrder(order._id);
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error loading orders:', error);
+            ordersTable.innerHTML = '<tr><td colspan="8">Error loading orders</td></tr>';
+        });
+}
+
+
+function viewOrderDetails(orderId) {
+    fetch(`/api/admin/orders/${orderId}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || `Order not found (ID: ${orderId})`);
+                });
+            }
+            return response.json();
+        })
+        .then(order => {
+            document.getElementById('detail-order-id').textContent = order._id;
+            document.getElementById('detail-order-date').textContent = new Date(order.created_at).toLocaleDateString();
+            document.getElementById('detail-order-status').textContent = order.status;
+            document.getElementById('detail-customer-name').textContent = order.user_id === "Guest" ? "Guest User" : order.user_id;
+            document.getElementById('detail-customer-email').textContent = order.guest_email || "N/A";
+
+            const itemsTable = document.getElementById('order-items-table').querySelector('tbody');
+            itemsTable.innerHTML = '';
+
+            order.items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.product_name}</td>
+                    <td>£${item.price.toFixed(2)}</td>
+                    <td>${item.quantity}</td>
+                    <td>£${(item.price * item.quantity).toFixed(2)}</td>
+                `;
+                itemsTable.appendChild(row);
+            });
+
+            document.getElementById('detail-subtotal').textContent = order.total_price.toFixed(2);
+            document.getElementById('detail-total').textContent = (order.total_price + 4.99).toFixed(2);
+
+            document.getElementById('order-details-modal').classList.add('show');
+        })
+        .catch(error => {
+            console.error('Error fetching order details:', error);
+            showNotification(error.message, 'error');
+        });
+}
+
+function deleteOrder(orderId) {
+    showConfirmation('Are you sure you want to delete this order?', () => {
+        fetch(`/api/admin/orders/${orderId}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete order');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showNotification('Order deleted successfully', 'success');
+            loadOrders(currentOrderPage, document.getElementById('order-search').value);
+        })
+        .catch(error => {
+            console.error('Error deleting order:', error);
+            showNotification('Error deleting order', 'error');
+        });
+    });
 }
