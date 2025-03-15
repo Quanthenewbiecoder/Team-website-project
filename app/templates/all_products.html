@@ -10,6 +10,7 @@ Products - The Divine
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_products.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -125,30 +126,88 @@ Products - The Divine
     </form>
     </div>
 
-    <div id="products-grid">
-        {% if search_query and products|length == 0 %}
-        <div class="empty-state">
-            <div class="empty-icon">🔍</div>
-            <h3>No products found for "{{ search_query }}"</h3>
-            <p>Try different keywords or browse our collections</p>
+    <!-- Main Products Section -->
+    <div class="products-display">
+        
+        <!-- Add Product Button (Styled Like a Product) -->
+        {% if current_user.role in ['admin', 'staff'] %}
+        <div class="add-product-container">
+            <button id="add-product-btn" class="add-product-btn" onclick="showAddProductModal()">
+                + Add New Product
+            </button>
         </div>
-        {% else %}
-            {% for product in products %}
-            <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                <h3>{{ product.name }}</h3>
-                <p class="price">£{{ "%.2f"|format(product.price) }}</p>
-                <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
-                    Add to Cart
-                </button>
-                <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
-            </div>
-            {% endfor %}
         {% endif %}
-    </div>  
+
+        <div id="products-grid">
+            {% if search_query and products|length == 0 %}
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>No products found for "{{ search_query }}"</h3>
+                <p>Try different keywords or browse our collections</p>
+            </div>
+            {% else %}
+                {% for product in products %}
+                <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">£{{ "%.2f"|format(product.price) }}</p>
+
+                    <!-- Add to Cart Button -->
+                    <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                        Add to Cart
+                    </button>
+
+                    <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
+
+                    <!-- Admin Controls -->
+                    {% if current_user.role in ['admin', 'staff'] %}
+                    <div class="admin-controls">
+                        <button class="btn-edit" data-id="{{ product.id }}" onclick="editProduct('{{ product.id }}')">Edit</button>
+                        <button class="btn-delete" data-id="{{ product.id }}" onclick="deleteProduct('{{ product.id }}')">Delete</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
 </div>
+
+<!-- Product Modal for Adding & Editing -->
+<div id="product-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 id="product-modal-title">Add Product</h2>
+        <form id="product-form">
+            <input type="hidden" id="product-id">
+            <div class="form-group">
+                <label for="product-name">Name</label>
+                <input type="text" id="product-name" required>
+            </div>
+            <div class="form-group">
+                <label for="product-price">Price (£)</label>
+                <input type="number" id="product-price" required>
+            </div>
+            <div class="form-group">
+                <label for="product-type">Product Type</label>
+                <input type="text" id="product-type">
+            </div>
+            <div class="form-group">
+                <label for="product-collection">Collection</label>
+                <input type="text" id="product-collection">
+            </div>
+            <div class="form-group">
+                <label for="product-image">Image URL</label>
+                <input type="text" id="product-image">
+            </div>
+            <button type="submit" class="btn-primary">Save Product</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/products.js') }}"></script>
+<script src="{{ url_for('static', filename='js/admin_products.js') }}"></script>
 {% endblock %}

@@ -179,18 +179,28 @@ def products(product_id):
 def api_products():
     products = list(mongo.db.products.find())
 
-    product_list = [{
-        "id": str(product["_id"]),
-        "name": product["name"],
-        "type": product["type"],
-        "price": product["price"],
-        "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
-        "collection": product.get("collection", "None"),
-        "description": product["description"],
-        "in_stock": bool(product["in_stock"])
-    } for product in products]
+    product_list = []
+    for product in products:
+        image_filename = product.get("image_url", "")
 
-    return jsonify(product_list)
+        # Ensure images are correctly prefixed with "/static/images/"
+        if image_filename and not image_filename.startswith("/static/images/"):
+            image_url = url_for("static", filename=f"images/{image_filename.split('/')[-1]}")
+        else:
+            image_url = image_filename  # If it's already correct
+
+        product_list.append({
+            "id": str(product["_id"]),
+            "name": product.get("name", "No Name"),
+            "type": product.get("type", "Unknown"),
+            "price": float(product.get("price", 0)),
+            "image_url": image_url,  # Fixed path
+            "collection": product.get("collection", "None"),
+            "description": product.get("description", ""),
+            "in_stock": bool(product.get("in_stock", False))
+        })
+
+    return jsonify(product_list), 200
 
 # Route to add or edit a review (User can only post one review per product)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
