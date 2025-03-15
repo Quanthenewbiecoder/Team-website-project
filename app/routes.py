@@ -596,7 +596,6 @@ def get_order_count():
     return jsonify({"count": order_count}), 200
 
 # User management
-
 @routes_bp.route('/api/admin/users/<user_id>', methods=['DELETE'])
 @login_required
 @role_required('admin')
@@ -662,6 +661,7 @@ def edit_user(user_id):
             "_id": str(user["_id"]),
             "username": user.get("username", "N/A"),
             "name": user.get("name", "N/A"),
+            "surname": user.get("surname", "N/A"),
             "email": user.get("email", "N/A"),
             "role": user.get("role", "Customer"),
             "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')
@@ -675,6 +675,8 @@ def edit_user(user_id):
             update_data["username"] = data["username"]
         if "name" in data:
             update_data["name"] = data["name"]
+        if "surname" in data:
+            update_data["surname"] = data["surname"]
         if "email" in data:
             update_data["email"] = data["email"]
         if "role" in data:
@@ -723,6 +725,44 @@ def reset_user_password(user_id):  # Make sure user_id is received as a paramete
         return jsonify({"error": "User not found"}), 404
 
     return jsonify({"success": True, "message": "Password reset successfully. User must log in again."}), 200
+
+@routes_bp.route('/api/admin/users', methods=['POST'])
+@login_required
+@role_required('admin', 'staff')
+def create_user():
+    """Create a new user."""
+    try:
+        data = request.json  # Ensure we're receiving JSON data
+
+        # Validate required fields
+        required_fields = ["username", "name", "surname", "email", "role", "password"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Check if user already exists
+        existing_user = mongo.db.users.find_one({"email": data["email"]})
+        if existing_user:
+            return jsonify({"error": "User with this email already exists"}), 409
+
+        # Create new user object
+        new_user = {
+            "username": data["username"],
+            "name": data["name"],
+            "surname": data["surname"],
+            "email": data["email"],
+            "role": data["role"],
+            "password": data["password"],  # You should hash the password before storing it!
+            "created_at": datetime.utcnow()
+        }
+
+        # Insert into database
+        result = mongo.db.users.insert_one(new_user)
+
+        return jsonify({"success": True, "message": "User created", "_id": str(result.inserted_id)}), 201
+
+    except Exception as e:
+        print(f"Error creating user: {e}")
+        return jsonify({"error": "Internal Server Error"}), 500
 
 @routes_bp.route('/api/admin/change-password', methods=['POST'])
 @login_required
@@ -889,7 +929,8 @@ def get_all_users():
         query = {"$or": [
             {"username": {"$regex": search, "$options": "i"}},
             {"email": {"$regex": search, "$options": "i"}},
-            {"name": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": search, "$options": "i"}},
+            {"surname": {"$regex": search, "$options": "i"}}
         ]}
 
     users_cursor = mongo.db.users.find(query).skip((page - 1) * 10).limit(10)
@@ -902,6 +943,7 @@ def get_all_users():
                 "_id": str(user["_id"]),
                 "username": user.get("username", "N/A"),
                 "name": user.get("name", "N/A"),
+                "surname": user.get("surname", "N/A"),
                 "email": user.get("email", "N/A"),
                 "role": user.get("role", "Customer"),
                 "created_at": user.get("created_at", datetime.utcnow()).strftime('%Y-%m-%d')

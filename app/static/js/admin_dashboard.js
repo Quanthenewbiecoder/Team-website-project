@@ -713,3 +713,38 @@ function deleteOrder(orderId) {
         alert("Error deleting order");
     });
 }
+
+function createUser() {
+    const formData = new FormData(document.getElementById('edit-user-form'));
+    const userData = {
+        username: formData.get('username'),
+        name: formData.get('name'),
+        surname: formData.get('surname'),
+        email: formData.get('email'),
+        role: formData.get('role'),
+        password: "Password123" // Set a default password (consider hashing it on the backend)
+    };
+
+    fetch("/api/admin/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(userData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to create user");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("User created successfully!");
+        document.getElementById('edit-user-modal').classList.remove('show');
+        loadUsers(1); // Reload the user list
+    })
+    .catch(error => {
+        console.error("Error creating user:", error);
+        alert("Error creating user");
+    });
+}
