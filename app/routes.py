@@ -848,6 +848,22 @@ def update_order(order_id):
     flash("Order status updated!", "success")
     return jsonify({"message": "Order updated"}), 200
 
+@routes_bp.route('/api/admin/orders/<order_id>', methods=['DELETE'])
+@login_required
+@role_required('admin', 'staff')
+def delete_order(order_id):
+    """Delete an order by ID"""
+    try:
+        result = mongo.db.orders.delete_one({"_id": ObjectId(order_id)})
+        if result.deleted_count == 0:
+            return jsonify({"error": "Order not found"}), 404
+        
+        return jsonify({"success": True, "message": "Order deleted"}), 200
+
+    except Exception as e:
+        print(f"Error deleting order: {e}")
+        return jsonify({"error": "Invalid Order ID"}), 400
+
 @routes_bp.route('/api/admin/activity', methods=['GET'])
 @login_required
 @role_required('admin', 'staff')

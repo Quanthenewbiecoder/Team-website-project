@@ -690,23 +690,26 @@ function viewOrderDetails(orderId) {
 }
 
 function deleteOrder(orderId) {
-    showConfirmation('Are you sure you want to delete this order?', () => {
-        fetch(`/api/admin/orders/${orderId}`, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to delete order');
-            }
-            return response.json();
-        })
-        .then(data => {
-            showNotification('Order deleted successfully', 'success');
-            loadOrders(currentOrderPage, document.getElementById('order-search').value);
-        })
-        .catch(error => {
-            console.error('Error deleting order:', error);
-            showNotification('Error deleting order', 'error');
-        });
+    if (!confirm("Are you sure you want to delete this order?")) return;
+
+    fetch(`/api/admin/orders/${orderId}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Failed to delete order");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert("Order deleted successfully");
+        loadOrders(currentOrderPage); // Reload orders after deletion
+    })
+    .catch(error => {
+        console.error("Error deleting order:", error);
+        alert("Error deleting order");
     });
 }
