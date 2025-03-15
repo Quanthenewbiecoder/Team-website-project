@@ -105,14 +105,16 @@ function setupFormFormatting() {
 }
 
 /**
- * Handle form submission, retrieve user email, and create an order.
+ * Handle form submission, retrieve user ID or guest email, and create an order.
  */
 function setupFormSubmission() {
     const paymentForm = document.querySelector('.payment-form');
+
     if (paymentForm) {
-        paymentForm.addEventListener('submit', function (e) {
+        paymentForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
+            // Get cart data
             const cartDataString = sessionStorage.getItem('divinecart');
             if (!cartDataString || cartDataString === '{}') {
                 alert('Your cart is empty!');
@@ -132,58 +134,64 @@ function setupFormSubmission() {
                 });
             });
 
-            // Fetch user email from backend API
-            fetch('/api/get_user', { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    let userEmail = data.user_email || null;
-                    let guestEmail = localStorage.getItem('guest_email') || null;
+            // Get guest email from input field
+            const guestEmailInput = document.getElementById('guest-email');
+            const guestEmail = guestEmailInput ? guestEmailInput.value.trim() : null;
 
-                    console.log("DEBUG: userEmail from API:", userEmail);
-                    console.log("DEBUG: guestEmail from localStorage:", guestEmail);
+            // Fetch logged-in user email from API
+            let userId = null;
+            try {
+                const response = await fetch('/api/get-current-user');
+                const userData = await response.json();
 
-                    if (!userEmail && !guestEmail) {
-                        alert('Please provide an email to continue.');
-                        return;
-                    }
+                if (userData.success && userData.user) {
+                    userId = userData.user.email;  // Ensure correct user ID
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
 
-                    const orderData = {
-                        user_id: userEmail, 
-                        guest_email: guestEmail, 
-                        total_price: totalPrice,
-                        items: items
-                    };
+            // DEBUGGING: Show retrieved values
+            console.log(`DEBUG: userId from API → ${userId}`);
+            console.log(`DEBUG: guestEmail from form → ${guestEmail}`);
 
-                    console.log("DEBUG: Order Data before fetch:", orderData);
+            // If neither exists, alert the user
+            if (!userId && !guestEmail) {
+                alert('Please provide an email to continue.');
+                return;
+            }
 
-                    fetch('/api/orders', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(orderData)
-                    })
-                    .then(response => response.json().then(data => ({ status: response.status, body: data })))
-                    .then(({ status, body }) => {
-                        console.log("DEBUG: API Response Status:", status);
-                        console.log("DEBUG: API Response Body:", body);
+            // Prepare order data
+            const orderData = {
+                user_id: userId,
+                guest_email: guestEmail,
+                total_price: totalPrice,
+                items: items
+            };
 
-                        if (status === 400) {
-                            alert("Error: " + (body.error || "Invalid order data."));
-                            return;
-                        }
+            console.log("DEBUG: Sending Order Data →", JSON.stringify(orderData, null, 2));
 
-                        if (body.success) {
-                            alert('Payment successful! Your order has been placed.');
-                            sessionStorage.removeItem('divinecart');
-                            window.location.href = `/payment?payment_status=success&tracking_number=${body.tracking_number}`;
-                        } else {
-                            alert('Error processing your order. Please try again.');
-                        }
-                    })
-                    .catch(error => console.error('ERROR: Fetch Failed', error));
-                })
-                .catch(error => {
-                    console.error('ERROR: Fetch user email failed', error);
-                });
+            // Send order data to API
+            fetch('/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("DEBUG: API Response →", data);
+
+                if (data.success) {
+                    alert('Payment successful! Your order has been placed.');
+                    sessionStorage.removeItem('divinecart');
+
+                    // Redirect to order tracking page
+                    window.location.href = `/payment?payment_status=success&tracking_number=${data.tracking_number}`;
+                } else {
+                    alert('Error processing your order. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
         });
     }
 }

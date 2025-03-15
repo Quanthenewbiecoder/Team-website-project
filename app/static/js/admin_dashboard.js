@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initUserManagement();
     
     
-    initOrderManagement();
+    //initOrderManagement();
     
     
 
@@ -63,6 +63,59 @@ function loadDashboardStats() {
 
 }
 
+function loadAdminProfile() {
+    fetch('/api/admin/profile')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('admin-username').value = data.admin.username || '';
+                document.getElementById('admin-email').value = data.admin.email || '';
+                document.getElementById('admin-name').value = data.admin.name || '';
+                document.getElementById('admin-surname').value = data.admin.surname || '';
+            } else {
+                console.error('Error loading admin profile:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching admin profile:', error);
+        });
+}
+
+function initPasswordForm() {
+    document.getElementById('change-password-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (newPassword !== confirmPassword) {
+            alert('New passwords do not match!');
+            return;
+        }
+
+        fetch('/api/admin/change-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Password changed successfully!');
+                    document.getElementById('change-password-form').reset();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error changing password:', error);
+            });
+    });
+}
+
 function initCharts() {
     fetch('/api/admin/orders/stats')
         .then(response => response.json())
@@ -110,6 +163,69 @@ function initCharts() {
         });
     
     
+}
+
+function initModals() {
+    const modals = document.querySelectorAll('.modal');
+    const closeButtons = document.querySelectorAll('.close-modal');
+
+    // Open modal when clicking on a trigger element
+    document.querySelectorAll('[data-modal]').forEach(trigger => {
+        trigger.addEventListener('click', function () {
+            const modalId = this.getAttribute('data-modal');
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('show');
+            }
+        });
+    });
+
+    // Close modal when clicking on the close button
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            this.closest('.modal').classList.remove('show');
+        });
+    });
+
+    // Close modal when clicking outside the modal content
+    modals.forEach(modal => {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+}
+
+function initNotifications() {
+    const notification = document.getElementById('notification');
+    const closeBtn = notification ? notification.querySelector('.notification-close') : null;
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            notification.classList.remove('show');
+        });
+    }
+}
+
+// Function to show notifications dynamically
+function showNotification(message, type = 'info') {
+    const notification = document.getElementById('notification');
+    if (!notification) return;
+
+    notification.classList.remove('error', 'success', 'info');
+    notification.classList.add(type);
+    
+    const messageElement = notification.querySelector('#notification-message');
+    if (messageElement) {
+        messageElement.textContent = message;
+    }
+
+    notification.classList.add('show');
+
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 5000);
 }
 
 function loadRecentActivity() {

@@ -38,20 +38,30 @@
             <tbody>
                 {% for order in orders %}
                 <tr>
-                    <td>{{ order._id }}</td>
-                    <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+                    <!-- Display the user_order_id if available, otherwise fallback to guest_order_id or MongoDB _id -->
+                    <td>{{ order.user_order_id or order.guest_order_id or order._id }}</td>
+                    
+                    <!-- Display formatted order date -->
+                    <td>{{ order.created_at }}</td>
+                    
+                    <!-- Order Status -->
                     <td>
                         <span class="badge 
                             {% if order.status == 'Completed' %} bg-success 
                             {% elif order.status == 'Processing' %} bg-info 
                             {% elif order.status == 'Cancelled' %} bg-danger 
-                            {% endif %}">
+                            {% else %} bg-secondary {% endif %}">
                             {{ order.status }}
                         </span>
                     </td>
+
+                    <!-- Order Total Price -->
                     <td>£{{ order.total_price }}</td>
+
+                    <!-- View Order Button -->
                     <td>
-                        <a href="{{ url_for('routes.track_order', tracking=order.guest_order_id or order._id) }}" class="btn btn-sm btn-primary">View</a>
+                        <a href="{{ url_for('routes.track_order', tracking=order.user_order_id or order.guest_order_id or order._id) }}" 
+                           class="btn btn-sm btn-primary">View</a>
                     </td>
                 </tr>
                 {% endfor %}
