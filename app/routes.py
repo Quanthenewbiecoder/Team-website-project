@@ -38,6 +38,7 @@ def utility_processor():
 def home():
     return render_template('homepage.html', now=datetime.now())
 
+
 # Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -131,6 +132,14 @@ def about_us():
 @routes_bp.route('/contact')
 def contact():
     return render_template('contact.html')
+
+@routes_bp.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@routes_bp.route('/policy')
+def policy():
+    return render_template('policy.html')
 
 @routes_bp.route('/crystalcollection')
 def crystalcollection():
