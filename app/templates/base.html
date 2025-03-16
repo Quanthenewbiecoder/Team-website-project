@@ -91,13 +91,6 @@
         <div class="footer-column small">
             <h3>Quick Links</h3>
             <ul>
-                <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-                <li><a href="{{ url_for('routes.products') }}">Shop Our Products</a></li>
-                <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-                <li><a href="{{ url_for('routes.contact') }}">Contact Us</a></li>
-                <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
-                <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-                <li><a href="{{ url_for('routes.register') }}">Registration</a></li>
                 <li><a href="{{ url_for('routes.terms') }}">Terms and Conditions</a></li>
                 <li><a href="{{ url_for('routes.privacy_policy') }}">Privacy Policy</a></li>
                 <li><a href="{{ url_for('routes.help') }}">Help: FAQ</a></li>
@@ -135,19 +128,16 @@
       </div>
   </div>
 
-  <!-- Chat Icon with Speech Bubble -->
   <div id="chat-icon-container">
     <div id="chat-icon" onclick="toggleChat()">
       <img src="{{ url_for('static', filename='images/chatbotIcon.webp') }}" alt="Chat Icon">
     </div>
-    <!-- Speech Bubble -->
     <div id="speech-bubble">
       <span>Chat with our Divine chatbot</span>
       <button id="close-bubble" onclick="closeBubble()">×</button>
     </div>
   </div>
 
-  <!-- Chat Popup -->
   <div id="chat-popup">
     <div id="chat-header">Divine AI</div>
     <div id="chat-body">
@@ -168,17 +158,6 @@
       <button onclick="resetChat()" style="margin-top: 10px; background-color: #dc3545; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer;">Reset Chat</button>
     </div>
   </div>
-
-  <div class="popup-overlay" onclick="closePopup()">
-    <div class="popup-content">
-      <span class="close-btn" onclick="closePopup()">&times;</span>
-      <img id="popup-image" src="" alt="Popup Image">
-    </div>
-  </div>
-
-<div class="heartIcon" data-bs-toggle="modal" data-bs-target="#favoritesModal">
-      <i class="fa-regular fa-heart"></i>
-    </div>
 
 
     {% block scripts %}{% endblock %}
