@@ -8,7 +8,7 @@
 }
 
 .admin-sidebar {
-    width: 250px;
+    width: 210px;
     background-color: #2f1c0e;
     color: #fff;
     padding: 20px 0;
@@ -260,10 +260,13 @@
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-bottom: 20px;
+    width: 100%;
+    overflow-x: auto;
 }
 
 .data-table {
     width: 100%;
+    min-width: 600px; /* Prevents table from shrinking too much */
     border-collapse: collapse;
 }
 
@@ -646,6 +649,7 @@
 .btn-secondary:hover {
     background-color: #e0e0e0;
 }
+/* Responsive Design Enhancements */
 
 @media (max-width: 1200px) {
     .dashboard-charts {
@@ -667,13 +671,13 @@
         display: flex;
         overflow-x: auto;
         padding: 0 15px;
+        white-space: nowrap;
     }
     
     .admin-menu li {
         padding: 10px 15px;
         border-left: none;
         border-bottom: 3px solid transparent;
-        white-space: nowrap;
     }
     
     .admin-menu li.active,
@@ -704,9 +708,14 @@
         flex-wrap: wrap;
     }
     
+    .data-table-container {
+        overflow-x: auto;
+    }
+    
     .data-table th, 
     .data-table td {
         padding: 10px;
+        white-space: nowrap;
     }
     
     .order-header {

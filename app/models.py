@@ -20,21 +20,24 @@ db = client["divine"]  # Replace with your actual database name
 
 #  User Model (users collection, compatible with Flask-Login)
 class User(UserMixin):
-    def __init__(self, username, email, name, surname, role="Customer", password=None, _id=None, created_at=None, password_hash=None):
+    def __init__(self, username, email, name, surname, role="Customer", password=None, 
+                 _id=None, created_at=None, password_hash=None, session_version=None):
         self.username = username
         self.email = email
         self.name = name
         self.surname = surname
         self.role = role
-        self.created_at = created_at if created_at else datetime.utcnow()  #  Ensure correct handling of MongoDB field
-        self.password_hash = password_hash  #  Ensure password_hash is set if loaded from MongoDB
-        self._id = str(ObjectId(_id)) if _id else str(ObjectId())  #  Ensure _id is an ObjectId
+        self.created_at = created_at if created_at else datetime.utcnow()  # Ensure correct handling of MongoDB field
+        self.password_hash = password_hash  # Ensure password_hash is set if loaded from MongoDB
+        self.session_version = session_version or str(ObjectId())  # Ensure session_version exists
+        self._id = str(ObjectId(_id)) if _id else str(ObjectId())  # Ensure _id is an ObjectId
 
         if password and not password_hash:
-            self.set_password(password)  #  Only hash password if it's newly set
+            self.set_password(password)  # Only hash password if it's newly set
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
+        self.session_version = str(ObjectId()) # Change session version to force logout of old sessions
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)

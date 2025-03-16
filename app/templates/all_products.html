@@ -1,15 +1,16 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if search_query %}
-        Search Results for "{{ search_query }}" - The Divine
-    {% else %}
-        Products - The Divine
-    {% endif %}
+{% if search_query %}
+Search Results for "{{ search_query }}" - The Divine
+{% else %}
+Products - The Divine
+{% endif %}
 {% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/products.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_products.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -24,49 +25,155 @@
                     </div>
                 </div>
             </div>
-        </form>
+            
+            <div class="filter-section">
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Sort By:</h3>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="radio-group">
+                        <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
+                        <label for="Recommended">Recommended</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="HighLow" name="sort" value="HighLow">
+                        <label for="HighLow">High to Low</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="LowHigh" name="sort" value="LowHigh">
+                        <label for="LowHigh">Low to High</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Filter Search</h3>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="InStock" name="InStock" value="InStock">
+                        <label for="InStock">In Stock</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="New" name="New" value="New">
+                        <label for="New">New</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
+                        <label for="OnSale">On Sale</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>Product Type</h3>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Bracelets" name="Bracelets" value="Bracelets">
+                        <label for="Bracelets">Bracelets</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Earrings" name="Earrings" value="Earrings">
+                        <label for="Earrings">Earrings</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Rings" name="Rings" value="Rings">
+                        <label for="Rings">Rings</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Watches" name="Watches" value="Watches">
+                        <label for="Watches">Watches</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Necklaces" name="Necklaces" value="Necklaces">
+                        <label for="Necklaces">Necklaces</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-header" onclick="toggleFilter(this)">
+                    <h3>View Collections:</h3>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="filter-content">
+                    <div class="radio-group">
+                        <input type="radio" id="None" name="collections" value="None" checked>
+                        <label for="None">All Collections</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Leaf" name="collections" value="Leaf">
+                        <label for="Leaf">Leaf Collection</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Pearl" name="collections" value="Pearl">
+                        <label for="Pearl">Pearl Collection</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="Crystal" name="collections" value="Crystal">
+                        <label for="Crystal">Crystal Collection</label>
+                    </div>
+                </div>
+            </div>
+
+        <button type="submit" class="apply-filters-btn">Apply Filters</button>
+    </form>
     </div>
 
-    <div id="products-grid">
-        {% if search_query and products|length == 0 %}
+    <!-- Main Products Section -->
+    <div class="products-display">
+        
+        <!-- Add Product Button (Styled Like a Product) -->
+        {% if current_user.role in ['admin', 'staff'] %}
+        <div class="add-product-container">
+            <button id="add-product-btn" class="add-product-btn" onclick="showAddProductModal()">
+                + Add New Product
+            </button>
+        </div>
+        {% endif %}
+
+        <div id="products-grid">
+            {% if search_query and products|length == 0 %}
             <div class="empty-state">
                 <div class="empty-icon">🔍</div>
                 <h3>No products found for "{{ search_query }}"</h3>
                 <p>Try different keywords or browse our collections</p>
             </div>
-        {% else %}
-            {% for product in products %}
-            <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                <h3>{{ product.name }}</h3>
-                <p class="price">£{{ "%.2f"|format(product.price) }}</p>
+            {% else %}
+                {% for product in products %}
+                <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">£{{ "%.2f"|format(product.price) }}</p>
 
-                <!-- Add to Cart Button (For Customers) -->
-                <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
-                    Add to Cart
-                </button>
+                    <!-- Add to Cart Button -->
+                    <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                        Add to Cart
+                    </button>
 
-                <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
+                    <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
 
-                <!-- ADMIN CONTROLS (Only for Admins/Staff) -->
-                {% if current_user.role in ['admin', 'staff'] %}
-                <div class="admin-controls">
-                    <button class="btn-edit" data-id="{{ product.id }}" onclick="editProduct('{{ product.id }}')">Edit</button>
-                    <button class="btn-delete" data-id="{{ product.id }}" onclick="deleteProduct('{{ product.id }}')">Delete</button>
+                    <!-- Admin Controls -->
+                    {% if current_user.role in ['admin', 'staff'] %}
+                    <div class="admin-controls">
+                        <button class="btn-edit" data-id="{{ product.id }}" onclick="editProduct('{{ product.id }}')">Edit</button>
+                        <button class="btn-delete" data-id="{{ product.id }}" onclick="deleteProduct('{{ product.id }}')">Delete</button>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-            {% endfor %}
-        {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
-
-    <!-- ADD PRODUCT BUTTON (Only for Admins) -->
-    {% if current_user.role in ['admin', 'staff'] %}
-    <button id="add-product-btn" class="btn-primary" onclick="showAddProductModal()">Add New Product</button>
-    {% endif %}
 </div>
 
-<!-- Product Modal for Editing & Adding -->
+<!-- Product Modal for Adding & Editing -->
 <div id="product-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal" onclick="closeProductModal()">&times;</span>
