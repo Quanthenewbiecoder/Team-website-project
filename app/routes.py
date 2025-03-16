@@ -149,14 +149,6 @@ def contact():
 def terms():
     return render_template('terms.html')
 
-@routes_bp.route('/policy')
-def policy():
-    return render_template('policy.html')
-
-@routes_bp.route('/track_order')
-def track_order():
-    return render_template('track_order.html')
-
 @routes_bp.route('/StarReturn')
 def StarReturn():
     return render_template('StarReturn.html')
