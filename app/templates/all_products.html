@@ -148,7 +148,12 @@ Products - The Divine
             {% else %}
                 {% for product in products %}
                 <div class="Product" data-id="{{ product.id }}" data-type="{{ product.product_type }}" data-collection="{{ product.collection }}">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    
+                    {% if current_user.role in ['admin', 'staff'] %}
+                        <button class="btn-delete" data-id="{{ product.id }}">Delete</button>
+                    {% endif %}
+
+                    <img src="{{ product.image_url.replace('/products/images/', '/static/images/') }}" alt="{{ product.name }}">
                     <h3>{{ product.name }}</h3>
                     <p class="price">£{{ "%.2f"|format(product.price) }}</p>
 

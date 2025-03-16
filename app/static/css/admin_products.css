@@ -52,11 +52,12 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    position: relative;  /* ✅ FIX: Ensures delete button is positioned correctly */
 }
 
 /* Center the Modal Properly */
 .modal {
-    display: flex;
+    display: none; /* ✅ FIX: Prevents modal from showing on refresh */
     justify-content: center;
     align-items: center;
     position: fixed;
@@ -72,7 +73,6 @@
     display: flex;
 }
 
-
 .modal-content {
     background-color: white;
     border-radius: 10px;
@@ -81,7 +81,7 @@
     max-width: 500px;
     padding: 25px;
     position: relative;
-    transform: translateY(0); /* Prevent jumping effect */
+    transform: translateY(0);
 }
 
 /* Close Button */
@@ -150,7 +150,7 @@
     background-color: #e6be73;
 }
 
-/* images load */
+/* Image Upload */
 .image-upload-area {
     border: 2px dashed #ccc;
     padding: 20px;
@@ -163,6 +163,27 @@
     background-color: #f5f5f5;
 }
 
+/* Delete Button */
+.btn-delete {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s ease;
+    display: inline-block !important; /* Ensure it's visible */
+    opacity: 1;
+    visibility: visible;
+}
+
+.btn-delete:hover {
+    background: darkred;
+}
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
@@ -172,4 +193,3 @@
         font-size: 16px;
     }
 }
-

@@ -193,9 +193,9 @@ def api_products():
     for product in products:
         image_filename = product.get("image_url", "")
 
-        # Ensure images are correctly prefixed with "/static/images/"
+        # ✅ Ensure images are correctly prefixed with "/static/images/"
         if image_filename and not image_filename.startswith("/static/images/"):
-            image_url = url_for("static", filename=f"images/{image_filename.split('/')[-1]}")
+            image_url = url_for("static", filename=f"images/{os.path.basename(image_filename)}")
         else:
             image_url = image_filename  # If it's already correct
 
@@ -204,13 +204,13 @@ def api_products():
             "name": product.get("name", "No Name"),
             "type": product.get("type", "Unknown"),
             "price": float(product.get("price", 0)),
-            "image_url": image_url,  # Fixed path
+            "image_url": image_url,  # 🔥 FIXED path
             "collection": product.get("collection", "None"),
             "description": product.get("description", ""),
             "in_stock": bool(product.get("in_stock", False))
         })
 
-    return jsonify(product_list), 200
+    return jsonify({"success": True, "products": product_list}), 200
 
 # Route to add or edit a review (User can only post one review per product)
 @routes_bp.route('/products/<int:product_id>/review', methods=['POST'])

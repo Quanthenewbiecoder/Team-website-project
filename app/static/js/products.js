@@ -7,229 +7,214 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
-    const searchQueryParam = new URLSearchParams(window.location.search).get('query');
+    let allProducts = [];
 
-    if (searchQueryParam) {
-        console.log("Using server-filtered results for query:", searchQueryParam);
-        attachAddToCartEvents();
-        return;
-    }
-
-    let allProducts = []; 
-
+    // Fetch and display products
     async function fetchProducts() {
         try {
             const response = await fetch('/api/products');
-            allProducts = await response.json();
-            renderProducts(allProducts);
+            const data = await response.json();
+
+            if (data.success) {
+                allProducts = data.products;
+                updateProductList(allProducts); // Show all products initially
+            } else {
+                console.error("Error fetching products:", data.error);
+            }
         } catch (error) {
-            console.error('Error loading products:', error);
+            console.error("Fetch error:", error);
         }
     }
 
-    function renderProducts(products) {
+    // Update product list in UI
+    function updateProductList(products) {
         productsGrid.innerHTML = "";
-    
+
         if (products.length === 0) {
             showEmptyState();
             return;
         }
-    
+
         products.forEach(product => {
-            let correctedImageURL = product.image_url.replace(/\s/g, "_");
-    
-            const productDiv = document.createElement("div");
-            productDiv.classList.add("Product");
-            productDiv.setAttribute("data-id", product.id);
-            productDiv.setAttribute("data-type", product.type);
-            productDiv.setAttribute("data-collection", product.collection);
-    
-            productDiv.innerHTML = `
-                <img src="${correctedImageURL}" alt="${product.name}">
+            let imageUrl = product.image_url;
+
+            // Fix incorrect image paths
+            if (imageUrl.includes("/products/images/")) {
+                imageUrl = imageUrl.replace("/products/images/", "/static/images/");
+            }
+
+            // Fallback image
+            if (!imageUrl || imageUrl.trim() === "") {
+                imageUrl = "/static/images/default.jpg";
+            }
+
+            const productElement = document.createElement("div");
+            productElement.classList.add("Product");
+            productElement.dataset.id = product.id;
+            productElement.dataset.type = product.type;
+            productElement.dataset.collection = product.collection;
+
+            productElement.innerHTML = `
+                <button class="btn-delete" data-id="${product.id}">❌ Delete</button>
+                <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/images/default.jpg';">
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${parseFloat(product.price).toFixed(2)}">
+                <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
-                <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
             `;
-    
-            productsGrid.appendChild(productDiv);
+
+            productsGrid.appendChild(productElement);
         });
-    
+
+        attachDeleteEventListeners();
         attachAddToCartEvents();
     }
-       
 
-    function attachAddToCartEvents() {
-        document.querySelectorAll('.add-btn').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                const productId = this.getAttribute('data-id');
-                const productName = this.getAttribute('data-name');
-                const productPrice = this.getAttribute('data-price');
-                const productImage = this.closest('.Product').querySelector('img').src;
-
-                addToCart(productId, productName, parseFloat(productPrice), productImage);
-            });
+    // Attach delete button event listeners
+    function attachDeleteEventListeners() {
+        document.querySelectorAll(".btn-delete").forEach(button => {
+            button.removeEventListener("click", deleteHandler);
+            button.addEventListener("click", deleteHandler);
         });
     }
 
-    async function addToCart(id, name, price, image) {
+    // Function to handle product deletion
+    function deleteHandler(event) {
+        const productId = event.target.getAttribute("data-id");
+        deleteProduct(productId);
+    }
+
+    // Function to delete a product
+    async function deleteProduct(productId) {
+        if (!confirm("Are you sure you want to delete this product?")) return;
+        const deleteImage = confirm("Would you like to delete the image as well?");
+
         try {
-            let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
-    
-            if (cart[id]) {
-                cart[id].quantity += 1;
+            const response = await fetch(`/api/products/${productId}?delete_image=${deleteImage}`, {
+                method: "DELETE",
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert("Product deleted successfully!");
+                fetchProducts(); // Re-fetch products after deletion
             } else {
-                cart[id] = {
-                    name: name,
-                    price: parseFloat(price),
-                    quantity: 1,
-                    image: image
-                };
+                alert("Error: " + data.error);
             }
-    
-            sessionStorage.setItem('divinecart', JSON.stringify(cart));
-    
-            showNotification(`${name} added to cart`);
         } catch (error) {
-            console.error('Error adding to cart:', error);
+            console.error("Error deleting product:", error);
         }
     }
 
-    function showNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'cart-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
+    // Toggle filter dropdown
+    window.toggleFilter = function (header) {
+        const content = header.nextElementSibling;
+        const arrow = header.querySelector('.arrow');
 
-        setTimeout(() => {
-            notification.classList.add('show');
-        }, 10);
+        content.classList.toggle('show');
+        arrow.classList.toggle('rotate');
+    };
 
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 2000);
+    // Apply filters when form is submitted
+    if (filterForm) {
+        filterForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            applyFilters();
+        });
     }
 
-    if (filterForm) {
-        filterForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-            applyFilters(); //  This ensures dynamic filtering without page reload
-        });
-    }    
+    // Search filter triggers dynamically
+    searchInput?.addEventListener("input", debounce(() => applyFilters(), 300));
 
-    searchInput?.addEventListener("input", debounce(function () {
-        applyFilters();
-    }, 300));
-
+    // Function to apply filters
     function applyFilters() {
-        const searchQuery = searchInput.value.toLowerCase();
+        if (allProducts.length === 0) return;
+
+        const searchQuery = searchInput.value.toLowerCase().trim();
         const selectedCollection = document.querySelector('input[name="collections"]:checked')?.value || 'None';
-        
+
         const checkedTypes = [];
-        document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-            checkedTypes.push(checkbox.value.toLowerCase());
-        });
-    
+        document.querySelectorAll('input[name="Bracelets"]:checked, input[name="Earrings"]:checked, input[name="Rings"]:checked, input[name="Watches"]:checked, input[name="Necklaces"]:checked')
+            .forEach(checkbox => {
+                checkedTypes.push(checkbox.value.toLowerCase());
+            });
+
         const sortOption = document.querySelector('input[name="sort"]:checked')?.value || 'Recommended';
-    
         const inStockChecked = document.querySelector('#InStock')?.checked || false;
-    
-        const filteredProducts = allProducts.filter(product => {
+
+        let filteredProducts = allProducts.filter(product => {
             const productName = product.name.toLowerCase();
             const productType = product.type?.toLowerCase() || '';
             const productCollection = product.collection?.toLowerCase() || '';
-    
+
             let shouldShow = true;
-    
-            //  Search Query Filtering
-            if (searchQuery && !productName.includes(searchQuery)) {
+
+            // Search Query Filtering (searches both name and description)
+            if (searchQuery && !productName.includes(searchQuery) && !product.description.toLowerCase().includes(searchQuery)) {
                 shouldShow = false;
             }
-    
-            //  Collection Filtering
-            if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase()) {
+
+            // Collection Filtering
+            if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase().trim()) {
                 shouldShow = false;
             }
-    
-            //  Product Type Filtering
+
+            // Product Type Filtering
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
                 shouldShow = false;
             }
-    
-            //  In-Stock Filtering
+
+            // In-Stock Filtering
             if (inStockChecked && product.in_stock !== true) {
                 shouldShow = false;
             }
-    
+
             return shouldShow;
         });
-    
-        console.log("Filtered Products:", filteredProducts); // 🔥 Debugging Log
-    
-        //  Apply sorting before rendering
+
+        // **🔹 Always show all products when sorting by "Recommended"**
+        if (sortOption === 'Recommended') {
+            filteredProducts = allProducts;
+        }
+
+        // Apply sorting before rendering
         if (sortOption !== 'Recommended') {
             sortProducts(filteredProducts, sortOption);
         } else {
-            renderProducts(filteredProducts);
+            updateProductList(filteredProducts);
         }
-    
-        //  Show/hide "no results found" message
+
+        // Show/hide "no results found" message
         if (filteredProducts.length === 0) {
             showEmptyState();
         } else {
             hideEmptyState();
         }
     }
-    
 
+    // Function to sort products
     function sortProducts(products, sortOption) {
         products.sort((a, b) => {
             const priceA = parseFloat(a.price);
             const priceB = parseFloat(b.price);
-    
             return sortOption === 'HighLow' ? priceB - priceA : priceA - priceB;
         });
-    
-        renderProducts(products); //  Ensure rendering updates after sorting
-    }   
 
+        updateProductList(products);
+    }
+
+    // Show or hide empty state
     function showEmptyState() {
-        if (!document.querySelector('.empty-state')) {
-            const emptyState = document.createElement('div');
-            emptyState.className = 'empty-state';
-            emptyState.innerHTML = `
-                <div class="empty-icon">🔍</div>
-                <h3>No products found</h3>
-                <p>Try adjusting your filters or search terms</p>
-            `;
-            productsGrid.appendChild(emptyState);
-        }
+        productsGrid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><h3>No products found</h3><p>Try adjusting your filters or search terms</p></div>`;
     }
-
     function hideEmptyState() {
-        const emptyState = document.querySelector('.empty-state');
-        if (emptyState) {
-            emptyState.remove();
-        }
+        document.querySelector('.empty-state')?.remove();
     }
 
-    function toggleMenu() {
-        const menu = document.getElementById("mobile-menu");
-        if (menu) {
-            menu.classList.toggle("show");
-        } else {
-            console.error("Error: Element with ID 'mobile-menu' not found.");
-        }
-    }     
-
+    // Debounce function
     function debounce(func, delay) {
         let timeout;
         return function () {
@@ -237,14 +222,6 @@ document.addEventListener("DOMContentLoaded", function () {
             timeout = setTimeout(() => func.apply(this, arguments), delay);
         };
     }
-
-    window.toggleFilter = function(header) {
-        const content = header.nextElementSibling;
-        const arrow = header.querySelector('.arrow');
-
-        content.classList.toggle('show');
-        arrow.classList.toggle('rotate');
-    };
 
     fetchProducts();
 });
