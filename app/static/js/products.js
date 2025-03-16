@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
             productElement.dataset.collection = product.collection;
 
             productElement.innerHTML = `
-                <button class="btn-delete" data-id="${product.id}">❌ Delete</button>
+                <button class="btn-delete" data-id="${product.id}">Delete</button>
                 <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/images/default.jpg';">
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
@@ -175,17 +175,12 @@ document.addEventListener("DOMContentLoaded", function () {
             return shouldShow;
         });
 
-        // **🔹 Always show all products when sorting by "Recommended"**
-        if (sortOption === 'Recommended') {
-            filteredProducts = allProducts;
-        }
-
-        // Apply sorting before rendering
+        // If no filters are selected, show all products
         if (sortOption !== 'Recommended') {
-            sortProducts(filteredProducts, sortOption);
-        } else {
-            updateProductList(filteredProducts);
+            filteredProducts = sortProducts(filteredProducts, sortOption);
         }
+        updateProductList(filteredProducts);
+        
 
         // Show/hide "no results found" message
         if (filteredProducts.length === 0) {
