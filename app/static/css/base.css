@@ -1,176 +1,184 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Nunito", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Nunito", sans-serif;
 }
 
-/* Updated Navigation Bar CSS */
 .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 15px 20px;
-    z-index: 1000;
-    background-color: #2f1c0e;
-    transition: background-color 0.3s, backdrop-filter 0.3s;
-    position: relative;
-  }
-  
-  .navbar_bg {
-    background-color: #2f1c0e;
-  }
-  
-  .navbar .logo {
-    margin-right: 20px;
-  }
-  
-  .navbar .logo img {
-    height: 50px;
-    width: auto;
+  display: flex;
+  position: absolute;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 15px 20px;
+  z-index: 1000;
+  background-color: #2f1c0e;
+  transition: background-color 0.3s, backdrop-filter 0.3s;
+}
+
+.navbar_bg {
+  background-color: #2f1c0e;
+}
+
+.logo img {
+  width: 100%;
+  max-width: 100px;
+  height: auto;
+  display: block;
+}
+
+.menu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 80px;
+  left: 0;
+  width: 100%;
+  background-color: #2f1c0e;
+  text-align: center;
+  z-index: 999;
+  padding: 20px 0;
+}
+
+.menu.show {
+  display: flex;
+}
+
+.menu li {
+  list-style-type: none;
+  margin: 10px 0;
+}
+
+.menu li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1em;
+  transition: color 0.3s;
+  padding: 10px 20px;
+  display: block;
+}
+
+.menu li a:hover {
+  color: #f5900d;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1em;
+  outline: none;
+  width: 100%;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-bar button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.hamburger div {
+  width: 30px;
+  height: 3px;
+  background-color: #fff;
+  margin: 4px 0;
+  transition: transform 0.3s ease;
+}
+
+@media (min-width: 901px) {
+  .navbar {
+      position: relative;
+      padding: 15px 40px;
   }
   
   .menu {
-    display: flex;
-    justify-content: center;
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    flex: 1;
-    max-width: 800px;
+      display: flex;
+      position: relative;
+      flex-direction: row;
+      top: 0;
+      background-color: transparent;
+      width: auto;
+      padding: 0;
+      margin: 0 auto;
+      justify-content: center;
   }
   
   .menu li {
-    margin: 0 10px;
+      margin: 0 15px;
   }
   
   .menu li a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 0.95em;
-    transition: color 0.3s, transform 0.3s;
-    padding: 5px;
-    white-space: nowrap;
-  }
-  
-  .menu li a:hover {
-    color: #f5900d;
-    transform: scale(1.1);
-  }
-  
-  .right-section {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-left: 20px;
-  }
-  
-  .search-bar {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    border-radius: 5px;
-    padding: 5px 10px;
-    transition: background-color 0.3s, border 0.3s;
-  }
-  
-  .search-bar form {
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-bar input {
-    border: none;
-    background: transparent;
-    color: #fff;
-    font-size: 1em;
-    outline: none;
-    width: 150px;
-    transition: width 0.3s;
-  }
-  
-  .search-bar button {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 1.2em;
-    cursor: pointer;
-    padding-left: 5px;
+      padding: 0;
+      font-size: 1em;
   }
   
   .hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-  }
-  
-  .hamburger div {
-    width: 37px;
-    height: 3px;
-    border-radius: 10px;
-    background-color: #fff;
-    margin: 4px 0;
-    transition: transform 0.3s ease;
-  }
-  
-  /* Media queries for responsive design */
-  @media (max-width: 1024px) {
-    .menu li {
-      margin: 0 8px;
-    }
-    
-    .menu li a {
-      font-size: 0.9em;
-    }
-  }
-  
-  @media (max-width: 900px) {
-    .menu {
       display: none;
-      flex-direction: column;
-      position: absolute;
-      top: 69px;
-      left: 0;
-      width: 100%;
-      background-color: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(10px);
-      padding: 20px 0;
-      text-align: center;
-      z-index: 100;
-    }
-    
-    .menu.show {
-      display: flex;
-    }
-    
-    .menu li {
-      margin: 10px 0;
-    }
-    
-    .hamburger {
-      display: flex;
-    }
-    
-    .search-bar {
-      margin-right: 15px;
-    }
   }
   
-  @media (max-width: 480px) {
-    .search-bar {
-      max-width: 120px;
-    }
-    
-    .search-bar input {
-      width: 80px;
-    }
-    
-    .navbar {
-      padding: 15px 10px;
-    }
+  .search-bar {
+      position: static;
+      width: 200px;
   }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+      padding: 15px;
+  }
+  
+  .logo img {
+      max-width: 80px;
+  }
+  
+  .search-bar {
+      max-width: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .search-bar {
+      max-width: 150px;
+  }
+}
 
 .footer {
     background-color: #2f1c0e;
@@ -561,4 +569,72 @@ body {
 .accordion-body {
   font-size: 16px;
   line-height: 1.5;
+}
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.wishlist-icon {
+  color: #fff;
+  font-size: 20px;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wishlist-icon:hover {
+  color: #f5900d;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 250px;
+}
+
+.search-bar form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 1em;
+  outline: none;
+  width: 100%;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-bar button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+@media (max-width: 900px) {
+  .right-section {
+      gap: 10px;
+  }
+  
+  .wishlist-icon {
+      font-size: 18px;
+  }
 }

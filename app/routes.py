@@ -1510,3 +1510,111 @@ def save_inquiry():
     mongo.db.inquiries.insert_one(inquiry_data)
 
     return jsonify({"message": "Inquiry saved successfully!"}), 200
+
+@routes_bp.route('/wishlist')
+def wishlist():
+    wishlist_items = []
+    
+    if current_user.is_authenticated:
+        # If user is logged in, fetch their wishlist items from database
+        # This is a placeholder - update with your actual database query
+        wishlist_data = mongo.db.wishlist.find({"user_id": current_user.get_id()})
+        
+        for item in wishlist_data:
+            product_id = item.get('product_id')
+            product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+            
+            if product:
+                wishlist_items.append({
+                    "id": str(product["_id"]),
+                    "name": product.get("name", "Unknown Product"),
+                    "price": product.get("price", 0),
+                    "image_path": product.get("image_url", "")
+                })
+    else:
+        # For guests, get wishlist from session if available
+        wishlist_session = session.get('wishlist', {})
+        
+        for product_id in wishlist_session:
+            product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+            
+            if product:
+                wishlist_items.append({
+                    "id": str(product["_id"]),
+                    "name": product.get("name", "Unknown Product"),
+                    "price": product.get("price", 0),
+                    "image_path": product.get("image_url", "")
+                })
+    
+    return render_template('wishlist.html', wishlist=wishlist_items)
+
+@routes_bp.route('/api/wishlist/add', methods=['POST'])
+def add_to_wishlist():
+    data = request.json
+    product_id = data.get('product_id')
+    
+    if not product_id:
+        return jsonify({"success": False, "error": "Product ID is required"}), 400
+    
+    # Check if product exists
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+    if not product:
+        return jsonify({"success": False, "error": "Product not found"}), 404
+    
+    if current_user.is_authenticated:
+        # For logged-in users, save wishlist item to database
+        existing_item = mongo.db.wishlist.find_one({
+            "user_id": current_user.get_id(),
+            "product_id": product_id
+        })
+        
+        if existing_item:
+            return jsonify({"success": True, "message": "Product already in wishlist"}), 200
+        
+        # Add to database
+        wishlist_item = {
+            "user_id": current_user.get_id(),
+            "product_id": product_id,
+            "added_at": datetime.utcnow()
+        }
+        
+        mongo.db.wishlist.insert_one(wishlist_item)
+    else:
+        # For guests, save wishlist item to session
+        if 'wishlist' not in session:
+            session['wishlist'] = {}
+        
+        if product_id in session['wishlist']:
+            return jsonify({"success": True, "message": "Product already in wishlist"}), 200
+        
+        session['wishlist'][product_id] = {
+            "added_at": datetime.utcnow().isoformat()
+        }
+    
+    return jsonify({"success": True, "message": "Product added to wishlist"}), 201
+
+@routes_bp.route('/api/wishlist/remove', methods=['POST'])
+def remove_from_wishlist():
+    data = request.json
+    product_id = data.get('product_id')
+    
+    if not product_id:
+        return jsonify({"success": False, "error": "Product ID is required"}), 400
+    
+    if current_user.is_authenticated:
+        # Remove item from database for logged-in users
+        result = mongo.db.wishlist.delete_one({
+            "user_id": current_user.get_id(),
+            "product_id": product_id
+        })
+        
+        if result.deleted_count == 0:
+            return jsonify({"success": False, "error": "Item not found in wishlist"}), 404
+    else:
+        # Remove item from session for guests
+        if 'wishlist' in session and product_id in session['wishlist']:
+            del session['wishlist'][product_id]
+        else:
+            return jsonify({"success": False, "error": "Item not found in wishlist"}), 404
+    
+    return jsonify({"success": True, "message": "Product removed from wishlist"}), 200
