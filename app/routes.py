@@ -2,7 +2,7 @@ from functools import wraps
 from datetime import datetime 
 import random
 import string
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from app import mongo, login_manager
 from app.models import *
@@ -193,7 +193,7 @@ def api_products():
     for product in products:
         image_filename = product.get("image_url", "")
 
-        # ✅ Ensure images are correctly prefixed with "/static/images/"
+        # Ensure images are correctly prefixed with "/static/images/"
         if image_filename and not image_filename.startswith("/static/images/"):
             image_url = url_for("static", filename=f"images/{os.path.basename(image_filename)}")
         else:
@@ -1003,14 +1003,17 @@ def get_product(product_id):
     return jsonify({"success": True, "product": product}), 200
 
 # Define the absolute path where images will be saved
-UPLOAD_FOLDER = r"C:\Users\zstro\OneDrive\Documents\GitHub\Team-website-project\app\static\images"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-# Ensure the upload directory exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+def allowed_file(filename):
+    """Check if the uploaded file has a valid extension."""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @routes_bp.route("/api/products", methods=["POST"])
 @login_required
@@ -1030,8 +1033,8 @@ def add_product():
             file = request.files["image"]
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                save_path = os.path.join(UPLOAD_FOLDER, filename)
-                file.save(save_path)  # Save image to absolute path
+                save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)  # FIXED HERE
+                file.save(save_path)  # Save image to dynamically set UPLOAD_FOLDER
                 image_url = f"/static/images/{filename}"  # Store relative path in MongoDB
 
         # Create product document
@@ -1073,7 +1076,6 @@ def update_product(product_id):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-
 @routes_bp.route('/api/products/<product_id>', methods=['DELETE'])
 @login_required
 @role_required('admin', 'staff')
@@ -1097,10 +1099,10 @@ def delete_product(product_id):
 
         if result.deleted_count > 0:
             if delete_image and image_path:
-                abs_image_path = os.path.join(UPLOAD_FOLDER, os.path.basename(image_path))
+                abs_image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], os.path.basename(image_path))  # FIXED HERE
 
                 if os.path.exists(abs_image_path):
-                    os.remove(abs_image_path)  # Delete the image file
+                    os.remove(abs_image_path)  # Delete the image file dynamically
                     image_deleted = True
 
             return jsonify({
