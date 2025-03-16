@@ -1,0 +1,67 @@
+/* General Styles */
+body {
+    font-family: 'Times New Roman', Times, serif;
+    background: linear-gradient(to bottom, #fff7e6, #f9f3ea);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(224, 192, 151, 0.15);
+    padding: 40px;
+    flex-grow: 1;
+}
+
+/* FAQ Header */
+.faq-header {
+    color: #e0c097;
+    font-weight: bold;
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+/* Center buttons & Increase Size */
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Space between buttons */
+    margin: 20px 0;
+}
+
+.center-buttons .btn {
+    font-size: 1.2rem;  /* 20% bigger than default */
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Footer stays at the bottom */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto;
+}
+
+/* Center text inside list items */
+.list-group-item {
+    text-align: center;
+    font-size: 18px; /* Adjust size if needed */
+    font-weight: bold;
+    border: none; /* Removes borders for a cleaner look */
+    background-color: transparent; /* Keeps it visually smooth */
+}
+
+/* Remove bullet points */
+.list-group {
+    list-style: none;
+    padding: 0;
+}

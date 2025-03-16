@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Help & Support - Customer Service{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stylehelp.css') }}">
+    <script src="{{ url_for('static', filename='js/help.js') }}"></script>
+{% endblock %}
+
+<main>
+    {% block content %}
+    <div class="container mt-4">
+        <div class="faq-header">Customer Service & FAQ</div>
+        
+        <div class="center-buttons">
+            <a href="{{ url_for('routes.track_order') }}">
+                <button class="btn btn-secondary">Track Order</button>
+            </a>
+            <a href="{{ url_for('routes.StarReturn') }}">
+                <button class="btn btn-secondary">Start a Return</button>
+            </a>
+            <a href="{{ url_for('routes.chatBox') }}">
+                <button class="btn btn-secondary">Virtual Assistant</button>
+            </a>
+        </div>        
+
+        <div class="row">
+            <div class="col-md-3">
+                <ul class="list-group">
+                    <li class="list-group-item active">Top Questions</li>
+                    <li class="list-group-item">1.Orders & Delivery</li>
+                    <li class="list-group-item">2.Returns and Refunds</li>
+                    <li class="list-group-item">3.Payment & Promotions</li>
+                    <li class="list-group-item">4.Managing My Account</li>
+                    <li class="list-group-item">5.Size Guide</li>
+                    <li class="list-group-item">6.Contact Us</li>
+                    <li class="list-group-item">7.Legal & Data Protection</li>
+                </ul>
+            </div>
+            <div class="col-md-9">
+                <h4 class="list-group-item active">Frequently Asked Questions</h4>
+            
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-question">Where is my order?</div>
+                        <div class="accordion-answer">
+                            You can track your order <a href="#">here</a>. Orders are dispatched within 24 hours and can be tracked once shipped.
+                        </div>
+                    </div>
+            
+                    <div class="accordion-item">
+                        <div class="accordion-question">Can I cancel or edit my order?</div>
+                        <div class="accordion-answer">
+                            Once an order is placed, it is processed immediately. Unfortunately, changes or cancellations are not possible after processing.
+                        </div>
+                    </div>
+            
+                    <div class="accordion-item">
+                        <div class="accordion-question">I received a faulty item, what do I do?</div>
+                        <div class="accordion-answer">
+                            Contact our support team with your order details and an image of the faulty item for a quick resolution.
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div> 
+    </div>
+{% endblock %}
+
+</main>
+
+    

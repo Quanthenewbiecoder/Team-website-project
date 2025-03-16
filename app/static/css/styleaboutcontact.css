@@ -35,10 +35,20 @@ footer {
     margin-top: auto;
     text-align: center;
     padding: 10px;
-    background-color: #f1f1f1;
+    background: #f1f1f1;
     width: 100%;
+    position: relative;
 }
 
+/* Main content should take available space */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column;
+    text-align: center;
+}
 
 .logo img {
     width: 100%;

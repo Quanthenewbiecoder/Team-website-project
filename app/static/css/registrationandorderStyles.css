@@ -109,3 +109,30 @@ body {
         flex: 1 1 100px;
     }
 }
+
+/* Ensure full height layout */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main content should take available space */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    flex-direction: column;
+    text-align: center;
+}
+
+/* Ensure footer sticks to the bottom */
+footer {
+    text-align: center;
+    padding: 10px;
+    background: #f1f1f1;
+    width: 100%;
+    position: relative;
+}
