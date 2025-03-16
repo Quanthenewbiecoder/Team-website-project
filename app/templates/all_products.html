@@ -178,7 +178,7 @@ Products - The Divine
     <div class="modal-content">
         <span class="close-modal" onclick="closeProductModal()">&times;</span>
         <h2 id="product-modal-title">Add Product</h2>
-        <form id="product-form">
+        <form id="product-form" enctype="multipart/form-data">
             <input type="hidden" id="product-id">
             <div class="form-group">
                 <label for="product-name">Name</label>
@@ -196,12 +196,24 @@ Products - The Divine
                 <label for="product-collection">Collection</label>
                 <input type="text" id="product-collection">
             </div>
+            
+            <!-- Image Upload Section -->
             <div class="form-group">
-                <label for="product-image">Image URL</label>
-                <input type="text" id="product-image">
+                <label>Upload Image</label>
+                <div id="image-drop-area" class="image-upload-area">
+                    <p>Drag & Drop or Click to Upload</p>
+                    <input type="file" id="product-image-file" accept="image/*">
+                    <img id="preview-image" src="" alt="Preview" style="max-width: 100px; display: none;">
+                </div>
             </div>
+        
+            <div class="form-group">
+                <label for="product-instock">In Stock</label>
+                <input type="checkbox" id="product-instock" checked>
+            </div>
+        
             <button type="submit" class="btn-primary">Save Product</button>
-        </form>
+        </form>                
     </div>
 </div>
 

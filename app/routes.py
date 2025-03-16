@@ -13,6 +13,8 @@ from pymongo import DESCENDING  # Import DESCENDING for sorting
 import json
 from bson.errors import InvalidId
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
+import os
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -1000,28 +1002,53 @@ def get_product(product_id):
     product["_id"] = str(product["_id"])
     return jsonify({"success": True, "product": product}), 200
 
+# Define the absolute path where images will be saved
+UPLOAD_FOLDER = r"C:\Users\zstro\OneDrive\Documents\GitHub\Team-website-project\app\static\images"
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-@routes_bp.route('/api/products', methods=['POST'])
+# Ensure the upload directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@routes_bp.route("/api/products", methods=["POST"])
 @login_required
-@role_required('admin', 'staff')
+@role_required("admin", "staff")
 def add_product():
-    """Add a new product via JSON request."""
     try:
-        data = request.json
+        name = request.form.get("name")
+        price = float(request.form.get("price", 0))
+        product_type = request.form.get("type", "")
+        collection = request.form.get("collection", None)
+        in_stock = request.form.get("in_stock") == "true"
+
+        image_url = None
+
+        # Handle Image Upload
+        if "image" in request.files:
+            file = request.files["image"]
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                save_path = os.path.join(UPLOAD_FOLDER, filename)
+                file.save(save_path)  # Save image to absolute path
+                image_url = f"/static/images/{filename}"  # Store relative path in MongoDB
+
+        # Create product document
         new_product = {
-            "name": data.get("name"),
-            "type": data.get("type", ""),
-            "price": float(data.get("price", 0)),
-            "description": data.get("description", ""),
-            "image_url": data.get("image_url", ""),
-            "in_stock": data.get("in_stock", True)
+            "name": name,
+            "type": product_type,
+            "price": price,
+            "collection": collection,
+            "image_url": image_url,
+            "in_stock": in_stock
         }
+
         result = mongo.db.products.insert_one(new_product)
         return jsonify({"success": True, "message": "Product added", "product_id": str(result.inserted_id)}), 201
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @routes_bp.route('/api/products/<product_id>', methods=['PUT'])
 @login_required
@@ -1051,12 +1078,38 @@ def update_product(product_id):
 @login_required
 @role_required('admin', 'staff')
 def delete_product(product_id):
-    """Delete a product by ID."""
+    """Delete a product and optionally remove its image."""
     try:
-        result = mongo.db.products.delete_one({"_id": ObjectId(product_id)})
-        if result.deleted_count == 0:
+        product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+
+        if not product:
             return jsonify({"success": False, "error": "Product not found"}), 404
-        return jsonify({"success": True, "message": "Product deleted"}), 200
+
+        # Check if the product has an associated image
+        image_path = product.get("image_url")
+        image_deleted = False
+
+        # Ask the frontend whether to delete the image or keep it
+        delete_image = request.args.get("delete_image", "false").lower() == "true"
+
+        # Delete the product from the database
+        result = mongo.db.products.delete_one({"_id": ObjectId(product_id)})
+
+        if result.deleted_count > 0:
+            if delete_image and image_path:
+                abs_image_path = os.path.join(UPLOAD_FOLDER, os.path.basename(image_path))
+
+                if os.path.exists(abs_image_path):
+                    os.remove(abs_image_path)  # Delete the image file
+                    image_deleted = True
+
+            return jsonify({
+                "success": True,
+                "message": "Product deleted",
+                "image_deleted": image_deleted
+            }), 200
+
+        return jsonify({"success": False, "error": "Product deletion failed"}), 500
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
