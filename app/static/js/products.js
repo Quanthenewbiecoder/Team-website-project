@@ -109,6 +109,63 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Attach "Add to Cart" button events
+    function attachAddToCartEvents() {
+        document.querySelectorAll('.add-btn').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = this.getAttribute('data-price');
+                const productImage = this.closest('.Product').querySelector('img').src;
+
+                addToCart(productId, productName, parseFloat(productPrice), productImage);
+            });
+        });
+    }
+
+    // Function to add item to cart
+    function addToCart(id, name, price, image) {
+        try {
+            let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
+
+            if (cart[id]) {
+                cart[id].quantity += 1;
+            } else {
+                cart[id] = {
+                    name: name,
+                    price: parseFloat(price),
+                    quantity: 1,
+                    image: image
+                };
+            }
+
+            sessionStorage.setItem('divinecart', JSON.stringify(cart));
+            showNotification(`${name} added to cart`);
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+        }
+    }
+
+    // Function to show notification when adding to cart
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'cart-notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+
     // Toggle filter dropdown
     window.toggleFilter = function (header) {
         const content = header.nextElementSibling;
