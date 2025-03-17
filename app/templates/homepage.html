@@ -43,10 +43,9 @@
     </div>
 </section>
 
-<!-- Newsletter Popup Modal -->
 <div id="newsletter-popup" class="newsletter-popup">
     <div class="popup-content">
-        <span class="close-btn" id="close-popup">&times;</span> <!-- X Button -->
+        <span class="close-btn" id="close-popup">&times;</span>
         <img src="{{ url_for('static', filename='images/news_popup.png') }}" alt="Newsletter" class="popup-image">
         <h2>Subscribe to Our Newsletter</h2>
         <p>Get the latest updates and exclusive offers directly to your inbox!</p>
@@ -59,6 +58,6 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Link the external JavaScript file -->
-<script src="{{ url_for('static', filename='js/newsletter.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
 {% endblock %}
