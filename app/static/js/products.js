@@ -82,17 +82,101 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
+                <div class="reviews" id="reviews-${product.id}">Loading reviews...</div>
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
             `;
     
             productsGrid.appendChild(productElement);
+
+            fetchProductReviews(product.id);
         });
-    
+        
+        attachProductNavigation();
         attachDeleteEventListeners();
         attachAddToCartEvents();
     }    
+
+    async function fetchProductReviews(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}/reviews`);
+            const reviews = await response.json();
+            const reviewsContainer = document.getElementById(`reviews-${productId}`);
+
+            if (reviews.length === 0) {
+                reviewsContainer.innerHTML = "<p>No reviews yet.</p>";
+                return;
+            }
+
+            let reviewsHTML = "<strong>Reviews:</strong><ul>";
+            reviews.forEach(review => {
+                reviewsHTML += `<li>⭐ ${review.rating}/5 - ${review.review} <em>(${review.created_at})</em></li>`;
+            });
+            reviewsHTML += "</ul>";
+
+            reviewsContainer.innerHTML = reviewsHTML;
+        } catch (error) {
+            console.error(`Error loading reviews for product ${productId}:`, error);
+            const reviewsContainer = document.getElementById(`reviews-${productId}`);
+            reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
+        }
+    }
+
+    async function submitReview(event, productId) {
+        event.preventDefault();  // Prevent the default form submission
+    
+        const reviewText = document.querySelector(`#review-text-${productId}`).value.trim();
+        const rating = document.querySelector(`#review-rating-${productId}`).value;
+    
+        if (!reviewText || !rating) {
+            alert("Please enter both a review and a rating.");
+            return;
+        }
+    
+        try {
+            const response = await fetch(`/products/${productId}/review`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    review: reviewText,
+                    rating: rating
+                })
+            });
+    
+            if (response.ok) {
+                alert("Review submitted successfully!");
+                location.reload();  // Refresh page to show the new review
+            } else {
+                const data = await response.json();
+                alert(data.error || "Failed to submit review.");
+            }
+        } catch (error) {
+            console.error("Error submitting review:", error);
+            alert("An error occurred while submitting your review.");
+        }
+    }    
+
+    function attachProductNavigation() {
+        document.querySelectorAll(".Product").forEach(product => {
+            product.addEventListener("click", function (e) {
+                if (e.target.classList.contains("add-btn")) {
+                    return;
+                }
+                const productId = this.getAttribute("data-id");
+        
+                if (!productId || productId.trim() === "") {
+                    console.error("Invalid Product ID detected!");
+                    return;
+                }
+                
+                window.location.href = `/products/${productId}`;
+
+            });
+        });
+    }
 
     // Attach delete button event listeners
     function attachDeleteEventListeners() {

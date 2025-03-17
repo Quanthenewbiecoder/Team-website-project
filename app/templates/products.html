@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - The Divine{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/products_page.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <div class="product-image">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}">
+    </div>
+    <div class="product-info">
+        <h1>{{ product.name }}</h1>
+        <p class="price">Price: £{{ "%.2f"|format(product.price) }}</p>
+        <p class="collection">Collection: {{ product.collection if product.collection else "None" }}</p>
+        <p class="availability">
+            Availability: 
+            {% if product.in_stock %}
+                <span class="in-stock">In Stock</span>
+            {% else %}
+                <span class="out-of-stock">Out of Stock</span>
+            {% endif %}
+        </p>
+        <p class="description">{{ product.description }}</p>
+    </div>
+</div>
+
+<!-- Review Section -->
+<div class="review-section">
+    <h2>Customer Reviews</h2>
+
+    <!-- Existing Reviews -->
+    <div class="reviews">
+        {% if reviews %}
+            {% for review in reviews %}
+                <div class="review">
+                    <p><strong>Rating:</strong> ⭐ {{ review.rating }}</p>
+                    <p>{{ review.review }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews yet. Be the first to leave a review!</p>
+        {% endif %}
+    </div>
+
+    <!-- Review Form -->
+    <h3>Leave a Review</h3>
+    <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id|string) }}">
+        <label for="review">Your Review:</label>
+        <textarea name="review" id="review" rows="4" required></textarea>
+
+        <label for="rating">Rating:</label>
+        <select name="rating" id="rating" required>
+            <option value="5">⭐ 5 - Excellent</option>
+            <option value="4">⭐ 4 - Very Good</option>
+            <option value="3">⭐ 3 - Average</option>
+            <option value="2">⭐ 2 - Poor</option>
+            <option value="1">⭐ 1 - Terrible</option>
+        </select>
+
+        <button type="submit">Submit Review</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -9,7 +9,7 @@
 {% block content %}
 <div class="cart-header">
     <h1 class="section-title">My Shopping Basket</h1>
-    <a href="{{ url_for('routes.products') }}" class="btn-primary" style="width: auto; display: inline-block; padding: 8px 15px;">
+    <a href="{{ url_for('routes.all_products') }}" class="btn-primary" style="width: auto; display: inline-block; padding: 8px 15px;">
         Continue Shopping
     </a>
 </div>
@@ -22,7 +22,7 @@
                 <div class="empty-cart-icon">🛒</div>
                 <h3>Your basket is empty</h3>
                 <p>Browse our collections and add some beautiful pieces to your basket.</p>
-                <a href="{{ url_for('routes.products') }}" class="btn-primary continue-shopping">Shop Now</a>
+                <a href="{{ url_for('routes.all_products') }}" class="btn-primary continue-shopping">Shop Now</a>
             </div>
         </div>
 

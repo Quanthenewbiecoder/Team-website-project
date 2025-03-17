@@ -174,20 +174,27 @@ def crystalcollection():
         return f"Error: {str(e)}", 500
 
 # Route to display all products or a single product
-@routes_bp.route('/products/', defaults={'product_id': None}, methods=['GET'])
+@routes_bp.route('/products', methods=['GET'])
+def all_products():
+    """Render the shop page with all products."""
+    all_products = list(mongo.db.products.find())
+    return render_template('all_products.html', products=all_products)
+
+
 @routes_bp.route('/products/<string:product_id>', methods=['GET'])
 def products(product_id):
-    if product_id is None:
-        all_products = list(mongo.db.products.find())
-        return render_template('all_products.html', products=all_products, now=datetime.now())
+    """Render the product details page."""
+    if not product_id or not ObjectId.is_valid(product_id):
+        flash("Invalid Product ID.", "danger")
+        return redirect(url_for('routes.all_products'))  # Redirect back to shop page
+    
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
 
-    product = mongo.db.products.find_one({"_id": product_id})
     if not product:
         flash("Product not found.", "danger")
-        return redirect(url_for('routes.products'))
+        return redirect(url_for('routes.all_products'))
 
     product_reviews = list(mongo.db.reviews.find({"product_id": product_id}))
-
     return render_template('products.html', product=product, reviews=product_reviews)
 
 # API Route to fetch all products
@@ -220,25 +227,33 @@ def api_products():
     return jsonify({"success": True, "products": product_list}), 200
 
 # Route to add or edit a review (User can only post one review per product)
-@routes_bp.route('/products/<int:product_id>/review', methods=['POST'])
-@login_required  #  Ensures only logged-in users can access
+@routes_bp.route('/products/<string:product_id>/review', methods=['POST'])
+@login_required
 def add_review(product_id):
-    product = mongo.db.products.find_one({"_id": product_id})
+    """Handles adding/updating a review for a product"""
+    print(f"🚀 Review submitted for product: {product_id}")
+    print(f"🔍 Request Method: {request.method}")
+    print(f"📝 Form Data: {request.form}")
+
+    if not ObjectId.is_valid(product_id):
+        return jsonify({"error": "Invalid Product ID"}), 400
+
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
     if not product:
-        flash("Product not found.", "danger")
-        return redirect(url_for('routes.products', product_id=product_id))
+        return jsonify({"error": "Product not found"}), 404
 
     review_text = request.form.get('review')
     rating = request.form.get('rating')
 
     if not review_text or not rating:
-        flash('Review and rating are required.', 'error')
-        return redirect(url_for('routes.products', product_id=product_id))
+        return jsonify({"error": "Review and rating are required."}), 400
 
-    rating = int(rating)
-    if rating < 1 or rating > 5:
-        flash("Rating must be between 1 and 5.", "error")
-        return redirect(url_for('routes.products', product_id=product_id))
+    try:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            return jsonify({"error": "Rating must be between 1 and 5."}), 400
+    except ValueError:
+        return jsonify({"error": "Invalid rating value."}), 400
 
     existing_review = mongo.db.reviews.find_one({"product_id": product_id, "user_id": current_user.get_id()})
     if existing_review:
@@ -246,7 +261,7 @@ def add_review(product_id):
             {"_id": existing_review["_id"]},
             {"$set": {"review": review_text, "rating": rating, "created_at": datetime.utcnow()}}
         )
-        flash('Review updated successfully!', 'success')
+        return jsonify({"message": "Review updated successfully!"}), 200
     else:
         mongo.db.reviews.insert_one({
             "product_id": product_id,
@@ -255,35 +270,39 @@ def add_review(product_id):
             "rating": rating,
             "created_at": datetime.utcnow()
         })
-        flash('Review added successfully!', 'success')
+        return jsonify({"message": "Review added successfully!"}), 201
 
-    return redirect(url_for('routes.products', product_id=product_id))
 
 # Route to delete a review (Allows user to review again after deleting)
-@routes_bp.route('/products/<int:product_id>/review/delete', methods=['POST'])
-@login_required  #  Ensures only logged-in users can delete reviews
+@routes_bp.route('/products/<string:product_id>/review/delete', methods=['POST'])
+@login_required
 def delete_review(product_id):
+    if not ObjectId.is_valid(product_id):
+        flash("Invalid Product ID.", "danger")
+        return redirect(url_for('routes.all_products'))
+
     mongo.db.reviews.delete_one({"product_id": product_id, "user_id": current_user.get_id()})
     flash("Your review has been deleted.", "success")
     return redirect(url_for('routes.products', product_id=product_id))
 
-
 # API Route to fetch reviews for a product
-@routes_bp.route('/api/products/<int:product_id>/reviews', methods=['GET'])
+@routes_bp.route('/api/products/<string:product_id>/reviews', methods=['GET'])
 def api_reviews(product_id):
-    product = Product.query.get_or_404(product_id)
-    product_reviews = Review.query.filter_by(product_id=product.id).all()
+    if not ObjectId.is_valid(product_id):
+        return jsonify({"error": "Invalid Product ID"}), 400
+
+    product_reviews = list(mongo.db.reviews.find({"product_id": product_id}))
 
     reviews_list = [{
-        "id": review.id,
-        "product_id": review.product_id,
-        "user_id": review.user_id,  # Include user ID for frontend checks
-        "review": review.review,
-        "rating": review.rating,
-        "created_at": review.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        "id": str(review["_id"]),
+        "product_id": review["product_id"],
+        "user_id": review["user_id"],  # Include user ID for frontend checks
+        "review": review["review"],
+        "rating": review["rating"],
+        "created_at": review["created_at"].strftime("%Y-%m-%d %H:%M:%S")
     } for review in product_reviews]
 
-    return jsonify(reviews_list)
+    return jsonify({"success": True, "reviews": reviews_list}), 200
 
 
 @routes_bp.route('/leafcollection')
@@ -303,7 +322,7 @@ def pearlcollection():
         return f"Error: {str(e)}", 500
     
     
-@routes_bp.route('/product/<int:product_id>/care_instructions')
+@routes_bp.route('/product/<string:product_id>/care_instructions')
 def product_care_instructions(product_id):
     return render_template('care_instructions.html', product_id=product_id)
 
@@ -317,7 +336,7 @@ def basket():
 
     if shopping_basket:
         for product_id, item in shopping_basket.items():
-            product = mongo.db.products.find_one({"_id": product_id})
+            product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
             if product:
                 cart_items.append({
                     "id": product_id,
@@ -535,7 +554,7 @@ def history():
     return render_template('history.html', orders=orders)
 
 # Reviews and Feedback
-@routes_bp.route('/product/<int:product_id>/reviews')
+@routes_bp.route('/product/<string:product_id>/reviews')
 def product_reviews(product_id):
     return render_template('product_reviews.html', product_id=product_id)
 
@@ -1139,7 +1158,7 @@ def reports():
     return render_template('reports.html')
 
 # Product Customization
-@routes_bp.route('/product/<int:product_id>/customize', methods=['GET', 'POST'])
+@routes_bp.route('/product/<string:product_id>/customize', methods=['GET', 'POST'])
 @login_required
 def customize_product(product_id):
     return render_template('customize_product.html', product_id=product_id)
