@@ -24,6 +24,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    document.addEventListener("DOMContentLoaded", async function () {
+        await fetchProducts(); // Ensures products are loaded before filtering
+    
+        if (filterForm) {
+            filterForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                applyFilters();
+            });
+        }
+    });
+
     // Fetch and display products
     async function fetchProducts() {
         await fetchCurrentUser();
@@ -31,20 +42,31 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const response = await fetch('/api/products');
             const data = await response.json();
-
-            if (data.success) {
+    
+            if (data.success && Array.isArray(data.products)) {
                 allProducts = data.products;
                 updateProductList(allProducts); // Show all products initially
             } else {
-                console.error("Error fetching products:", data.error);
+                console.error("Error fetching products:", data.error || "Invalid data format");
+                allProducts = []; // Ensure allProducts is an empty array instead of undefined
+                
             }
         } catch (error) {
             console.error("Fetch error:", error);
+            allProducts = []; // Prevent undefined issue
+            
         }
-    }
+
+        updateProductList(allProducts);
+    }    
     
     // Update product list in UI
     function updateProductList(products) {
+        if (!Array.isArray(products)) {
+            console.error("Error: products is not an array.", products);
+            products = []; // Default to empty array to avoid errors
+        }
+        
         productsGrid.innerHTML = "";
     
         if (products.length === 0) {
@@ -82,15 +104,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <div class="reviews" id="reviews-${product.id}">Loading reviews...</div>
                 <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
                     Add to Cart
                 </button>
             `;
     
             productsGrid.appendChild(productElement);
-
-            fetchProductReviews(product.id);
         });
         
         attachProductNavigation();
@@ -119,7 +138,6 @@ document.addEventListener("DOMContentLoaded", function () {
         } catch (error) {
             console.error(`Error loading reviews for product ${productId}:`, error);
             const reviewsContainer = document.getElementById(`reviews-${productId}`);
-            reviewsContainer.innerHTML = "<p>Error loading reviews.</p>";
         }
     }
 
@@ -306,7 +324,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Function to apply filters
     function applyFilters() {
-        if (allProducts.length === 0) return;
+        if (!Array.isArray(allProducts)) {
+            console.error("Error: allProducts is not an array or is undefined.", allProducts);
+            allProducts = []; // Set it to an empty array to prevent errors
+        }
+    
+        if (allProducts.length === 0) {
+            showEmptyState();
+            return;
+        }
 
         const searchQuery = searchInput.value.toLowerCase().trim();
         const selectedCollection = document.querySelector('input[name="collections"]:checked')?.value || 'None';
@@ -358,23 +384,25 @@ document.addEventListener("DOMContentLoaded", function () {
         
 
         // Show/hide "no results found" message
-        if (filteredProducts.length === 0) {
-            showEmptyState();
-        } else {
-            hideEmptyState();
-        }
     }
 
     // Function to sort products
     function sortProducts(products, sortOption) {
-        products.sort((a, b) => {
-            const priceA = parseFloat(a.price);
-            const priceB = parseFloat(b.price);
-            return sortOption === 'HighLow' ? priceB - priceA : priceA - priceB;
-        });
-
-        updateProductList(products);
-    }
+        if (!Array.isArray(products)) {
+            console.error("Error: products is not an array before sorting.", products);
+            return []; // Prevent errors
+        }
+    
+        let sortedProducts = [...products]; // Copy to avoid mutating original array
+    
+        if (sortOption === 'HighLow') {
+            sortedProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        } else if (sortOption === 'LowHigh') {
+            sortedProducts.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        }
+    
+        return sortedProducts;
+    }    
 
     // Show or hide empty state
     function showEmptyState() {

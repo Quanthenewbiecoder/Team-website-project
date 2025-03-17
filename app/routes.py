@@ -1067,7 +1067,7 @@ def add_product():
                 filename = secure_filename(file.filename)
                 save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)  # FIXED HERE
                 file.save(save_path)  # Save image to dynamically set UPLOAD_FOLDER
-                image_url = f"/static/images/{filename}"  # Store relative path in MongoDB
+                image_url = f"images/{filename}"  # Store relative path in MongoDB
 
         # Create product document
         new_product = {
