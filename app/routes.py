@@ -20,18 +20,24 @@ import os
 routes_bp = Blueprint('routes', __name__)
 
 # Role-based access control decorator
+from functools import wraps
+from flask import jsonify
+from flask_login import current_user
+
 def role_required(*roles):
-    def wrapper(f):
+    """Ensure the current user has one of the specified roles."""
+    def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated:
-                return redirect(url_for('routes.login'))
+                return jsonify({"success": False, "error": "Unauthorized. Please log in."}), 401
+            
             if current_user.role not in roles:
-                flash("Access denied.", "danger")
-                return redirect(url_for('routes.home'))
+                return jsonify({"success": False, "error": "Forbidden. You do not have permission."}), 403
+
             return f(*args, **kwargs)
         return decorated_function
-    return wrapper
+    return decorator
 
 @routes_bp.context_processor
 def utility_processor():
@@ -195,16 +201,17 @@ def api_products():
 
         # Ensure images are correctly prefixed with "/static/images/"
         if image_filename and not image_filename.startswith("/static/images/"):
-            image_url = url_for("static", filename=f"images/{os.path.basename(image_filename)}")
+            image_url = f"/static/images/{os.path.basename(image_filename)}"
         else:
-            image_url = image_filename  # If it's already correct
+            image_url = image_filename  # If already correct
+
 
         product_list.append({
             "id": str(product["_id"]),
             "name": product.get("name", "No Name"),
             "type": product.get("type", "Unknown"),
             "price": float(product.get("price", 0)),
-            "image_url": image_url,  # 🔥 FIXED path
+            "image_url": image_url,  # FIXED path
             "collection": product.get("collection", "None"),
             "description": product.get("description", ""),
             "in_stock": bool(product.get("in_stock", False))
@@ -384,7 +391,7 @@ def payment():
             # Clear shopping basket
             shopping_basket.clear()
 
-            # 🔥 Fix: Redirect to success page with tracking number
+            # Fix: Redirect to success page with tracking number
             return redirect(url_for('routes.payment_success', order_id=order_id))
 
         except Exception as e:
@@ -418,12 +425,18 @@ def payment_success(order_id):
         return redirect(url_for('routes.home'))
 
 @routes_bp.route('/api/get-current-user', methods=['GET'])
-@login_required  # Ensure user is logged in
+@login_required  # Ensure only logged-in users can access
 def get_current_user():
-    """Fetch current logged-in user from the database."""
-    if current_user.is_authenticated:
-        return jsonify({'success': True, 'user': {'email': current_user.email}})
-    return jsonify({'success': False, 'error': 'User not logged in'}), 401
+    """Fetch the logged-in user's details."""
+    return jsonify({
+        'success': True,
+        'user': {
+            'id': str(current_user.get_id()),  # Use get_id() for Flask-Login
+            'email': current_user.email,
+            'username': current_user.username,
+            'role': current_user.role  # Important for authorization
+        }
+    }), 200
 
 @routes_bp.route('/basket/add', methods=['POST'])
 def add_to_basket():
@@ -1081,6 +1094,9 @@ def update_product(product_id):
 @role_required('admin', 'staff')
 def delete_product(product_id):
     """Delete a product and optionally remove its image."""
+    if current_user.role not in ["admin", "staff"]:
+        return jsonify({"success": False, "error": "Forbidden"}), 403
+    
     try:
         product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
 

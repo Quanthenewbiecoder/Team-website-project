@@ -8,9 +8,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("Search");
     const filterForm = document.getElementById("Form");
     let allProducts = [];
+    let currentUserRole = null;
+
+    async function fetchCurrentUser() {
+        try {
+            const response = await fetch('/api/get-current-user', { credentials: 'include' });
+            const data = await response.json();
+
+            if (data.success) {
+                currentUserRole = data.user.role;
+                console.log("User role:", currentUserRole); // Debugging
+            }
+        } catch (error) {
+            console.error("Error fetching user:", error);
+        }
+    }
 
     // Fetch and display products
     async function fetchProducts() {
+        await fetchCurrentUser();
+        
         try {
             const response = await fetch('/api/products');
             const data = await response.json();
@@ -25,37 +42,42 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Fetch error:", error);
         }
     }
-
+    
     // Update product list in UI
     function updateProductList(products) {
         productsGrid.innerHTML = "";
-
+    
         if (products.length === 0) {
             showEmptyState();
             return;
         }
-
+    
         products.forEach(product => {
             let imageUrl = product.image_url;
-
-            // Fix incorrect image paths
-            if (imageUrl.includes("/products/images/")) {
-                imageUrl = imageUrl.replace("/products/images/", "/static/images/");
+    
+            if (!imageUrl.startsWith("/static/images/")) {
+                imageUrl = `/static/images/${imageUrl.split('/').pop()}`;
             }
-
-            // Fallback image
+    
+            // Fallback image if missing
             if (!imageUrl || imageUrl.trim() === "") {
                 imageUrl = "/static/images/default.jpg";
             }
-
+    
             const productElement = document.createElement("div");
             productElement.classList.add("Product");
             productElement.dataset.id = product.id;
             productElement.dataset.type = product.type;
             productElement.dataset.collection = product.collection;
-
+    
+            // Only show delete button if user is admin/staff
+            let deleteButtonHTML = "";
+            if (currentUserRole === "admin" || currentUserRole === "staff") {
+                deleteButtonHTML = `<button class="btn-delete" data-id="${product.id}">Delete</button>`;
+            }
+    
             productElement.innerHTML = `
-                <button class="btn-delete" data-id="${product.id}">Delete</button>
+                ${deleteButtonHTML}
                 <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/images/default.jpg';">
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
@@ -64,13 +86,13 @@ document.addEventListener("DOMContentLoaded", function () {
                     Add to Cart
                 </button>
             `;
-
+    
             productsGrid.appendChild(productElement);
         });
-
+    
         attachDeleteEventListeners();
         attachAddToCartEvents();
-    }
+    }    
 
     // Attach delete button event listeners
     function attachDeleteEventListeners() {
@@ -90,17 +112,29 @@ document.addEventListener("DOMContentLoaded", function () {
     async function deleteProduct(productId) {
         if (!confirm("Are you sure you want to delete this product?")) return;
         const deleteImage = confirm("Would you like to delete the image as well?");
-
+        
         try {
             const response = await fetch(`/api/products/${productId}?delete_image=${deleteImage}`, {
                 method: "DELETE",
+                credentials: "include",
             });
 
             const data = await response.json();
 
+            if (response.status === 401) {
+                alert("You must be logged in to delete products.");
+                window.location.href = "/login";
+                return;
+            }
+
+            if (response.status === 403) {
+                alert("You do not have permission to delete this product.");
+                return;
+            }
+
             if (data.success) {
                 alert("Product deleted successfully!");
-                fetchProducts(); // Re-fetch products after deletion
+                fetchProducts();
             } else {
                 alert("Error: " + data.error);
             }
