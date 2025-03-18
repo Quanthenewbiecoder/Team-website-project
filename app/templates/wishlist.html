@@ -1,43 +1,28 @@
 {% extends 'base.html' %}
 
-{% block title %}Favourites | The Divine Jewelers | Jewelry That Sparkles with Grace{% endblock %}
+{% block title %}Wishlist | The Divine Jewelry{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styleaboutcontact.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/wishlist.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
-<header class="contact-header" style="background-image: url'{{ url_for('static', filename='images/background/cont2jpg') }}';">
-  <div class="header-content">
-    <h1 style="margin-top: 55px;">Favorite Items</h1>
+<div class="wishlist-container">
+  <div class="wishlist-header">
+    <h1>Your Wishlist</h1>
+    <p>Items you've saved for later</p>
   </div>
-</header>
-
-{% if wishlist and wishlist|length > 0 %}
-  <section class="featured-items">
-    <div class="featured-container">
-      <div class="cards">
-        {% for product in wishlist %}
-          <div class="card">
-            <button type="button" class="button-heart is-active">
-              <svg width="25" height="22" viewBox="0 0 18 16" class="svg-heart">
-                <path d="M9.01163699,14.9053769 C8.72930024,14.7740736 8.41492611,14.6176996 8.07646224,14.4366167 C7.06926649,13.897753 6.06198912,13.2561336 5.12636931,12.5170512 C2.52930452,10.4655288 1.00308384,8.09476443 1.00000218,5.44184117 C0.997549066,2.99198843 2.92175104,1.01242822 5.28303025,1.01000225 C6.41066623,1.00972036 7.49184369,1.4629765 8.28270844,2.2678673 L8.99827421,2.9961237 L9.71152148,2.26559643 C10.4995294,1.45849728 11.5791258,1.0023831 12.7071151,1.00000055 L12.7060299,1.00000225 C15.0693815,0.997574983 16.9967334,2.97018759 17.0000037,5.421337 C17.0038592,8.07662382 15.4809572,10.4530151 12.8850542,12.5121483 C11.9520963,13.2521931 10.9477036,13.8951276 9.94340074,14.4354976 C9.60619585,14.6169323 9.29297309,14.7736855 9.01163699,14.9053769 Z" stroke="#FF0000" stroke-width="1"/>
-              </svg>
-            </button>
-            <img src="{{ url_for('static', filename=product.image_path) }}" alt="{{ product.name }}" onclick="openPopup(this)">
-            <h3>{{ product.name }}</h3>
-            <p class="price">${{ product.price }}</p>
-          </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-{% else %}
-  <section class="empty-wishlist">
-    <p>Your wishlist is empty.</p>
-    <p>Click the heart on a product to add it to your favorites!</p>
-  </section>
-{% endif %}
+  
+  <div id="wishlist-grid" class="wishlist-grid">
+  </div>
+  
+  <div id="empty-wishlist" class="empty-wishlist" style="display: none;">
+    <div class="empty-wishlist-icon">❤️</div>
+    <h3>Your wishlist is empty</h3>
+    <p>Save items you love by clicking the heart icon on any product</p>
+    <a href="{{ url_for('routes.all_products') }}" class="browse-products-btn">Browse Products</a>
+    
 {% endblock %}
 
 {% block scripts %}
