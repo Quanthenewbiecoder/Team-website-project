@@ -228,6 +228,24 @@ Products - The Divine
     </div>
 </div>
 
+{% for product in products %}
+<div class="Product" data-id="{{ product.id }}" data-type="{{ product.type }}" data-collection="{{ product.collection }}">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+    
+    {% if current_user.is_authenticated %}
+    <button class="wishlist-btn" data-id="{{ product.id }}">
+        <i class="fas fa-heart"></i>
+    </button>
+    {% endif %}
+    
+    <h3>{{ product.name }}</h3>
+    <p class="price">£{{ "%.2f"|format(product.price) }}</p>
+    <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+        Add to Cart
+    </button>
+</div>
+{% endfor %}
+
 {% endblock %}
 
 {% block scripts %}

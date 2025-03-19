@@ -26,25 +26,27 @@
     </div>
 
     <ul class="menu">
-        <li><a href="{{ url_for('routes.home') }}">Home</a></li>
-        <li><a href="{{ url_for('routes.all_products') }}">Shop</a></li>
-        <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-        <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
-        <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
-        <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
-
-        {% if not current_user.is_authenticated %}
-            <li><a href="{{ url_for('routes.login') }}">Login</a></li>
-            <li><a href="{{ url_for('routes.register') }}">Register</a></li>
+      <li><a href="{{ url_for('routes.home') }}">Home</a></li>
+      <li><a href="{{ url_for('routes.all_products') }}">Shop</a></li>
+      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
+      <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
+      <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
+    
+      {% if current_user.is_authenticated %}
+        <li><a href="{{ url_for('routes.wishlist') }}">Wishlist</a></li>
+        
+        {% if current_user.role == 'admin' %}
+        <li><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
+        <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
         {% else %}
-            {% if current_user.role == 'admin' %}
-            <li><a href="{{ url_for('admin.dashboard') }}">Admin Dashboard</a></li>
-            <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
-            {% else %}
-            <li><a href="{{ url_for('routes.user_dashboard') }}">Dashboard</a></li>
-            <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
-            {% endif %}
+        <li><a href="{{ url_for('routes.user_dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('routes.logout') }}">Logout</a></li>
         {% endif %}
+      {% else %}
+        <li><a href="{{ url_for('routes.login') }}">Login</a></li>
+        <li><a href="{{ url_for('routes.register') }}">Register</a></li>
+      {% endif %}
     </ul>
 
     <div class="right-section">

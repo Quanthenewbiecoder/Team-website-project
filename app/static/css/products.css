@@ -341,3 +341,128 @@ body {
     border-bottom: none;
     padding-bottom: 0;
 }
+
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.wishlist-btn:hover {
+    background-color: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+}
+
+.wishlist-btn i {
+    color: #aaa;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.wishlist-btn:hover i {
+    color: #FF6B6B;
+}
+
+.wishlist-btn.active i {
+    color: #FF3366;
+}
+
+.Product {
+    position: relative;
+}
+
+.login-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 300px;
+    text-align: center;
+    display: none;
+}
+
+.login-popup h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2f1c0e;
+}
+
+.login-popup p {
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.login-popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.login-popup-buttons .btn-primary,
+.login-popup-buttons .btn-secondary {
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    border: none;
+}
+
+.login-popup-buttons .btn-primary {
+    background-color: #2f1c0e;
+    color: white;
+}
+
+.login-popup-buttons .btn-primary:hover {
+    background-color: #e6be73;
+}
+
+.login-popup-buttons .btn-secondary {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.login-popup-buttons .btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
+.login-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 22px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.login-popup-close:hover {
+    color: #333;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}

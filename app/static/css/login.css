@@ -170,6 +170,51 @@ ul li {
     background-color: #cfab67; /* Darker shade for active state */
 }
 
+/* Hide flash messages in HTML but they'll be used by JS */
+.login-flash-message {
+    display: none;
+}
+
+/* Login Success Notification Styles */
+.login-success-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #3d2314;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transform: translateY(-20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    font-size: 15px;
+    min-width: 200px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+}
+
+.login-success-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.login-success-notification i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.login-success-notification .login-message {
+    flex-grow: 1;
+}
+
+.login-success-notification .login-redirect {
+    font-size: 13px;
+    margin-top: 5px;
+    opacity: 0.8;
+}
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -180,5 +225,9 @@ ul li {
     .col-md-6 {
         padding-left: 0;
         margin-top: 20px;
+    }
+    
+    .login-container {
+        padding: 20px;
     }
 }

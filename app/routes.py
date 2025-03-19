@@ -49,7 +49,6 @@ def home():
     return render_template('homepage.html', now=datetime.now())
 
 
-# Authentication Routes
 @routes_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -62,14 +61,17 @@ def login():
         user = User.find_by_email(email)
         if user and user.check_password(password):
             login_user(user)
+            
+            session["session_version"] = str(user.session_version) if hasattr(user, 'session_version') else None
+            
+            next_page = request.args.get('next')
+            
             flash("Login successful!", "success")
 
-            # Redirect admins to the admin dashboard, users to user dashboard
             if user.role == "admin":
-                return redirect(url_for('routes.admin_dashboard'))
+                return redirect(next_page or url_for('routes.home'))
             else:
-                return redirect(url_for('routes.user_dashboard'))
-
+                return redirect(next_page or url_for('routes.home'))
         else:
             flash("Invalid email or password.", "danger")
 
@@ -1225,19 +1227,18 @@ def search_products():
 
     filtered_products_cursor = mongo.db.products.find(mongo_query)
 
-    filtered_products = [
-        {
+    filtered_products = []
+    for product in filtered_products_cursor:
+        filtered_products.append({
             "id": str(product["_id"]),
-            "name": product["name"],
-            "price": float(product["price"]),
-            "description": product["description"],
-            "image_url": url_for("static", filename=f"images/{product['image_url'].split('/')[-1]}"),
-            "product_type": product["type"],
+            "name": product.get("name", "No Name"),
+            "price": float(product.get("price", 0)),
+            "description": product.get("description", ""),
+            "image_url": url_for("static", filename=f"images/{product.get('image_url', '').split('/')[-1]}"),
+            "product_type": product.get("type", ""),
             "collection": product.get("collection", "None"),
-            "in_stock": product["in_stock"]
-        }
-        for product in filtered_products_cursor
-    ]
+            "in_stock": product.get("in_stock", False)
+        })
 
     return render_template('all_products.html', products=filtered_products, search_query=query)
 
@@ -1549,5 +1550,6 @@ def save_inquiry():
     return jsonify({"message": "Inquiry saved successfully!"}), 200
 
 @routes_bp.route('/wishlist')
+@login_required
 def wishlist():
     return render_template('wishlist.html')

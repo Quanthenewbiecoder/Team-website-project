@@ -2,10 +2,11 @@
 
 {% block title %}Login - The Divine{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
 
-
+{% block content %}
 <div class="login-container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
     <!-- Left Column (Login Form) -->
     <div class="card p-4 shadow-sm">
@@ -16,7 +17,17 @@
                 Please login to add items to your basket
             </div>
         {% endif %}
-        <form action="{{ url_for('routes.login', redirect=request.args.get('redirect')) }}" method="post" class="login-form">
+        
+        <!-- Add hidden div for success message that will be used by JS -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="login-flash-message {{ category }}" style="display: none;">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form action="{{ url_for('routes.login', next=request.args.get('next', '')) }}" method="post" class="login-form">
             <div class="mb-3">
                 <label for="email" class="form-label">Email Address *</label>
                 <input type="email" id="email" name="email" class="form-control" required>
@@ -36,7 +47,7 @@
                     </p>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Log in</button>
+            <button type="submit" class="btn-primary w-100">Log in</button>
         </form>
     </div>
     
@@ -51,11 +62,14 @@
                 <li> ● Check your orders</li>
                 <li> ● Manage your Collection and service orders</li>
             </ul>
-            <a href="{{ url_for('routes.register') }}" class="btn btn-primary create-account-btn">Create My Account</a>
+            <a href="{{ url_for('routes.register') }}" class="btn-primary create-account-btn">Create My Account</a>
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="The Divine" class="account-logo">
         </div>
     </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
 <script src="{{ url_for('static', filename='js/login.js') }}"></script>
 {% endblock %}

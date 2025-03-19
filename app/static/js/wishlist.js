@@ -216,3 +216,146 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     initHeartIcons();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    initWishlist();
+    
+    initWishlistButtons();
+    
+    setupWishlistListeners();
+    
+    function initWishlist() {
+        if (!localStorage.getItem('divineWishlist')) {
+            localStorage.setItem('divineWishlist', JSON.stringify([]));
+        }
+    }
+    
+    function initWishlistButtons() {
+        const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+        if (wishlistButtons.length === 0) return;
+        
+        const wishlistItems = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+        const wishlistIds = wishlistItems.map(item => item.id);
+        
+        wishlistButtons.forEach(button => {
+            const productId = button.getAttribute('data-id');
+            if (wishlistIds.includes(productId)) {
+                button.classList.add('active');
+            }
+        });
+    }
+    
+    function setupWishlistListeners() {
+        document.addEventListener('click', function(e) {
+            const target = e.target.closest('.wishlist-btn');
+            if (!target) return;
+            
+            e.preventDefault();
+            
+            const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
+            
+            if (!isLoggedIn) {
+                showLoginPopup();
+                return;
+            }
+            
+            const productId = target.getAttribute('data-id');
+            const productCard = target.closest('.Product');
+            
+            if (!productCard) return;
+            
+            const productName = productCard.querySelector('h3').textContent;
+            const priceElement = productCard.querySelector('.price');
+            const priceText = priceElement ? priceElement.textContent : '£0.00';
+            const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
+            const imageElement = productCard.querySelector('img');
+            const image = imageElement ? imageElement.src : '';
+            
+            toggleWishlistItem(target, productId, productName, price, image);
+        });
+    }
+    
+    function showLoginPopup() {
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        
+        const popup = document.createElement('div');
+        popup.className = 'login-popup';
+        
+        popup.innerHTML = `
+            <span class="login-popup-close">&times;</span>
+            <h3>Login Required</h3>
+            <p>Please log in to add items to your wishlist.</p>
+            <div class="login-popup-buttons">
+                <button class="btn-primary" id="login-btn">Login</button>
+                <button class="btn-secondary" id="cancel-btn">Cancel</button>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        document.body.appendChild(popup);
+        
+        overlay.style.display = 'block';
+        popup.style.display = 'block';
+        
+        popup.querySelector('.login-popup-close').addEventListener('click', closeLoginPopup);
+        popup.querySelector('#cancel-btn').addEventListener('click', closeLoginPopup);
+        
+        popup.querySelector('#login-btn').addEventListener('click', function() {
+            window.location.href = '/login?redirect=' + encodeURIComponent(window.location.href);
+        });
+        
+        overlay.addEventListener('click', closeLoginPopup);
+        
+        function closeLoginPopup() {
+            document.body.removeChild(popup);
+            document.body.removeChild(overlay);
+        }
+    }
+    
+    function toggleWishlistItem(button, id, name, price, image) {
+        let wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+        const index = wishlist.findIndex(item => item.id === id);
+        
+        if (index === -1) {
+            wishlist.push({
+                id: id,
+                name: name,
+                price: price,
+                image: image
+            });
+            button.classList.add('active');
+            showNotification(`${name} added to wishlist`);
+        } else {
+            wishlist.splice(index, 1);
+            button.classList.remove('active');
+            showNotification(`${name} removed from wishlist`, 'error');
+        }
+        
+        localStorage.setItem('divineWishlist', JSON.stringify(wishlist));
+    }
+    
+    function showNotification(message, type = '') {
+        const existingNotification = document.querySelector('.notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
+});
