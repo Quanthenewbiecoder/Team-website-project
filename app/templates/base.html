@@ -28,8 +28,6 @@
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
       <li><a href="{{ url_for('routes.all_products') }}">Shop</a></li>
-      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
       <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
       <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
     
@@ -47,6 +45,8 @@
         <li><a href="{{ url_for('routes.login') }}">Login</a></li>
         <li><a href="{{ url_for('routes.register') }}">Register</a></li>
       {% endif %}
+      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
     </ul>
 
     <div class="right-section">
