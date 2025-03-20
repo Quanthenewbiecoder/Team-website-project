@@ -23,10 +23,11 @@
             <div class="tracking-info">
                 <h3>Your Order Tracking Number:</h3>
                 {% if tracking_number %}
-                    <div class="tracking-number">Your Tracking Number: <strong>{{ tracking_number }}</strong></div>
+                    <div class="tracking-number">{{ tracking_number }}</strong></div>
                 {% else %}
                     <div class="tracking-number">Tracking Number Not Found</div>
                 {% endif %}
+
                 
                 <p class="tracking-note">Save this number to track your order status. You can track your order on the <a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a> page.</p>
                 <button id="copy-tracking" data-tracking="{{ tracking_number }}" class="btn-secondary">

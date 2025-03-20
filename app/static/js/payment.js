@@ -186,7 +186,7 @@ function setupFormSubmission() {
                     sessionStorage.removeItem('divinecart');
 
                     // Redirect to order tracking page
-                    window.location.href = `/payment?payment_status=success&tracking_number=${data.tracking_number}`;
+                    window.location.href = `/payment/success/${data.tracking_number}`;
                 } else {
                     alert('Error processing your order. Please try again.');
                 }

@@ -436,23 +436,40 @@ def payment():
 def payment_success(order_id):
     """Display payment success page with tracking number."""
     try:
+        print(f"DEBUG: Received order_id → {order_id}")  # Check received order_id
+
         # Check session for tracking number (used for guest users)
         tracking_number = session.pop('last_order_tracking', None)
 
-        # If tracking number is not found, fetch from MongoDB
         if not tracking_number:
-            order = mongo.db.orders.find_one(
-                {"$or": [{"_id": ObjectId(order_id)}, {"guest_order_id": order_id}]}
-            )
+            # Modify the query to include user_order_id
+            query = {"$or": [
+                {"_id": ObjectId(order_id)} if ObjectId.is_valid(order_id) else None,
+                {"guest_order_id": order_id},  # For guest orders
+                {"user_order_id": order_id}  # For registered user orders
+            ]}
+
+            # Remove None values from query (MongoDB does not allow None in `$or`)
+            query["$or"] = [q for q in query["$or"] if q is not None]
+
+            # Fetch order from database
+            order = mongo.db.orders.find_one(query)
+
             if order:
-                tracking_number = order.get("guest_order_id", str(order["_id"]))  # Guest ID or Order ID
+                print(f"DEBUG: Order found in database → {order}")  # Log found order
+                # Fetch tracking number correctly for both user and guest orders
+                tracking_number = order.get("guest_order_id") or order.get("user_order_id") or str(order["_id"])
+                print(f"DEBUG: Extracted tracking_number → {tracking_number}")  # Log extracted tracking number
             else:
-                tracking_number = None
+                print("DEBUG: No order found with given order_id")  # Log if no order found
+                tracking_number = None  # If no order is found
 
         return render_template('payment.html', 
                                payment_status='success',
                                tracking_number=tracking_number)
+
     except Exception as e:
+        print(f"ERROR: {str(e)}")  # Log error
         flash(f"Error displaying payment success: {str(e)}", "danger")
         return redirect(url_for('routes.home'))
 
