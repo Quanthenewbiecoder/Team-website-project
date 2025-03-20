@@ -20,10 +20,6 @@ import os
 routes_bp = Blueprint('routes', __name__)
 
 # Role-based access control decorator
-from functools import wraps
-from flask import jsonify
-from flask_login import current_user
-
 def role_required(*roles):
     """Ensure the current user has one of the specified roles."""
     def decorator(f):
@@ -99,21 +95,36 @@ def register():
             flash("Email already registered. Please use a different email or log in.", "error")
             return redirect(url_for('routes.register'))
 
-        new_user = User(
-            username=form.username.data,
-            email=form.email.data,
-            name=form.name.data,
-            surname=form.surname.data,
-            role='Customer',
-            password=form.password.data
-        )
+        # Generate session_version as an ObjectId
+        session_version = ObjectId()
 
-        mongo.db.users.insert_one(new_user.__dict__)
-        flash('Your account has been created! You can now log in.', 'success')
-        return redirect(url_for('routes.login'))
-    
+        new_user = {
+            "username": form.username.data,
+            "email": form.email.data,
+            "name": form.name.data,
+            "surname": form.surname.data,
+            "role": "Customer",
+            "password_hash": generate_password_hash(form.password.data),  # FIXED password hashing
+            "session_version": session_version  # Store session_version as ObjectId
+        }
+
+        # Insert user into MongoDB
+        mongo.db.users.insert_one(new_user)
+
+        # Fetch the user back and create a User object
+        user = User.find_by_email(new_user["email"])  # Ensure `find_by_email` retrieves `session_version`
+
+        if user:
+            login_user(user)  # Log in the new user
+            session["session_version"] = str(session_version)  # Store ObjectId as a string in session
+            
+            flash('Your account has been created! You are now logged in.', 'success')
+            return redirect(url_for('routes.home'))
+        else:
+            flash("Error creating account. Please try again.", "danger")
+            return redirect(url_for('routes.register'))
+
     return render_template('register.html', form=form)
-
 
 @routes_bp.route('/order-replacement', methods=['GET', 'POST'])
 @login_required
