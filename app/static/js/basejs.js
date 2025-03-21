@@ -408,3 +408,24 @@ function handleQueue(wantsQueue) {
   }
   enableInput();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateWishlistCount();
+    
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'divineWishlist') {
+        updateWishlistCount();
+      }
+    });
+  });
+  
+  function updateWishlistCount() {
+    const wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+    const count = wishlist.length;
+    
+    const countBadge = document.querySelector('.wishlist-count');
+    if (countBadge) {
+      countBadge.textContent = count;
+      countBadge.style.display = count > 0 ? 'block' : 'none';
+    }
+  }

@@ -24,24 +24,34 @@
             {% endif %}
         </p>
         <p class="description">{{ product.description }}</p>
-         <!-- ✅ Add to Basket Button -->
-        {% if product.in_stock %}
-        <button id="add-to-basket"
-                data-id="{{ product._id }}"
-                data-name="{{ product.name }}"
-                data-price="{{ product.price }}"
-                data-image="{{ url_for('static', filename=product.image_url) }}">
-            Add to Basket
-        </button>
-        {% endif %}
+        
+        <div class="product-actions">
+            {% if current_user.is_authenticated %}
+            <button id="add-to-wishlist" 
+                    data-id="{{ product._id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-image="{{ url_for('static', filename=product.image_url) }}">
+                <i class="fas fa-heart"></i> Add to Wishlist
+            </button>
+            {% endif %}
+            
+            {% if product.in_stock %}
+            <button id="add-to-basket"
+                    data-id="{{ product._id }}"
+                    data-name="{{ product.name }}"
+                    data-price="{{ product.price }}"
+                    data-image="{{ url_for('static', filename=product.image_url) }}">
+                Add to Basket
+            </button>
+            {% endif %}
+        </div>
     </div>
 </div>
 
-<!-- Review Section -->
 <div class="review-section">
     <h2>Customer Reviews</h2>
 
-    <!-- Existing Reviews -->
     <div class="reviews">
         {% if reviews %}
             {% for review in reviews %}
@@ -55,11 +65,11 @@
         {% endif %}
     </div>
 
-    <!-- Review Form -->
     <h3>Leave a Review</h3>
 
     {% if current_user.is_authenticated %}
-    <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id) }}">        <label for="review">Your Review:</label>
+    <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id) }}">
+        <label for="review">Your Review:</label>
         <textarea name="review" id="review" rows="4" required></textarea>
 
         <label for="rating">Rating:</label>
@@ -76,10 +86,76 @@
     {% else %}
     <p>You must be <a href="{{ url_for('routes.login') }}">logged in</a> to leave a review.</p>
     {% endif %}
-
-
+</div>
 {% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/product_details.js') }}"></script>
-<script src="{{ url_for('static', filename='js/admin_products.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const wishlistBtn = document.getElementById('add-to-wishlist');
+        if (wishlistBtn) {
+            const productId = wishlistBtn.getAttribute('data-id');
+            const wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+            const isInWishlist = wishlist.some(item => item.id === productId);
+            
+            if (isInWishlist) {
+                wishlistBtn.classList.add('in-wishlist');
+                wishlistBtn.innerHTML = '<i class="fas fa-heart"></i> Remove from Wishlist';
+            }
+            
+            wishlistBtn.addEventListener('click', function() {
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = this.getAttribute('data-price');
+                const productImage = this.getAttribute('data-image');
+                
+                const wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+                const index = wishlist.findIndex(item => item.id === productId);
+                
+                if (index === -1) {
+                    wishlist.push({
+                        id: productId,
+                        name: productName,
+                        price: parseFloat(productPrice),
+                        image: productImage
+                    });
+                    
+                    this.classList.add('in-wishlist');
+                    this.innerHTML = '<i class="fas fa-heart"></i> Remove from Wishlist';
+                    showNotification(`${productName} added to wishlist`);
+                } else {
+                    wishlist.splice(index, 1);
+                    this.classList.remove('in-wishlist');
+                    this.innerHTML = '<i class="fas fa-heart"></i> Add to Wishlist';
+                    showNotification(`${productName} removed from wishlist`, 'error');
+                }
+                
+                localStorage.setItem('divineWishlist', JSON.stringify(wishlist));
+                
+                if (typeof updateWishlistCount === 'function') {
+                    updateWishlistCount();
+                }
+            });
+        }
+    });
+    
+    function showNotification(message, type = '') {
+        const notification = document.createElement('div');
+        notification.className = `cart-notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 2000);
+    }
+</script>
 {% endblock %}

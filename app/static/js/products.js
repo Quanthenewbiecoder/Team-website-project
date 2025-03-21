@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const filterForm = document.getElementById("Form");
     let allProducts = [];
     let currentUserRole = null;
+    let isLoggedIn = document.body.getAttribute('data-logged-in') === 'true';
 
     async function fetchCurrentUser() {
         try {
@@ -17,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (data.success) {
                 currentUserRole = data.user.role;
-                console.log("User role:", currentUserRole); // Debugging
+                console.log("User role:", currentUserRole); 
             }
         } catch (error) {
             console.error("Error fetching user:", error);
@@ -25,7 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
-        await fetchProducts(); // Ensures products are loaded before filtering
+        await fetchProducts();
     
         if (filterForm) {
             filterForm.addEventListener("submit", function (event) {
@@ -35,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Fetch and display products
     async function fetchProducts() {
         await fetchCurrentUser();
         
@@ -45,26 +45,26 @@ document.addEventListener("DOMContentLoaded", function () {
     
             if (data.success && Array.isArray(data.products)) {
                 allProducts = data.products;
-                updateProductList(allProducts); // Show all products initially
+                updateProductList(allProducts); 
             } else {
                 console.error("Error fetching products:", data.error || "Invalid data format");
-                allProducts = []; // Ensure allProducts is an empty array instead of undefined
+                allProducts = []; 
                 
             }
         } catch (error) {
             console.error("Fetch error:", error);
-            allProducts = []; // Prevent undefined issue
+            allProducts = []; 
             
         }
 
         updateProductList(allProducts);
+        loadWishlistStatus(); 
     }    
     
-    // Update product list in UI
     function updateProductList(products) {
         if (!Array.isArray(products)) {
             console.error("Error: products is not an array.", products);
-            products = []; // Default to empty array to avoid errors
+            products = [];
         }
         
         productsGrid.innerHTML = "";
@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 imageUrl = `/static/images/${imageUrl.split('/').pop()}`;
             }
     
-            // Fallback image if missing
             if (!imageUrl || imageUrl.trim() === "") {
                 imageUrl = "/static/images/default.jpg";
             }
@@ -92,14 +91,24 @@ document.addEventListener("DOMContentLoaded", function () {
             productElement.dataset.type = product.type;
             productElement.dataset.collection = product.collection;
     
-            // Only show delete button if user is admin/staff
             let deleteButtonHTML = "";
             if (currentUserRole === "admin" || currentUserRole === "staff") {
                 deleteButtonHTML = `<button class="btn-delete" data-id="${product.id}">Delete</button>`;
             }
+
+            let wishlistButtonHTML = "";
+            if (isLoggedIn) {
+                wishlistButtonHTML = `
+                    <button class="wishlist-btn" data-id="${product.id}" data-name="${product.name}" 
+                            data-price="${product.price}" data-image="${imageUrl}">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                `;
+            }
     
             productElement.innerHTML = `
                 ${deleteButtonHTML}
+                ${wishlistButtonHTML}
                 <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/static/images/default.jpg';">
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
@@ -115,6 +124,8 @@ document.addEventListener("DOMContentLoaded", function () {
         attachProductNavigation();
         attachDeleteEventListeners();
         attachAddToCartEvents();
+        attachWishlistEvents();
+        loadWishlistStatus(); 
     }    
 
     async function fetchProductReviews(productId) {
@@ -142,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function submitReview(event, productId) {
-        event.preventDefault();  // Prevent the default form submission
+        event.preventDefault(); 
     
         const reviewText = document.querySelector(`#review-text-${productId}`).value.trim();
         const rating = document.querySelector(`#review-rating-${productId}`).value;
@@ -166,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
             if (response.ok) {
                 alert("Review submitted successfully!");
-                location.reload();  // Refresh page to show the new review
+                location.reload();
             } else {
                 const data = await response.json();
                 alert(data.error || "Failed to submit review.");
@@ -180,9 +191,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function attachProductNavigation() {
         document.querySelectorAll(".Product").forEach(product => {
             product.addEventListener("click", function (e) {
-                if (e.target.classList.contains("add-btn")) {
+                if (e.target.classList.contains("add-btn") || 
+                    e.target.classList.contains("wishlist-btn") || 
+                    e.target.tagName === "I" || 
+                    e.target.classList.contains("btn-delete")) {
                     return;
                 }
+                
                 const productId = this.getAttribute("data-id");
         
                 if (!productId || productId.trim() === "") {
@@ -191,12 +206,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 
                 window.location.href = `/products/${productId}`;
-
             });
         });
     }
 
-    // Attach delete button event listeners
     function attachDeleteEventListeners() {
         document.querySelectorAll(".btn-delete").forEach(button => {
             button.removeEventListener("click", deleteHandler);
@@ -204,13 +217,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Function to handle product deletion
     function deleteHandler(event) {
+        event.stopPropagation(); 
         const productId = event.target.getAttribute("data-id");
         deleteProduct(productId);
     }
 
-    // Function to delete a product
     async function deleteProduct(productId) {
         if (!confirm("Are you sure you want to delete this product?")) return;
         const deleteImage = confirm("Would you like to delete the image as well?");
@@ -245,11 +257,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Attach "Add to Cart" button events
     function attachAddToCartEvents() {
         document.querySelectorAll('.add-btn').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
+                e.stopPropagation();
+                
                 const productId = this.getAttribute('data-id');
                 const productName = this.getAttribute('data-name');
                 const productPrice = this.getAttribute('data-price');
@@ -260,7 +273,61 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Function to add item to cart
+    function attachWishlistEvents() {
+        document.querySelectorAll('.wishlist-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                const productPrice = this.getAttribute('data-price');
+                const productImage = this.getAttribute('data-image');
+
+                toggleWishlistItem(this, productId, productName, productPrice, productImage);
+            });
+        });
+    }
+
+    function toggleWishlistItem(button, id, name, price, image) {
+        let wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+        const index = wishlist.findIndex(item => item.id === id);
+        
+        if (index === -1) {
+            wishlist.push({
+                id: id,
+                name: name,
+                price: parseFloat(price),
+                image: image
+            });
+            
+            button.classList.add('active');
+            showNotification(`${name} added to wishlist`);
+        } else {
+            wishlist.splice(index, 1);
+            button.classList.remove('active');
+            showNotification(`${name} removed from wishlist`, 'error');
+        }
+        
+        localStorage.setItem('divineWishlist', JSON.stringify(wishlist));
+    }
+
+    function loadWishlistStatus() {
+        if (!isLoggedIn) return;
+        
+        const wishlist = JSON.parse(localStorage.getItem('divineWishlist')) || [];
+        const wishlistIds = wishlist.map(item => item.id);
+        
+        document.querySelectorAll('.wishlist-btn').forEach(button => {
+            const productId = button.getAttribute('data-id');
+            if (wishlistIds.includes(productId)) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+
     function addToCart(id, name, price, image) {
         try {
             let cart = JSON.parse(sessionStorage.getItem('divinecart') || '{}');
@@ -283,10 +350,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Function to show notification when adding to cart
-    function showNotification(message) {
+    function showNotification(message, type = '') {
         const notification = document.createElement('div');
-        notification.className = 'cart-notification';
+        notification.className = `cart-notification ${type}`;
         notification.textContent = message;
         document.body.appendChild(notification);
 
@@ -302,7 +368,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 2000);
     }
 
-    // Toggle filter dropdown
     window.toggleFilter = function (header) {
         const content = header.nextElementSibling;
         const arrow = header.querySelector('.arrow');
@@ -311,7 +376,6 @@ document.addEventListener("DOMContentLoaded", function () {
         arrow.classList.toggle('rotate');
     };
 
-    // Apply filters when form is submitted
     if (filterForm) {
         filterForm.addEventListener("submit", function (event) {
             event.preventDefault();
@@ -319,14 +383,12 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Search filter triggers dynamically
     searchInput?.addEventListener("input", debounce(() => applyFilters(), 300));
 
-    // Function to apply filters
     function applyFilters() {
         if (!Array.isArray(allProducts)) {
             console.error("Error: allProducts is not an array or is undefined.", allProducts);
-            allProducts = []; // Set it to an empty array to prevent errors
+            allProducts = [];
         }
     
         if (allProducts.length === 0) {
@@ -353,22 +415,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
             let shouldShow = true;
 
-            // Search Query Filtering (searches both name and description)
             if (searchQuery && !productName.includes(searchQuery) && !product.description.toLowerCase().includes(searchQuery)) {
                 shouldShow = false;
             }
 
-            // Collection Filtering
             if (selectedCollection !== 'None' && productCollection !== selectedCollection.toLowerCase().trim()) {
                 shouldShow = false;
             }
 
-            // Product Type Filtering
             if (checkedTypes.length > 0 && !checkedTypes.includes(productType)) {
                 shouldShow = false;
             }
 
-            // In-Stock Filtering
             if (inStockChecked && product.in_stock !== true) {
                 shouldShow = false;
             }
@@ -376,24 +434,19 @@ document.addEventListener("DOMContentLoaded", function () {
             return shouldShow;
         });
 
-        // If no filters are selected, show all products
         if (sortOption !== 'Recommended') {
             filteredProducts = sortProducts(filteredProducts, sortOption);
         }
         updateProductList(filteredProducts);
-        
-
-        // Show/hide "no results found" message
     }
 
-    // Function to sort products
     function sortProducts(products, sortOption) {
         if (!Array.isArray(products)) {
             console.error("Error: products is not an array before sorting.", products);
-            return []; // Prevent errors
+            return [];
         }
     
-        let sortedProducts = [...products]; // Copy to avoid mutating original array
+        let sortedProducts = [...products];
     
         if (sortOption === 'HighLow') {
             sortedProducts.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
@@ -404,7 +457,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return sortedProducts;
     }    
 
-    // Show or hide empty state
     function showEmptyState() {
         productsGrid.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><h3>No products found</h3><p>Try adjusting your filters or search terms</p></div>`;
     }
@@ -412,7 +464,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector('.empty-state')?.remove();
     }
 
-    // Debounce function
     function debounce(func, delay) {
         let timeout;
         return function () {

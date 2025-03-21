@@ -33,37 +33,12 @@ Products - The Divine
                 </div>
                 <div class="filter-content">
                     <div class="radio-group">
-                        <input type="radio" id="Recommended" name="sort" value="Recommended" checked>
-                        <label for="Recommended">Recommended</label>
-                    </div>
-                    <div class="radio-group">
                         <input type="radio" id="HighLow" name="sort" value="HighLow">
                         <label for="HighLow">High to Low</label>
                     </div>
                     <div class="radio-group">
                         <input type="radio" id="LowHigh" name="sort" value="LowHigh">
                         <label for="LowHigh">Low to High</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-header" onclick="toggleFilter(this)">
-                    <h3>Filter Search</h3>
-                    <span class="arrow">▼</span>
-                </div>
-                <div class="filter-content">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="InStock" name="InStock" value="InStock">
-                        <label for="InStock">In Stock</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="New" name="New" value="New">
-                        <label for="New">New</label>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="OnSale" name="OnSale" value="OnSale">
-                        <label for="OnSale">On Sale</label>
                     </div>
                 </div>
             </div>
@@ -238,24 +213,6 @@ Products - The Divine
         </form>                
     </div>
 </div>
-
-{% for product in products %}
-<div class="Product" data-id="{{ product.id }}" data-type="{{ product.type }}" data-collection="{{ product.collection }}">
-    <img src="{{ product.image_url }}" alt="{{ product.name }}">
-    
-    {% if current_user.is_authenticated %}
-    <button class="wishlist-btn" data-id="{{ product.id }}">
-        <i class="fas fa-heart"></i>
-    </button>
-    {% endif %}
-    
-    <h3>{{ product.name }}</h3>
-    <p class="price">£{{ "%.2f"|format(product.price) }}</p>
-    <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
-        Add to Cart
-    </button>
-</div>
-{% endfor %}
 
 {% endblock %}
 

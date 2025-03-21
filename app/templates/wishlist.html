@@ -12,6 +12,10 @@
   <div class="wishlist-header">
     <h1>Your Wishlist</h1>
     <p>Items you've saved for later</p>
+    <div class="wishlist-controls">
+      <a href="{{ url_for('routes.all_products') }}" class="browse-products-btn">Browse Products</a>
+      <button id="clear-wishlist-btn" class="clear-wishlist-btn">Clear Wishlist</button>
+    </div>
   </div>
   
   <div id="wishlist-grid" class="wishlist-grid">
@@ -22,9 +26,22 @@
     <h3>Your wishlist is empty</h3>
     <p>Save items you love by clicking the heart icon on any product</p>
     <a href="{{ url_for('routes.all_products') }}" class="browse-products-btn">Browse Products</a>
-    
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/wishlist.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'divineWishlist') {
+          loadWishlist();
+          if (typeof updateWishlistCount === 'function') {
+            updateWishlistCount();
+          }
+        }
+      });
+    });
+  </script>
 {% endblock %}
