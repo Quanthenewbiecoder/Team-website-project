@@ -161,6 +161,44 @@ button:hover {
     background-color: #6d563f;
 }
 
+#add-to-basket {
+    padding: 10px 20px;
+    background-color: #222;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+#add-to-basket:hover {
+    background-color: #444;
+}
+
+#add-to-basket:active {
+    transform: scale(0.97);
+}
+
+.cart-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #222;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 9999;
+}
+
+.cart-notification.show {
+    opacity: 1;
+    transform: translateY(-10px);
+}
+
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .product-detail-container {

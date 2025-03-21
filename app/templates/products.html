@@ -24,6 +24,16 @@
             {% endif %}
         </p>
         <p class="description">{{ product.description }}</p>
+         <!-- ✅ Add to Basket Button -->
+        {% if product.in_stock %}
+        <button id="add-to-basket"
+                data-id="{{ product._id }}"
+                data-name="{{ product.name }}"
+                data-price="{{ product.price }}"
+                data-image="{{ url_for('static', filename=product.image_url) }}">
+            Add to Basket
+        </button>
+        {% endif %}
     </div>
 </div>
 
@@ -49,8 +59,7 @@
     <h3>Leave a Review</h3>
 
     {% if current_user.is_authenticated %}
-    <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id|string) }}">
-        <label for="review">Your Review:</label>
+    <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id) }}">        <label for="review">Your Review:</label>
         <textarea name="review" id="review" rows="4" required></textarea>
 
         <label for="rating">Rating:</label>
@@ -71,6 +80,6 @@
 
 {% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/products.js') }}"></script>
+<script src="{{ url_for('static', filename='js/product_details.js') }}"></script>
 <script src="{{ url_for('static', filename='js/admin_products.js') }}"></script>
 {% endblock %}
