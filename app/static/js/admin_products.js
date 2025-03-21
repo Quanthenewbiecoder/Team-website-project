@@ -75,6 +75,7 @@ function showAddProductModal() {
     document.getElementById("product-price").value = "";
     document.getElementById("product-type").value = "";
     document.getElementById("product-collection").value = "";
+    document.getElementById("product-description").value = "";
     document.getElementById("product-instock").checked = true;
     document.getElementById("product-modal").style.display = "flex";
 
@@ -96,6 +97,7 @@ function editProduct(productId) {
         document.getElementById("product-price").value = product.price;
         document.getElementById("product-type").value = product.type;
         document.getElementById("product-collection").value = product.collection || "";
+        document.getElementById("product-description").value = product.description || "";
         document.getElementById("product-instock").checked = product.in_stock;
 
         // Display existing image if available
@@ -129,6 +131,7 @@ function saveProduct() {
     formData.append("price", parseFloat(document.getElementById("product-price").value.trim()));
     formData.append("type", document.getElementById("product-type").value.trim());
     formData.append("collection", document.getElementById("product-collection").value.trim());
+    formData.append("description", document.getElementById("product-description").value.trim());
     formData.append("in_stock", document.getElementById("product-instock").checked);
 
     if (fileInput) {
@@ -176,7 +179,7 @@ function deleteProduct(productId) {
                 message += " Image was kept.";
             }
             alert(message);
-            location.reload(); // Refresh the page to update product list
+            window.location.href = "/admin/products";
         } else {
             alert("Error: " + data.error);
         }

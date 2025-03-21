@@ -1086,6 +1086,7 @@ def add_product():
         price = float(request.form.get("price", 0))
         product_type = request.form.get("type", "")
         collection = request.form.get("collection", None)
+        description = request.form.get("description", "")
         in_stock = request.form.get("in_stock") == "true"
 
         image_url = None
@@ -1105,6 +1106,7 @@ def add_product():
             "type": product_type,
             "price": price,
             "collection": collection,
+            "description": description,
             "image_url": image_url,
             "in_stock": in_stock
         }
