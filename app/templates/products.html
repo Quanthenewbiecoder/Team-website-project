@@ -47,6 +47,8 @@
 
     <!-- Review Form -->
     <h3>Leave a Review</h3>
+
+    {% if current_user.is_authenticated %}
     <form method="POST" action="{{ url_for('routes.add_review', product_id=product._id|string) }}">
         <label for="review">Your Review:</label>
         <textarea name="review" id="review" rows="4" required></textarea>
@@ -62,7 +64,10 @@
 
         <button type="submit">Submit Review</button>
     </form>
-</div>
+    {% else %}
+    <p>You must be <a href="{{ url_for('routes.login') }}">logged in</a> to leave a review.</p>
+    {% endif %}
+
 
 {% endblock %}
 {% block scripts %}

@@ -206,6 +206,8 @@ def products(product_id):
     if not product:
         flash("Product not found.", "danger")
         return redirect(url_for('routes.all_products'))
+    
+    product['_id'] = str(product['_id'])
 
     product_reviews = list(mongo.db.reviews.find({"product_id": product_id}))
     return render_template('products.html', product=product, reviews=product_reviews)
