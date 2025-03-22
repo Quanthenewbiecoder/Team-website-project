@@ -29,6 +29,8 @@ class RegistrationForm(FlaskForm):
     surname = StringField('Surname', validators=[DataRequired(), Length(min=2, max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     email_confirmation = StringField('Confirm Email', validators=[DataRequired(), Email(), EqualTo('email', message="Emails must match")])
+    address = StringField('Address', validators=[DataRequired(), Length(min=5, max=255)])
+    phone = StringField('Phone Number', validators=[DataRequired(), Length(min=8, max=20)])
 
     # Separate day, month, year fields
     day = IntegerField('Day', validators=[DataRequired(), NumberRange(min=1, max=31, message="Invalid day")])

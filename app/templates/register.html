@@ -11,6 +11,11 @@
     <h2>Welcome to The Divine</h2>
     <p>Your trusted jewelry shop for exquisite collections of gold, diamonds, and precious stones.</p>
     
+    <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Please provide your phone number and address for delivery purposes.
+    </div>
+    
     <form action="{{ url_for('routes.register') }}" method="post">
         {{ form.hidden_tag() }}
         
@@ -52,8 +57,17 @@
                 {{ form.year(class="form-control", placeholder="Year") }}
             </div>
         </div>
-        
 
+        <div class="mb-3">
+            {{ form.address.label(class="form-label") }}
+            {{ form.address(class="form-control", placeholder="e.g. 123 Main Street, London") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.phone.label(class="form-label") }}
+            {{ form.phone(class="form-control", placeholder="e.g. +44 123 456 789") }}
+        </div>   
+        
         <div class="mb-3">
             {{ form.password.label(class="form-label") }}
             {{ form.password(class="form-control") }}

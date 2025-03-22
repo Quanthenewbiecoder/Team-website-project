@@ -87,6 +87,8 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
+        print("DEBUG form data:", form.data)
+
         existing_username = mongo.db.users.find_one({"username": form.username.data})
         if existing_username:
             flash('Username already exists. Please choose a different username.', 'danger')
@@ -105,6 +107,8 @@ def register():
             "email": form.email.data,
             "name": form.name.data,
             "surname": form.surname.data,
+            "address": form.address.data,
+            "phone": form.phone.data,
             "role": "Customer",
             "password_hash": generate_password_hash(form.password.data),  # FIXED password hashing
             "session_version": session_version  # Store session_version as ObjectId
