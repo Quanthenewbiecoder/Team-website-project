@@ -488,20 +488,23 @@ def payment():
     if request.method == 'POST':
         try:
             if current_user.is_authenticated:
+                user_order_id = f"USER-{''.join(random.choices(string.ascii_uppercase + string.digits, k=8))}"
+
                 # Create an order for logged-in users
                 new_order = {
                     "user_id": current_user.get_id(),
                     "total_price": float(total_amount),
                     "items": cart_items,
                     "status": "Pending",
-                    "created_at": datetime.utcnow()
+                    "created_at": datetime.utcnow(),
+                    "user_order_id": user_order_id
                 }
                 result = mongo.db.orders.insert_one(new_order)
                 order_id = str(result.inserted_id)  # MongoDB generated order ID
 
             else:
                 # Generate a tracking number for guest orders
-                order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                guest_order_id = "GUEST-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
                 
                 guest_order = {
                     "user_id": "guest",
@@ -513,6 +516,7 @@ def payment():
                     "guest_order_id": order_id  # Store tracking number correctly
                 }
                 result = mongo.db.orders.insert_one(guest_order)
+                order_id = guest_order_id
 
             # Store tracking number in session for retrieval after payment
             session['last_order_tracking'] = order_id
@@ -533,42 +537,37 @@ def payment():
 def payment_success(order_id):
     """Display payment success page with tracking number."""
     try:
-        print(f"DEBUG: Received order_id → {order_id}")  # Check received order_id
-
-        # Check session for tracking number (used for guest users)
+        print(f"DEBUG: Received order_id → {order_id}")
         tracking_number = session.pop('last_order_tracking', None)
 
         if not tracking_number:
-            # Modify the query to include user_order_id
-            query = {"$or": [
-                {"_id": ObjectId(order_id)} if ObjectId.is_valid(order_id) else None,
-                {"guest_order_id": order_id},  # For guest orders
-                {"user_order_id": order_id}  # For registered user orders
-            ]}
+            query = {
+                "$or": [
+                    {"guest_order_id": order_id},
+                    {"user_order_id": order_id}
+                ]
+            }
 
-            # Remove None values from query (MongoDB does not allow None in `$or`)
-            query["$or"] = [q for q in query["$or"] if q is not None]
+            # Only include ObjectId query if it's valid
+            if ObjectId.is_valid(order_id):
+                query["$or"].append({"_id": ObjectId(order_id)})
 
-            # Fetch order from database
-            order = mongo.db.orders.find_one(query)
+            order = mongo.db.orders.find_one({"$or": query["$or"]})
 
             if order:
-                print(f"DEBUG: Order found in database → {order}")  # Log found order
-                # Fetch tracking number correctly for both user and guest orders
-                tracking_number = order.get("guest_order_id") or order.get("user_order_id") or str(order["_id"])
-                print(f"DEBUG: Extracted tracking_number → {tracking_number}")  # Log extracted tracking number
+                tracking_number = order.get("user_order_id") or order.get("guest_order_id")
             else:
-                print("DEBUG: No order found with given order_id")  # Log if no order found
-                tracking_number = None  # If no order is found
+                tracking_number = None
 
-        return render_template('payment.html', 
+        return render_template('payment.html',
                                payment_status='success',
                                tracking_number=tracking_number)
 
     except Exception as e:
-        print(f"ERROR: {str(e)}")  # Log error
+        print(f"ERROR: {str(e)}")
         flash(f"Error displaying payment success: {str(e)}", "danger")
         return redirect(url_for('routes.home'))
+
 
 @routes_bp.route('/api/get-current-user', methods=['GET'])
 @login_required  # Ensure only logged-in users can access
@@ -1548,12 +1547,12 @@ def create_order():
                 user_object_id = user_data["_id"]  # Get user's ObjectId
 
         # Generate tracking number
-        guest_order_id = None
-        user_order_id = None
-        if guest_email:
-            guest_order_id = f"GUEST-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}"
         if user_object_id:
             user_order_id = f"USER-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}"
+            guest_order_id = None  # Do NOT generate guest code if user is logged in
+        else:
+            guest_order_id = f"GUEST-{''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=8))}"
+            user_order_id = None
 
         order = {
             "user_id": user_object_id if user_object_id else "guest",
