@@ -11,10 +11,11 @@ from app.database import products_collection
 from bson import ObjectId
 from pymongo import DESCENDING  # Import DESCENDING for sorting
 import json
-from bson.errors import InvalidId
+from app import *
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import os
+from flask_mail import Message
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -165,6 +166,37 @@ def help():
 @routes_bp.route('/contact')
 def contact():
     return render_template('contact.html')
+
+@routes_bp.route('/contact', methods=['POST'])
+def send_email():
+    name = request.form['name']
+    email = request.form['email']
+    subject = request.form['subject']
+    message = request.form['message']
+
+    msg = Message(subject=f"Contact Form: {subject}",
+                  sender=current_app.config['MAIL_DEFAULT_SENDER'],
+                  recipients=["noreplydivinee@gmail.com"])
+    msg.body = f"""📩 New message from contact form:
+
+    👤 Name: {name}
+    📧 Email: {email}
+    📝 Subject: {subject}
+
+    💬 Message:
+    {message}
+
+    -- End of message --
+    """
+    
+    try:
+        mail.send(msg)
+        flash("Message sent successfully!", "success")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
+        flash("Failed to send message. Please try again.", "danger")
+
+    return redirect(url_for('routes.contact'))
 
 @routes_bp.route('/terms')
 def terms():

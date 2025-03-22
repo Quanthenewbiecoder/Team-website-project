@@ -13,7 +13,7 @@
         <div class="faq-header">Customer Service & FAQ</div>
         
         <div class="center-buttons">
-            <a href="{{ url_for('routes.track_order') }}">
+            <a href="{{ url_for('routes.previous_orders') }}">
                 <button class="btn btn-secondary">Track Order</button>
             </a>
             <a href="{{ url_for('routes.StarReturn') }}">
@@ -44,7 +44,7 @@
                     <div class="accordion-item">
                         <div class="accordion-question">Where is my order?</div>
                         <div class="accordion-answer">
-                            You can track your order <a href="#">here</a>. Orders are dispatched within 24 hours and can be tracked once shipped.
+                            You can track your order <a href="routes.previous_orders">here</a>. Orders are dispatched within 24 hours and can be tracked once shipped.
                         </div>
                     </div>
             

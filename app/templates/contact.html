@@ -52,8 +52,17 @@
         <img src="{{ url_for('static', filename='images/form.jpg') }}" alt="Contact Us">
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
     <div class="contact-form-container">
-        <form class="contact-form" action="email.php" method="post">
+        <form class="contact-form" action="{{ url_for('routes.send_email') }}" method="post">
             <div>
                 <input type="text" id="name" name="name" placeholder="Enter your name" required>
             </div>

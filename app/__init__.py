@@ -2,10 +2,13 @@ from flask import Flask
 from flask_pymongo import PyMongo
 from flask_login import LoginManager
 from config import Config
+from flask_mail import Mail
 
 # Initialize Flask extensions
 mongo = PyMongo()
 login_manager = LoginManager()
+
+mail = Mail()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -17,6 +20,7 @@ def create_app(config_class=Config):
     # Initialize Flask-Login
     login_manager.init_app(app)
     login_manager.login_view = 'routes.login'
+    mail.init_app(app)
 
     # Load user from MongoDB for Flask-Login
     @login_manager.user_loader
