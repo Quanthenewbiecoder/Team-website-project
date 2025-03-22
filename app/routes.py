@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import os
 from flask_mail import Message
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -133,8 +133,6 @@ def register():
 def order_replacement():
     return render_template('order-replacement.html')
 
-from itsdangerous import URLSafeTimedSerializer
-
 @routes_bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
@@ -177,23 +175,44 @@ def password_change():
 
     return render_template('password_change.html')
 
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from werkzeug.security import generate_password_hash
+from flask import current_app
+
 @routes_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
     try:
         email = serializer.loads(token, salt='password-reset-salt', max_age=1800)
-    except:
-        flash('Reset link expired or invalid.', 'danger')
+        
+    except SignatureExpired:
+        flash('Reset link expired.', 'danger')
+        
+        return redirect(url_for('routes.forgot_password'))
+    except BadSignature:
+        flash('Invalid reset link.', 'danger')
+        
         return redirect(url_for('routes.forgot_password'))
 
     if request.method == 'POST':
         new_password = request.form['password']
+
         hashed_pw = generate_password_hash(new_password)
-        mongo.db.users.update_one({'email': email}, {'$set': {'password': hashed_pw}})
-        flash('Your password has been reset successfully.', 'success')
+
+        result = mongo.db.users.update_one(
+            {'email': {'$regex': f'^{email}$', '$options': 'i'}},
+            {'$set': {'password_hash': hashed_pw}}
+        )
+
+        if result.modified_count == 1:
+            flash('Your password has been reset successfully.', 'success')
+        else:
+            flash('Password reset failed. Please try again.', 'danger')
+        
         return redirect(url_for('routes.login'))
 
     return render_template('reset_password.html')
-
 
 @routes_bp.route('/aboutus')
 def about_us():
