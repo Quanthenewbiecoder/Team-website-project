@@ -148,7 +148,7 @@ def forgot_password():
                           recipients=[email],
                           body=f"Click the link to reset your password: {reset_link}")
             mail.send(msg)
-            flash("Password reset link sent to your email.", "success")
+            flash("Password reset link sent to your email, please check the spam folder if you can't find it.", "success")
         else:
             flash("Email address not found.", "danger")
 
