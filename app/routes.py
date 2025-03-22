@@ -1641,18 +1641,27 @@ def track_order():
     tracking_number = request.args.get('tracking')
     guest_email = request.args.get('guest_email')
 
-    if not tracking_number and not guest_email:
-        return jsonify({'success': False, 'error': 'Tracking number or email required'}), 400
+    if not tracking_number:
+        return jsonify({'success': False, 'error': 'Tracking number is required'}), 400
+
+    # If it's a guest tracking number, guest_email is required
+    if tracking_number.startswith("GUEST-") and not guest_email:
+        return jsonify({'success': False, 'error': 'Guest email is required to track guest orders'}), 400
+
 
     try:
         order = None
 
         # Search for the order using `user_order_id`, `guest_order_id`, or `_id`
-        if tracking_number:
+        if tracking_number.startswith("GUEST-"):
+            order = mongo.db.orders.find_one({
+                "guest_order_id": tracking_number,
+                "guest_email": guest_email
+            })
+        else:
             order = mongo.db.orders.find_one({
                 "$or": [
                     {"user_order_id": tracking_number},
-                    {"guest_order_id": tracking_number},
                     {"_id": ObjectId(tracking_number) if ObjectId.is_valid(tracking_number) else None}
                 ]
             })
