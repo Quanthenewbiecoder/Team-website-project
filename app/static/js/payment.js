@@ -3,11 +3,10 @@ document.addEventListener('DOMContentLoaded', function () {
     setupFormFormatting();
     setupFormSubmission();
     setupTrackingCopy();
+    setupBillingAddressToggle();
 });
 
-/**
- * Load cart data from sessionStorage and display it.
- */
+
 function loadCartData() {
     const orderItems = document.getElementById('order-items');
     const cartTotal = document.getElementById('cart-total');
@@ -62,9 +61,7 @@ function loadCartData() {
     cartTotal.textContent = `£${total.toFixed(2)}`;
 }
 
-/**
- * Format input fields for card details.
- */
+
 function setupFormFormatting() {
     const cardNumberInput = document.getElementById('card-number');
     if (cardNumberInput) {
@@ -104,9 +101,7 @@ function setupFormFormatting() {
     }
 }
 
-/**
- * Handle form submission, retrieve user ID or guest email, and create an order.
- */
+
 function setupFormSubmission() {
     const paymentForm = document.querySelector('.payment-form');
 
@@ -114,7 +109,6 @@ function setupFormSubmission() {
         paymentForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
-            // Get cart data
             const cartDataString = sessionStorage.getItem('divinecart');
             if (!cartDataString || cartDataString === '{}') {
                 alert('Your cart is empty!');
@@ -134,44 +128,59 @@ function setupFormSubmission() {
                 });
             });
 
-            // Get guest email from input field
+            const formData = new FormData(this);
+            
             const guestEmailInput = document.getElementById('guest-email');
-            const guestEmail = guestEmailInput ? guestEmailInput.value.trim() : null;
+            const guestEmail = guestEmailInput ? guestEmailInput.value.trim() : formData.get('email');
 
-            // Fetch logged-in user email from API
             let userId = null;
             try {
                 const response = await fetch('/api/get-current-user');
                 const userData = await response.json();
 
                 if (userData.success && userData.user) {
-                    userId = userData.user.email;  // Ensure correct user ID
+                    userId = userData.user.email;  
                 }
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }
 
-            // DEBUGGING: Show retrieved values
             console.log(`DEBUG: userId from API → ${userId}`);
             console.log(`DEBUG: guestEmail from form → ${guestEmail}`);
 
-            // If neither exists, alert the user
             if (!userId && !guestEmail) {
                 alert('Please provide an email to continue.');
                 return;
             }
 
-            // Prepare order data
             const orderData = {
                 user_id: userId,
                 guest_email: guestEmail,
                 total_price: totalPrice,
-                items: items
+                items: items,
+                shipping_info: {
+                    full_name: formData.get('full_name'),
+                    phone: formData.get('phone'),
+                    address_line1: formData.get('address_line1'),
+                    address_line2: formData.get('address_line2'),
+                    city: formData.get('city'),
+                    postcode: formData.get('postcode'),
+                    country: formData.get('country')
+                }
             };
+
+            if (!formData.get('billing_same')) {
+                orderData.billing_info = {
+                    address_line1: formData.get('billing_address_line1'),
+                    address_line2: formData.get('billing_address_line2'),
+                    city: formData.get('billing_city'),
+                    postcode: formData.get('billing_postcode'),
+                    country: formData.get('billing_country')
+                };
+            }
 
             console.log("DEBUG: Sending Order Data →", JSON.stringify(orderData, null, 2));
 
-            // Send order data to API
             fetch('/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -185,7 +194,6 @@ function setupFormSubmission() {
                     alert('Payment successful! Your order has been placed.');
                     sessionStorage.removeItem('divinecart');
 
-                    // Redirect to order tracking page
                     window.location.href = `/payment/success/${data.tracking_number}`;
                 } else {
                     alert('Error processing your order. Please try again.');
@@ -196,9 +204,7 @@ function setupFormSubmission() {
     }
 }
 
-/**
- * Setup copy tracking number functionality.
- */
+
 function setupTrackingCopy() {
     const copyTrackingBtn = document.getElementById('copy-tracking');
 
@@ -217,9 +223,6 @@ function setupTrackingCopy() {
     }
 }
 
-/**
- * Fallback copy to clipboard method for older browsers.
- */
 function fallbackCopyToClipboard(text, button) {
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -242,9 +245,6 @@ function fallbackCopyToClipboard(text, button) {
     document.body.removeChild(textArea);
 }
 
-/**
- * Show copy confirmation message.
- */
 function showCopyConfirmation(button) {
     const originalText = button.innerHTML;
     button.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -256,9 +256,6 @@ function showCopyConfirmation(button) {
     }, 2000);
 }
 
-/**
- * Show copy error message.
- */
 function showCopyError() {
     const notification = document.createElement('div');
     notification.className = 'copy-notification error';
@@ -275,4 +272,30 @@ function showCopyError() {
             document.body.removeChild(notification);
         }, 300);
     }, 3000);
+}
+
+
+function setupBillingAddressToggle() {
+    const billingSameCheckbox = document.getElementById('billing-same');
+    const billingAddressContainer = document.getElementById('billing-address-container');
+    
+    if (billingSameCheckbox && billingAddressContainer) {
+        billingSameCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                billingAddressContainer.style.display = 'none';
+                document.querySelectorAll('#billing-address-container input, #billing-address-container select').forEach(input => {
+                    input.removeAttribute('required');
+                });
+            } else {
+                billingAddressContainer.style.display = 'block';
+                document.querySelectorAll('#billing-address-container input, #billing-address-container select').forEach(input => {
+                    if (input.id !== 'billing-address-line2') {
+                        input.setAttribute('required', 'required');
+                    }
+                });
+            }
+        });
+        
+        billingSameCheckbox.dispatchEvent(new Event('change'));
+    }
 }

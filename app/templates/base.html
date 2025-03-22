@@ -28,7 +28,6 @@
     <ul class="menu">
       <li><a href="{{ url_for('routes.home') }}">Home</a></li>
       <li><a href="{{ url_for('routes.all_products') }}">Shop</a></li>
-      <li><a href="{{ url_for('routes.basket') }}">Basket</a></li>
       <li><a href="{{ url_for('routes.previous_orders') }}">Previous Orders</a></li>
     
       {% if current_user.is_authenticated %}        
@@ -43,12 +42,16 @@
         <li><a href="{{ url_for('routes.login') }}">Login</a></li>
         <li><a href="{{ url_for('routes.register') }}">Register</a></li>
       {% endif %}
+      <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
+      <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
     </ul>
 
     <div class="right-section">
       <a href="{{ url_for('routes.wishlist') }}" class="wishlist-icon">
           <i class="fa-solid fa-heart"></i>
-          <span class="wishlist-count" style="display: none;">0</span>
+      </a>
+      <a href="{{ url_for('routes.basket') }}" class="basket-icon">
+          <i class="fa-solid fa-shopping-basket"></i>
       </a>
       <div class="search-bar">
           <form id="searchForm" action="{{ url_for('routes.search_products') }}" method="GET">
@@ -96,8 +99,6 @@
                 <li><a href="{{ url_for('routes.terms') }}">Terms and Conditions</a></li>
                 <li><a href="{{ url_for('routes.privacy_policy') }}">Privacy Policy</a></li>
                 <li><a href="{{ url_for('routes.help') }}">Help: FAQ</a></li>
-                <li><a href="{{ url_for('routes.about_us') }}">About Us</a></li>
-                <li><a href="{{ url_for('routes.contact') }}">Contact</a></li>
             </ul>
         </div>
 

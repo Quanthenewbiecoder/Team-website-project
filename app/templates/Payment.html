@@ -56,19 +56,79 @@
             </div>
 
             <form class="payment-form" method="POST">
-                <h2>Payment Details</h2>
-
-                <!-- Only show this field if the user is NOT logged in -->
-                {% if not current_user.is_authenticated %}
-                <div class="form-group">
-                    <label for="guest-email">Guest Email</label>
-                    <input type="email" id="guest-email" name="guest_email" required placeholder="Enter your email to track order">
+                <h2>Shipping Information</h2>
+                
+                <div class="customer-info">
+                    {% if current_user.is_authenticated %}
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" name="full_name" required placeholder="Your full name" value="{{ current_user.name }} {{ current_user.surname }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Your email address" value="{{ current_user.email }}" readonly>
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" name="full_name" required placeholder="Your full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="guest-email">Email</label>
+                        <input type="email" id="guest-email" name="guest_email" required placeholder="Enter your email to track order">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="Your phone number">
+                    </div>
                 </div>
-                {% endif %}
 
+                <div class="shipping-address">
+                    <div class="form-group">
+                        <label for="address-line1">Address Line 1</label>
+                        <input type="text" id="address-line1" name="address_line1" required placeholder="Street address">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address-line2">Address Line 2 (Optional)</label>
+                        <input type="text" id="address-line2" name="address_line2" placeholder="Apartment, suite, unit, etc.">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" required placeholder="City">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="postcode">Postcode</label>
+                            <input type="text" id="postcode" name="postcode" required placeholder="Postcode">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" name="country" required>
+                            <option value="">Select Country</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="United States">United States</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="France">France</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Japan">Japan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h2>Payment Details</h2>
                 <div class="form-group">
                     <label for="cardholder-name">Cardholder Name</label>
-                    <input type="text" id="cardholder-name" name="cardholder_name" required placeholder="John Doe">
+                    <input type="text" id="cardholder-name" name="cardholder_name" required placeholder="Name on card">
                 </div>
 
                 <div class="form-group">
@@ -85,6 +145,54 @@
                     <div class="form-group">
                         <label for="cvv">CVV</label>
                         <input type="text" id="cvv" name="cvv" required placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="billing-same" name="billing_same" checked>
+                    <label for="billing-same">Billing address same as shipping address</label>
+                </div>
+                
+                <div id="billing-address-container" style="display: none;">
+                    <h2>Billing Address</h2>
+                    <div class="billing-address">
+                        <div class="form-group">
+                            <label for="billing-address-line1">Address Line 1</label>
+                            <input type="text" id="billing-address-line1" name="billing_address_line1" placeholder="Street address">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="billing-address-line2">Address Line 2 (Optional)</label>
+                            <input type="text" id="billing-address-line2" name="billing_address_line2" placeholder="Apartment, suite, unit, etc.">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="billing-city">City</label>
+                                <input type="text" id="billing-city" name="billing_city" placeholder="City">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="billing-postcode">Postcode</label>
+                                <input type="text" id="billing-postcode" name="billing_postcode" placeholder="Postcode">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="billing-country">Country</label>
+                            <select id="billing-country" name="billing_country">
+                                <option value="">Select Country</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="United States">United States</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Australia">Australia</option>
+                                <option value="France">France</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Italy">Italy</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Japan">Japan</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 

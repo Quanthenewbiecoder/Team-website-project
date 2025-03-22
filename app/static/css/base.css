@@ -422,16 +422,17 @@ body {
   gap: 15px;
 }
 
-.wishlist-icon {
+.wishlist-icon, .basket-icon {
   color: #fff;
   font-size: 20px;
   transition: color 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 15px;
 }
 
-.wishlist-icon:hover {
+.wishlist-icon:hover, .basket-icon:hover {
   color: #f5900d;
 }
 
