@@ -32,6 +32,22 @@ document.addEventListener("DOMContentLoaded", function() {
       }
   });
 
+   // Handle Flash Message Popup
+   const flashToasts = document.querySelectorAll(".flash-toast");
+   flashToasts.forEach(toast => {
+       toast.style.opacity = "1";
+       setTimeout(() => {
+           toast.style.opacity = "0";
+       }, 4000); // Auto-hide after 4 seconds
+   });
+
+   // Close flash message on click
+   document.addEventListener("click", function (event) {
+       if (event.target.classList.contains("flash-toast")) {
+           event.target.style.opacity = "0";
+       }
+   });
+
   const addToCartButtons = document.querySelectorAll(".add-btn");
   if (addToCartButtons.length > 0) {
       addToCartButtons.forEach(button => {

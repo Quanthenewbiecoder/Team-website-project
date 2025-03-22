@@ -474,6 +474,41 @@ body {
   margin-left: 10px;
 }
 
+.flash-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #28a745;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+  font-size: 16px;
+  opacity: 0;
+  animation: fadeInOut 10s ease-in-out forwards;
+}
+
+.toast-success {
+  background-color: #28a745;
+}
+
+.toast-danger {
+  background-color: #dc3545;
+}
+
+.toast-warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-10px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
 @media (max-width: 900px) {
   .right-section {
       gap: 10px;
