@@ -690,7 +690,6 @@ def feedback():
 @login_required
 def user_dashboard():
     """Fetch all orders linked to the logged-in user and display them on the dashboard."""
-    print("DEBUG current_user:", current_user.__dict__) 
     try:
         user_id_str = current_user.get_id()  # Get user ID as string
         try:
@@ -725,7 +724,7 @@ def user_dashboard():
 def update_profile():
     from flask_login import login_user
 
-    # Cập nhật trường
+    # Update user profile details
     current_user.name = request.form.get('name')
     current_user.surname = request.form.get('surname')
     current_user.username = request.form.get('username')
@@ -733,20 +732,19 @@ def update_profile():
     address = request.form.get('address')
     phone = request.form.get('phone')
 
-    # Kiểm tra trùng email
+    # Check for duplicate email
     if new_email != current_user.email:
         existing = mongo.db.users.find_one({"email": new_email})
         if existing:
             flash("This email is already in use.", "danger")
             return redirect(url_for('routes.user_dashboard'))
 
-    # Gán và lưu
     current_user.email = new_email
     current_user.address = address
     current_user.phone = phone
     current_user.save()
 
-    # ❗ Reload user từ DB (rất quan trọng)
+    # Reload user từ DB (rất quan trọng)
     updated_user = User.find_by_email(current_user.email)
     login_user(updated_user, remember=True)
 

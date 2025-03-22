@@ -127,6 +127,46 @@ body {
     font-weight: bold;
 }
 
+/* --- Update Profile & Change Password Forms --- */
+.card form {
+    background-color: #fff9f2;
+    border: 1px solid #f0d9ba;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Labels */
+.card form .form-label {
+    font-weight: 600;
+    color: #5a4d41;
+    font-size: 15px;
+}
+
+/* Inputs */
+.card form .form-control {
+    border-radius: 6px;
+    border: 1px solid #e3caa5;
+    padding: 10px;
+    font-size: 15px;
+    transition: 0.3s ease;
+    background-color: #fffefc;
+}
+
+.card form .form-control:focus {
+    outline: none;
+    border-color: #d4a373;
+    box-shadow: 0 0 0 0.2rem rgba(212, 163, 115, 0.25);
+}
+
+/* Submit buttons */
+.card form button[type="submit"] {
+    margin-top: 10px;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 10px 18px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .dashboard-container {
@@ -146,5 +186,13 @@ body {
     .btn-sm {
         padding: 4px 8px;
         font-size: 12px;
+    }
+
+    .card form .row {
+        flex-direction: column;
+    }
+
+    .card form .col-md-6 {
+        width: 100%;
     }
 }
