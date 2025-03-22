@@ -87,6 +87,8 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
+        print("DEBUG form data:", form.data)
+
         existing_username = mongo.db.users.find_one({"username": form.username.data})
         if existing_username:
             flash('Username already exists. Please choose a different username.', 'danger')
@@ -105,6 +107,8 @@ def register():
             "email": form.email.data,
             "name": form.name.data,
             "surname": form.surname.data,
+            "address": form.address.data,
+            "phone": form.phone.data,
             "role": "Customer",
             "password_hash": generate_password_hash(form.password.data),  # FIXED password hashing
             "session_version": session_version  # Store session_version as ObjectId
@@ -718,29 +722,40 @@ def user_dashboard():
         flash("Error loading your orders.", "danger")
         return render_template('user-dashboard.html', orders=[])
 
+
 @routes_bp.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
-    new_email = request.form.get('email')
+    from flask_login import login_user
 
-    # Check if email has changed and is already used
-    if new_email != current_user.email:
-        existing_user = mongo.db.users.find_one({"email": new_email})
-        if existing_user:
-            flash("This email is already registered with another account.", "danger")
-            return redirect(url_for('routes.user_dashboard'))
-
-    # Update all fields
+    # Update user profile details
     current_user.name = request.form.get('name')
     current_user.surname = request.form.get('surname')
     current_user.username = request.form.get('username')
-    current_user.email = new_email
-    current_user.address = request.form.get('address')
-    current_user.phone = request.form.get('phone')
+    new_email = request.form.get('email')
+    address = request.form.get('address')
+    phone = request.form.get('phone')
 
+    # Check for duplicate email
+    if new_email != current_user.email:
+        existing = mongo.db.users.find_one({"email": new_email})
+        if existing:
+            flash("This email is already in use.", "danger")
+            return redirect(url_for('routes.user_dashboard'))
+
+    current_user.email = new_email
+    current_user.address = address
+    current_user.phone = phone
     current_user.save()
+
+    # Reload user từ DB (rất quan trọng)
+    updated_user = User.find_by_email(current_user.email)
+    login_user(updated_user, remember=True)
+
+
     flash("Profile updated successfully!", "success")
     return redirect(url_for('routes.user_dashboard'))
+
 
 @routes_bp.route('/change_password', methods=['POST'])
 @login_required
