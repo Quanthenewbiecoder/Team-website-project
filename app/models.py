@@ -30,10 +30,10 @@ class User(UserMixin):
         self.created_at = created_at if created_at else datetime.utcnow()  # Ensure correct handling of MongoDB field
         self.password_hash = password_hash  # Ensure password_hash is set if loaded from MongoDB
         self.session_version = session_version or str(ObjectId())  # Ensure session_version exists
-        self._id = str(ObjectId(_id)) if _id else str(ObjectId())  # Ensure _id is an ObjectId
+        self._id = str(_id) if isinstance(_id, ObjectId) else str(ObjectId(_id)) if _id else str(ObjectId())
         self.address = address
         self.phone = phone
-        
+
         if password and not password_hash:
             self.set_password(password)  # Only hash password if it's newly set
 
@@ -50,7 +50,7 @@ class User(UserMixin):
     def save(self):
         """Save user to MongoDB"""
         db.users.update_one(
-            {"_id": self._id},
+            {"_id": ObjectId(self._id)},
             {"$set": {
                 "username": self.username,
                 "email": self.email,
@@ -69,8 +69,14 @@ class User(UserMixin):
     @staticmethod
     def get(user_id):
         """Fetch a user by _id"""
-        user_data = db.users.find_one({"_id": ObjectId(user_id)})
-        return User(**user_data) if user_data else None
+        try:
+            user_data = mongo.db.users.find_one({"_id": ObjectId(user_id)})
+            if user_data:
+                return User(**user_data)
+            return None
+        except Exception as e:
+            print(f"Error in User.get: {e}")
+            return None
 
     @staticmethod
     def find_by_id(order_id):
@@ -91,7 +97,7 @@ class User(UserMixin):
     @staticmethod
     def find_by_email(email):
         """Find a user by email and return a `User` object instead of a dictionary."""
-        user_data = mongo.db.users.find_one({"email": email})
+        user_data = db.users.find_one({"email": email})
         
         if user_data:
             return User(
