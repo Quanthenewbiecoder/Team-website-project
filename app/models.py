@@ -21,7 +21,7 @@ db = client["divine"]  # Replace with your actual database name
 #  User Model (users collection, compatible with Flask-Login)
 class User(UserMixin):
     def __init__(self, username, email, name, surname, role="Customer", password=None, 
-                 _id=None, created_at=None, password_hash=None, session_version=None):
+                 _id=None, created_at=None, password_hash=None, session_version=None, address=None, phone=None):
         self.username = username
         self.email = email
         self.name = name
@@ -31,7 +31,9 @@ class User(UserMixin):
         self.password_hash = password_hash  # Ensure password_hash is set if loaded from MongoDB
         self.session_version = session_version or str(ObjectId())  # Ensure session_version exists
         self._id = str(ObjectId(_id)) if _id else str(ObjectId())  # Ensure _id is an ObjectId
-
+        self.address = address
+        self.phone = phone
+        
         if password and not password_hash:
             self.set_password(password)  # Only hash password if it's newly set
 
@@ -47,7 +49,22 @@ class User(UserMixin):
 
     def save(self):
         """Save user to MongoDB"""
-        db.users.update_one({"_id": self._id}, {"$set": self.__dict__}, upsert=True)
+        db.users.update_one(
+            {"_id": self._id},
+            {"$set": {
+                "username": self.username,
+                "email": self.email,
+                "name": self.name,
+                "surname": self.surname,
+                "role": self.role,
+                "created_at": self.created_at,
+                "password_hash": self.password_hash,
+                "session_version": self.session_version,
+                "address": self.address,
+                "phone": self.phone   
+            }},
+            upsert=True
+        )
 
     @staticmethod
     def get(user_id):
@@ -85,7 +102,9 @@ class User(UserMixin):
                 role=user_data.get("role", "Customer"),
                 password_hash=user_data.get("password_hash"),  # Ensure we set the hash properly
                 _id=user_data.get("_id"),
-                created_at=user_data.get("created_at")
+                created_at=user_data.get("created_at"),
+                address=user_data.get("address"),
+                phone=user_data.get("phone") 
             )
         return None  # Return None if no user found
 

@@ -718,6 +718,50 @@ def user_dashboard():
         flash("Error loading your orders.", "danger")
         return render_template('user-dashboard.html', orders=[])
 
+@routes_bp.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    new_email = request.form.get('email')
+
+    # Check if email has changed and is already used
+    if new_email != current_user.email:
+        existing_user = mongo.db.users.find_one({"email": new_email})
+        if existing_user:
+            flash("This email is already registered with another account.", "danger")
+            return redirect(url_for('routes.user_dashboard'))
+
+    # Update all fields
+    current_user.name = request.form.get('name')
+    current_user.surname = request.form.get('surname')
+    current_user.username = request.form.get('username')
+    current_user.email = new_email
+    current_user.address = request.form.get('address')
+    current_user.phone = request.form.get('phone')
+
+    current_user.save()
+    flash("Profile updated successfully!", "success")
+    return redirect(url_for('routes.user_dashboard'))
+
+@routes_bp.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    if not current_user.check_password(current_password):
+        flash("Current password is incorrect.", "danger")
+        return redirect(url_for('routes.user_dashboard'))
+
+    if new_password != confirm_password:
+        flash("New passwords do not match.", "danger")
+        return redirect(url_for('routes.user_dashboard'))
+
+    current_user.set_password(new_password)
+    current_user.save()
+
+    flash("Password updated successfully!", "success")
+    return redirect(url_for('routes.user_dashboard'))
 
 # Admin Dashboard Route
 @routes_bp.route('/admin')
