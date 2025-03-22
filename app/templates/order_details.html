@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Order Details - The Divine{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/order-details.css') }}">
+
+<div class="order-details-container">
+    <h2>Order Details</h2>
+
+    <div class="order-summary">
+        <p><strong>Order ID:</strong> {{ order.user_order_id or order._id }}</p>
+        <p><strong>Date:</strong> {{ order.created_at }}</p>
+        <p><strong>Status:</strong>
+            <span class="status-badge 
+                {% if order.status == 'Completed' %}status-completed
+                {% elif order.status == 'Cancelled' %}status-cancelled
+                {% else %}status-pending{% endif %}">
+                {{ order.status }}
+            </span>
+        </p>
+        <p><strong>Total Price:</strong> £{{ order.total_price }}</p>
+    </div>
+
+    <h3 style="margin-top: 30px;">Items in this order</h3>
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order["items"] %}
+            <tr>
+                <td>{{ item.product_name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>£{{ item.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="margin-top: 40px;">
+        <a href="{{ url_for('routes.user_dashboard') }}" class="btn btn-outline-primary">← Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

@@ -1714,6 +1714,32 @@ def order_tracking():
     except Exception as e:
         flash(f"Error retrieving order: {str(e)}", "danger")
         return redirect(url_for('routes.previous_orders'))
+    
+@routes_bp.route('/order/<tracking_number>')
+@login_required
+def view_order_detail(tracking_number):
+    try:
+        # Ưu tiên tìm theo user_order_id
+        order = mongo.db.orders.find_one({
+            "$or": [
+                {"user_order_id": tracking_number},
+                {"_id": ObjectId(tracking_number) if ObjectId.is_valid(tracking_number) else None}
+            ]
+        })
+
+        if not order:
+            flash("Order not found!", "danger")
+            return redirect(url_for('routes.user_dashboard'))
+
+        # Chuyển đổi định dạng cho template
+        order["_id"] = str(order["_id"])
+        order["created_at"] = order.get("created_at", datetime.utcnow()).strftime('%d/%m/%Y %H:%M')
+
+        return render_template("order_details.html", order=order)
+
+    except Exception as e:
+        flash(f"Error loading order: {e}", "danger")
+        return redirect(url_for('routes.user_dashboard'))
 
 @routes_bp.route('/save-inquiry', methods=['POST'])
 def save_inquiry():

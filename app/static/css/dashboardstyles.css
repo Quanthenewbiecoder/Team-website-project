@@ -311,8 +311,6 @@ body {
     padding-left: 15px;
 }
 
-<<<<<<< HEAD
-=======
 /* --- Update Profile & Change Password Forms --- */
 .card form {
     background-color: #fff9f2;
@@ -354,7 +352,6 @@ body {
 }
 
 /* Responsive Design */
->>>>>>> ba573c9b9c8fcb299dcda98ee5b32da6ab1ca244
 @media (max-width: 768px) {
     .dashboard-container {
         padding: 20px;
@@ -396,9 +393,6 @@ body {
         padding: 10px 8px;
         font-size: 14px;
     }
-<<<<<<< HEAD
-}
-=======
 
     .btn-primary {
         padding: 5px 10px;
@@ -418,4 +412,3 @@ body {
         width: 100%;
     }
 }
->>>>>>> ba573c9b9c8fcb299dcda98ee5b32da6ab1ca244
