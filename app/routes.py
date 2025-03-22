@@ -16,6 +16,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import os
 from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer
 
 # Create blueprint
 routes_bp = Blueprint('routes', __name__)
@@ -132,8 +133,29 @@ def register():
 def order_replacement():
     return render_template('order-replacement.html')
 
+from itsdangerous import URLSafeTimedSerializer
+
 @routes_bp.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
+    if request.method == 'POST':
+        email = request.form['email'].lower()
+        user = mongo.db.users.find_one({'email': {'$regex': f'^{email}$', '$options': 'i'}})
+
+        if user:
+            serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+            token = serializer.dumps(email, salt='password-reset-salt')
+            reset_link = url_for('routes.reset_password', token=token, _external=True)
+
+            msg = Message("Password Reset Request",
+                          recipients=[email],
+                          body=f"Click the link to reset your password: {reset_link}")
+            mail.send(msg)
+            flash("Password reset link sent to your email.", "success")
+        else:
+            flash("Email address not found.", "danger")
+
+        return redirect(url_for('routes.forgot_password'))
+
     return render_template('forgot_password.html')
 
 @routes_bp.route('/password_change', methods=['GET', 'POST'])
@@ -154,6 +176,24 @@ def password_change():
         return redirect(url_for('routes.home'))
 
     return render_template('password_change.html')
+
+@routes_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt='password-reset-salt', max_age=1800)
+    except:
+        flash('Reset link expired or invalid.', 'danger')
+        return redirect(url_for('routes.forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form['password']
+        hashed_pw = generate_password_hash(new_password)
+        mongo.db.users.update_one({'email': email}, {'$set': {'password': hashed_pw}})
+        flash('Your password has been reset successfully.', 'success')
+        return redirect(url_for('routes.login'))
+
+    return render_template('reset_password.html')
+
 
 @routes_bp.route('/aboutus')
 def about_us():
