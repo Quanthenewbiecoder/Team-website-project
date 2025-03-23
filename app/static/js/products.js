@@ -90,6 +90,10 @@ document.addEventListener("DOMContentLoaded", function () {
             productElement.dataset.id = product.id;
             productElement.dataset.type = product.type;
             productElement.dataset.collection = product.collection;
+
+            if (!product.in_stock) {
+                productElement.classList.add("out-of-stock");
+            }            
     
             let deleteButtonHTML = "";
             if (currentUserRole === "admin" || currentUserRole === "staff") {
@@ -113,9 +117,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>${product.name}</h3>
                 <p class="price">£${parseFloat(product.price).toFixed(2)}</p>
                 <p class="desc">${product.description}</p>
-                <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
-                    Add to Cart
-                </button>
+                ${product.in_stock ? `
+                    <button class="add-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                        Add to Cart
+                    </button>
+                ` : `<p class="out-of-stock-label">Out of Stock</p>`}
             `;
     
             productsGrid.appendChild(productElement);

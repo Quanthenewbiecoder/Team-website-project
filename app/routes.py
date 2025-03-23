@@ -309,6 +309,11 @@ def crystalcollection():
 def all_products():
     """Render the shop page with all products."""
     all_products = list(mongo.db.products.find())
+
+    for product in all_products:
+        product['id'] = str(product['_id'])  # Add id if used in template
+        product['in_stock'] = bool(product.get('in_stock') in [True, 'True', 'true', 1])
+        
     return render_template('all_products.html', products=all_products)
 
 

@@ -215,7 +215,21 @@ body {
     color: #777;
 }
 
+.out-of-stock-label {
+    color: #a94442;
+    font-weight: bold;
+    margin-top: 10px;
+    background-color: #f2dede;
+    padding: 6px 10px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 14px;
+    display: inline-block;
+}
 
+.Product.out-of-stock {
+    opacity: 0.6;
+}
 
 @media (max-width: 1200px) {
     .empty-state {

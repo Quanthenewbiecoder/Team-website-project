@@ -138,10 +138,15 @@ Products - The Divine
                         <p class="price">£{{ "%.2f"|format(product.price) }}</p>
                     </a>
                     
-                    <!-- Add to Cart Button -->
-                    <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
-                        Add to Cart
-                    </button>
+                    {% if product.in_stock == true or product.in_stock == 'True' %}
+                        <!-- Add to Cart Button -->
+                        <button class="add-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}">
+                            Add to Cart
+                        </button>
+                    {% else %}
+                        <p class="out-of-stock">Out of Stock</p>
+                    {% endif %}
+
 
                     <input type="image" src="/static/Images/wishlistbutton.jpg" alt="Submit" width="48" height="48"><br>
 
