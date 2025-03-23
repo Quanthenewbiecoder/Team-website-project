@@ -74,7 +74,7 @@ function updateCartDisplay() {
                 <button onclick="updateQuantity('${id}', ${item.quantity - 1})">-</button>
                 <span class="item-quantity">${item.quantity}</span>
                 <button onclick="updateQuantity('${id}', ${item.quantity + 1})">+</button>
-                <button class="remove-item" onclick="removeItem('${id}')">
+                <button class="remove-item" data-id="${id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -138,6 +138,8 @@ function updateQuantity(id, newQuantity) {
 }
 
 function removeItem(id) {
+    console.log("Removing item with ID:", id); // Debug log
+    
     if (cartItems[id]) {
         const itemName = cartItems[id].name;
         delete cartItems[id];
@@ -145,6 +147,8 @@ function removeItem(id) {
         saveCartToStorage();
         updateCartDisplay();
         showNotification(`${itemName} removed from your basket`);
+    } else {
+        console.log("Item with ID not found in cart:", id); // Debug log
     }
 }
 
