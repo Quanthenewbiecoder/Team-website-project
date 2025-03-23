@@ -224,8 +224,8 @@ function applyPromoCode() {
         discountAmount = cartTotal * 0.20;
         discountApplied = true;
         showSuccess("Congratulations! 20% discount applied!");
-    } else if (promoCodeInput === "WELCOME10") {
-        discountAmount = cartTotal * 0.10;
+    } else if (promoCodeInput === "Mother's Day") {
+        discountAmount = cartTotal * 0.32;
         discountApplied = true;
         showSuccess("Welcome discount of 10% applied!");
     } else {
