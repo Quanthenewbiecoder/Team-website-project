@@ -85,6 +85,14 @@ function updateCartDisplay() {
     
     let finalTotal = cartTotal - discountAmount;
     orderTotal.innerHTML = `<strong>Total: £${finalTotal.toFixed(2)}</strong>`;
+
+    const removeButtons = document.querySelectorAll('.remove-item');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const id = this.getAttribute('data-id');
+            removeItem(id);
+        });
+    });
 }
 
 function attachAddToCartListeners() {
