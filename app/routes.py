@@ -146,15 +146,30 @@ def forgot_password():
         if user:
             serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
             token = serializer.dumps(email, salt='password-reset-salt')
+            
+             # Store token in MongoDB
+            mongo.db.password_reset_tokens.insert_one({
+                "email": email,
+                "token": token,
+                "used": False,
+                "created_at": datetime.utcnow()
+            })
+
             reset_link = url_for('routes.reset_password', token=token, _external=True)
 
             msg = Message("Password Reset Request",
                           recipients=[email],
-                          body=f"Click the link to reset your password: {reset_link}")
-            mail.send(msg)
-            flash("Password reset link sent to your email, please check the spam folder if you can't find it.", "success")
+                          body=f"Click the link below to reset your password:\n\n{reset_link}\n\n"
+                          f"This link will expire in 30 minutes and can only be used once."
+            )
+            try:
+                mail.send(msg)
+                flash("Password reset link sent! Please check your inbox or spam folder.", "success")
+            except Exception as e:
+                print(f"[MAIL ERROR] {e}")
+                flash("Failed to send email. Please try again later.", "danger")
         else:
-            flash("Email address not found.", "danger")
+            flash("No account found with that email.", "danger")
 
         return redirect(url_for('routes.forgot_password'))
 
@@ -179,28 +194,32 @@ def password_change():
 
     return render_template('password_change.html')
 
-from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
-from werkzeug.security import generate_password_hash
-from flask import current_app
-
 @routes_bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
+    # Check if token exists in DB and unused
+    token_entry = mongo.db.password_reset_tokens.find_one({"token": token})
+    if not token_entry or token_entry.get("used"):
+        flash("This reset link is invalid or has already been used.", "warning")
+        return redirect(url_for('routes.forgot_password'))
+
+    # Decode token & check expiry
     try:
-        email = serializer.loads(token, salt='password-reset-salt', max_age=1800)
-        
+        email = serializer.loads(token, salt='password-reset-salt', max_age=1800)  # 30 minutes
     except SignatureExpired:
-        flash('Reset link expired.', 'danger')
-        
+        flash('Reset link expired. Please request a new one.', 'danger')
         return redirect(url_for('routes.forgot_password'))
     except BadSignature:
         flash('Invalid reset link.', 'danger')
-        
         return redirect(url_for('routes.forgot_password'))
 
+    # Handle password update
     if request.method == 'POST':
-        new_password = request.form['password']
+        new_password = request.form.get('password', '').strip()
+        if not new_password:
+            flash("Password cannot be empty.", "danger")
+            return redirect(request.url)
 
         hashed_pw = generate_password_hash(new_password)
 
@@ -210,11 +229,15 @@ def reset_password(token):
         )
 
         if result.modified_count == 1:
-            flash('Your password has been reset successfully.', 'success')
+            # Mark token as used
+            mongo.db.password_reset_tokens.update_one(
+                {"token": token},
+                {"$set": {"used": True}}
+            )
+            flash('Your password has been reset successfully. You can now log in.', 'success')
+            return redirect(url_for('routes.login'))
         else:
             flash('Password reset failed. Please try again.', 'danger')
-        
-        return redirect(url_for('routes.login'))
 
     return render_template('reset_password.html')
 
