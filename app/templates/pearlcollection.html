@@ -4,7 +4,37 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pearlStyle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/collections.css') }}">
+<style>
+    /* Pearl-specific colors */
+    :root {
+        --collection-primary: #e6accc;
+        --collection-secondary: #f1cde6;
+        --collection-accent: #d7a3b7;
+        --collection-text: #8d5975;
+        --collection-background: linear-gradient(to right, #fff0f7, #fff5fa);
+    }
+    
+    header {
+        background-image: url('../static/images/pearlhead.jpg');
+    }
+    
+    .hero-section {
+        background-image: url('../static/images/pearl-background.jpg');
+    }
+    
+    .collection-item button {
+        background-color: var(--collection-primary);
+    }
+    
+    .collection-item button:hover {
+        background-color: var(--collection-accent);
+    }
+    
+    .collection-item h3, .collection-item .price {
+        color: var(--collection-primary);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +46,9 @@
 </header>
 
 <section class="hero-section">
-    <h1>Our Pearl Collection captures the timeless elegance and purity of nature's most precious gem. Each piece is crafted with care to celebrate the understated beauty and luster of pearls, from delicate necklaces to sophisticated earrings. Embrace the luxury of pearls and make every moment extraordinary with these classic and refined designs.</h1>
+    <div class="hero-content">
+        <p>Our Pearl Collection captures the timeless elegance and purity of nature's most precious gem. Each piece is crafted with care to celebrate the understated beauty and luster of pearls, from delicate necklaces to sophisticated earrings. Embrace the luxury of pearls and make every moment extraordinary with these classic and refined designs.</p>
+    </div>
 </section>
 
 <section class="collection-section">
@@ -26,61 +58,68 @@
             <!-- Pearl Ring -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl ring 1.webp') }}" alt="Pearl Ring">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl ring 2.webp') }}" alt="Pearl Ring">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl ring 3.jpg') }}" alt="Pearl Ring">
-                    <button class="prev" onclick="changeSlide(0, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(0, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/pearl_ring_1.webp') }}" alt="Pearl Ring 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_ring_2.webp') }}" alt="Pearl Ring 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_ring_3.jpg') }}" alt="Pearl Ring 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Pearl Ring</h3>
                 <p>A beautiful and timeless pearl ring, perfect for any occasion.</p>
                 <div class="price">$220.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.all_products', product_id=8) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f6') }}'">Shop Now</button>
             </div>
 
             <!-- Pearl Necklace -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl necklace 3.webp') }}" alt="Pearl Necklace">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl necklace 2.webp') }}" alt="Pearl Necklace">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl necklace 4.jpg') }}" alt="Pearl Necklace">
-                    <button class="prev" onclick="changeSlide(1, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(1, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/pearl_necklace_3.webp') }}" alt="Pearl Necklace 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_necklace_2.webp') }}" alt="Pearl Necklace 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_necklace_4.jpg') }}" alt="Pearl Necklace 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Pearl Necklace</h3>
                 <p>A stunning necklace featuring lustrous pearls for an elegant look.</p>
                 <div class="price">$250.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.all_products', product_id=9) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f7') }}'">Shop Now</button>
             </div>
 
             <!-- Pearl Earrings -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl earring 1.avif') }}" alt="Pearl Earrings">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl earring 2.jpeg') }}" alt="Pearl Earrings">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl earring 3.jpg') }}" alt="Pearl Earrings">
-                    <button class="prev" onclick="changeSlide(2, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(2, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/pearl_earring_1.avif') }}" alt="Pearl Earrings 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_earring_2.jpeg') }}" alt="Pearl Earrings 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_earring_3.jpg') }}" alt="Pearl Earrings 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>>
                 </div>
                 <h3>Pearl Earrings</h3>
                 <p>Elegant pearl earrings that add a touch of sophistication to your look.</p>
                 <div class="price">$180.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.all_products', product_id=10) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f8') }}'">Shop Now</button>
             </div>
 
             <!-- Pearl Bracelet -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl_bracelet_1.jpg') }}" alt="Pearl Bracelet">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl bracelet 2.jpg') }}" alt="Pearl Bracelet">
-                    <img class="slide-images" src="{{ url_for('static', filename='images/pearl bracelet 3.jpg') }}" alt="Pearl Bracelet">
-                    <button class="prev" onclick="changeSlide(3, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(3, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/pearl_bracelet_2.jpg') }}" alt="Pearl Bracelet 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/pearl_bracelet_3.jpg') }}" alt="Pearl Bracelet 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Pearl Bracelet</h3>
                 <p>A beautiful pearl bracelet, perfect for adding elegance to your wrist.</p>
                 <div class="price">$180.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.all_products', product_id=11) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f9') }}'">Shop Now</button>
             </div>
         </div>
     </div>
@@ -89,38 +128,42 @@
 
 {% block scripts %}
 <script>
-    let slideIndex = [0, 0, 0, 0];
-    let slideContainers = document.getElementsByClassName("slideshow-container");
-
-    function showSlides(productIndex) {
-        let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
-        if (slideIndex[productIndex] >= slides.length) {
-            slideIndex[productIndex] = 0;
-        }
-        if (slideIndex[productIndex] < 0) {
-            slideIndex[productIndex] = slides.length - 1;
-        }
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-        }
-        slides[slideIndex[productIndex]].style.display = "block";
+    let slideIndices = [0, 0, 0, 0];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        
+        slideshowContainers.forEach((container, productIndex) => {
+            showSlide(productIndex);
+        });
+        
+        setInterval(function() {
+            slideshowContainers.forEach((container, productIndex) => {
+                changeSlide(productIndex, 1);
+            });
+        }, 5000);
+    });
+    
+    function changeSlide(productIndex, direction) {
+        slideIndices[productIndex] += direction;
+        showSlide(productIndex);
     }
-
-    function changeSlide(productIndex, n) {
-        slideIndex[productIndex] += n;
-        showSlides(productIndex);
-    }
-
-    // Initialize all slideshows
-    for (let i = 0; i < slideContainers.length; i++) {
-        showSlides(i);
-    }
-
-    // Auto-advance slides every 5 seconds
-    setInterval(function() {
-        for (let i = 0; i < slideContainers.length; i++) {
-            changeSlide(i, 1);
+    
+    function showSlide(productIndex) {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        const slides = slideshowContainers[productIndex].querySelectorAll('.slide-image');
+        
+        if (slideIndices[productIndex] >= slides.length) {
+            slideIndices[productIndex] = 0;
+        } else if (slideIndices[productIndex] < 0) {
+            slideIndices[productIndex] = slides.length - 1;
         }
-    }, 5000);
+        
+        slides.forEach(slide => {
+            slide.style.display = 'none';
+        });
+        
+        slides[slideIndices[productIndex]].style.display = 'block';
+    }
 </script>
 {% endblock %}

@@ -4,7 +4,36 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/crystalStyle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/collections.css') }}">
+<style>
+    :root {
+        --collection-primary: #4b89c4;
+        --collection-secondary: #add8e6;
+        --collection-accent: #87cefa;
+        --collection-text: #442711;
+        --collection-background: linear-gradient(to right, #f0f8ff, #e6f2ff);
+    }
+    
+    header {
+        background-image: url('../static/images/crystalhead.webp');
+    }
+    
+    .hero-section {
+        background-image: url('../static/images/crystal-background.jpg');
+    }
+    
+    .collection-item button {
+        background-color: var(--collection-primary);
+    }
+    
+    .collection-item button:hover {
+        background-color: var(--collection-accent);
+    }
+    
+    .collection-item h3, .collection-item .price {
+        color: var(--collection-primary);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +45,9 @@
 </header>
 
 <section class="hero-section">
-    <h1>The Crystal Jewelry Collection shines with the pure elegance and clarity of nature's finest gems. Crafted to perfection, each piece features intricate crystal designs that capture light and beauty from every angle.</h1>
+    <div class="hero-content">
+        <p>The Crystal Jewelry Collection shines with the pure elegance and clarity of nature's finest gems. Crafted to perfection, each piece features intricate crystal designs that capture light and beauty from every angle.</p>
+    </div>
 </section>
 
 <section class="collection-section">
@@ -26,85 +57,110 @@
             <!-- Crystal Ring -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal Ring 1" class="slide-images">
-                    <img src="{{ url_for('static', filename='images/crystal_ring_2.jpg') }}" alt="Crystal Ring 2" class="slide-images">
-                    <img src="{{ url_for('static', filename='images/crystal_ring_3.jpg') }}" alt="Crystal Ring 3" class="slide-images">
-                    <button class="prev" onclick="changeSlide(0, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(0, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/crystal_ring_1.jpg') }}" alt="Crystal Ring 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/crystal_ring_2.jpg') }}" alt="Crystal Ring 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/crystal_ring_3.jpg') }}" alt="Crystal Ring 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Crystal Ring</h3>
                 <p>Exquisite crystal ring designed to catch the light with every angle.</p>
                 <div class="price">$180.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=1) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429e8') }}'">Shop Now</button>
             </div>
 
             <!-- Crystal Necklace -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img src="{{ url_for('static', filename='images/crystal_necklace_1.jpg') }}" alt="Crystal Necklace 1" class="slide-images">
-                    <img src="{{ url_for('static', filename='images/crystal_necklace_2.jpg') }}" alt="Crystal Necklace 2" class="slide-images">
-                    <button class="prev" onclick="changeSlide(1, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(1, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/crystal_necklace_1.jpg') }}" alt="Crystal Necklace 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/crystal_necklace_2.jpg') }}" alt="Crystal Necklace 2" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Crystal Necklace</h3>
                 <p>Elegant crystal necklace that adds sparkle to any outfit.</p>
                 <div class="price">$250.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=2) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429e9') }}'">Shop Now</button>
             </div>
 
             <!-- Crystal Bracelet -->
             <div class="collection-item">
                 <div class="slideshow-container">
-                    <img src="{{ url_for('static', filename='images/crystal_bracelet_1.jpg') }}" alt="Crystal Bracelet 1" class="slide-images">
-                    <img src="{{ url_for('static', filename='images/crystal_bracelet_2.jpg') }}" alt="Crystal Bracelet 2" class="slide-images">
-                    <button class="prev" onclick="changeSlide(2, -1)">❮</button>
-                    <button class="next" onclick="changeSlide(2, 1)">❯</button>
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/crystal_bracelet_1.jpg') }}" alt="Crystal Bracelet 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/crystal_bracelet_2.jpg') }}" alt="Crystal Bracelet 2" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
                 </div>
                 <h3>Crystal Bracelet</h3>
                 <p>Stunning crystal bracelet that wraps your wrist in elegance.</p>
                 <div class="price">$150.00</div>
-                <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=3) }}'">Shop Now</button>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f0') }}'">Shop Now</button>
+            </div>
+            
+            <!-- Crystal Earrings -->
+            <div class="collection-item">
+                <div class="slideshow-container">
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/crystal_earring_1.jpg') }}" alt="Crystal Earrings 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/crystal_earring_2.jpg') }}" alt="Crystal Earrings 2" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
+                </div>
+                <h3>Crystal Earrings</h3>
+                <p>Elegant earrings that sparkle beautifully in the light.</p>
+                <div class="price">$120.00</div>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f1') }}'">Shop Now</button>
             </div>
         </div>
     </div>
 </section>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-    let slideIndex = [0, 0, 0];
-    let slideContainers = document.getElementsByClassName("slideshow-container");
-
-    function showSlides(productIndex) {
-        let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
-        if (slideIndex[productIndex] >= slides.length) {
-            slideIndex[productIndex] = 0;
-        }
-        if (slideIndex[productIndex] < 0) {
-            slideIndex[productIndex] = slides.length - 1;
-        }
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-        }
-        slides[slideIndex[productIndex]].style.display = "block";
+    let slideIndices = [0, 0, 0, 0];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        
+        slideshowContainers.forEach((container, productIndex) => {
+            showSlide(productIndex);
+        });
+        
+        setInterval(function() {
+            slideshowContainers.forEach((container, productIndex) => {
+                changeSlide(productIndex, 1);
+            });
+        }, 5000);
+    });
+    
+    function changeSlide(productIndex, direction) {
+        slideIndices[productIndex] += direction;
+        showSlide(productIndex);
     }
-
-    function changeSlide(productIndex, n) {
-        slideIndex[productIndex] += n;
-        showSlides(productIndex);
-    }
-
-    // Initialize all slideshows
-    for (let i = 0; i < slideContainers.length; i++) {
-        showSlides(i);
-    }
-
-    // Auto-advance slides every 5 seconds
-    setInterval(function() {
-        for (let i = 0; i < slideContainers.length; i++) {
-            changeSlide(i, 1);
+    
+    function showSlide(productIndex) {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        const slides = slideshowContainers[productIndex].querySelectorAll('.slide-image');
+        
+        if (slideIndices[productIndex] >= slides.length) {
+            slideIndices[productIndex] = 0;
+        } else if (slideIndices[productIndex] < 0) {
+            slideIndices[productIndex] = slides.length - 1;
         }
-    }, 5000);
+        
+        slides.forEach(slide => {
+            slide.style.display = 'none';
+        });
+        
+        slides[slideIndices[productIndex]].style.display = 'block';
+    }
 </script>
 {% endblock %}

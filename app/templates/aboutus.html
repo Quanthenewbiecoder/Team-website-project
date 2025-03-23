@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}About Us - The Divine Jewelry{% endblock %}
+
 {% block extra_css %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styleaboutcontact.css') }}">
 {% endblock %}
@@ -69,102 +71,83 @@
                 <h3>Oceanic Voyager</h3>
                 <p class="price">£4500</p>
             </div>
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/crystal ring 1.jpg') }}" alt="Crystal Ring" onclick="openPopup(this)">
+                <h3>Crystal Ring</h3>
+                <p class="price">£1110</p>
+            </div>
+            <div class="card">
+                <img src="{{ url_for('static', filename='images/Watch5.jpg') }}" alt="Titanium Horizon" onclick="openPopup(this)">
+                <h3>Titanium Horizon</h3>
+                <p class="price">£7500</p>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="image-section">
-    <img src="{{ url_for('static', filename='images/advertise-1.jpg') }}" alt="Image 1">
-    <img src="{{ url_for('static', filename='images/advertise-2.jpg') }}" alt="Image 2">
-    <img src="{{ url_for('static', filename='images/advertise-3.jpg') }}" alt="Image 3">
+<section id="testim" class="testim">
+  <div>
+    <div class="wrap">
+      <span id="right-arrow" class="arrow right fa fa-chevron-right"></span>
+      <span id="left-arrow" class="arrow left fa fa-chevron-left"></span>
+      <ul id="testim-dots" class="dots">
+        <li class="dot active"></li>
+        <li class="dot"></li>
+        <li class="dot"></li>
+        <li class="dot"></li>
+        <li class="dot"></li>
+      </ul>
+      <div id="testim-content" class="cont">
+        <div class="active">
+          <div class="img"><img alt="Benjamin Smith"></div>
+          <h2>Benjamin Smith</h2>
+          <p>The Divine is a treasure trove of exquisite jewelry. Each piece is a work of art, crafted with meticulous attention to detail. From dainty earrings to statement necklaces, their collection is truly divine.</p>
+        </div>
+
+        <div>
+          <div class="img"><img alt="William Johnson"></div>
+          <h2>William Johnson</h2>
+          <p>I gifted my sister a necklace from The Divine for her birthday, and she was overjoyed. The quality of the materials and the stunning design made it a truly unforgettable present. It's a piece she'll cherish forever.</p>
+        </div>
+
+        <div>
+          <div class="img"><img alt="Harry Morgan"></div>
+          <h2>Harry Morgan</h2>
+          <p>I've gifted jewelry from The Divine for birthdays, anniversaries, and holidays, and it's always a hit. The elegant packaging and personalized touch make it a truly special gift.</p>
+        </div>
+
+        <div>
+          <div class="img"><img alt="Emily Davis"></div>
+          <h2>Emily Davis</h2>
+          <p>I recently purchased a ring from The Divine and I'm absolutely smitten. The craftsmanship is impeccable, and the design is both classic and contemporary. It's the perfect piece to elevate any outfit.</p>
+        </div>
+
+        <div>
+          <div class="img"><img alt="Debra McKay"></div>
+          <h2>Debra McKay</h2>
+          <p>I chose The Divine for my engagement ring, and it was the best decision I ever made. The ring is absolutely stunning, and it symbolizes our love perfectly. It's a piece we'll cherish forever.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
+
+<div class="slider-container">
+  <div class="promo-slider">
+      <img src="{{ url_for('static', filename='images/advertise-1.jpg') }}" alt="Gold Rings - Great Deals">
+      <img src="{{ url_for('static', filename='images/advertise-2.jpg') }}" alt="Modern Necklace Jewellery">
+      <img src="{{ url_for('static', filename='images/advertise-3.jpg') }}" alt="32% Off - Mother's Day Special">
+  </div>
+</div>
+
+<div class="popup-overlay" id="popup-overlay">
+  <div class="popup-content">
+      <span class="close-btn" onclick="closePopup()">×</span>
+      <img id="popup-image" src="" alt="Enlarged Product">
+  </div>
+</div>
 {% endblock %}
 
-  <section id="testim" class="testim">
-    <div>
-      <!--         <div class="testim-cover"> -->
-      <div class="wrap">
-
-        <span id="right-arrow" class="arrow right fa fa-chevron-right"></span>
-        <span id="left-arrow" class="arrow left fa fa-chevron-left "></span>
-        <ul id="testim-dots" class="dots">
-          <li class="dot active"></li>
-          <!--
-                        -->
-          <li class="dot"></li>
-          <!--
-                        -->
-          <li class="dot"></li>
-          <!--
-                        -->
-          <li class="dot"></li>
-          <!--
-                        -->
-          <li class="dot"></li>
-        </ul>
-        <div id="testim-content" class="cont">
-
-          <div class="active">
-            <div class="img"><img
-                alt=""></div>
-            <h2>Benjamin Smith</h2>
-            <p>The Divine is a treasure trove of exquisite jewelry. Each piece is a work of art, crafted with meticulous attention to detail. From dainty earrings to statement necklaces, their collection is truly divine.</p>
-          </div>
-
-          <div>
-            <div class="img"><img
-                alt=""></div>
-            <h2>William Johnson</h2>
-            <p>I gifted my sister a necklace from The Divine for her birthday, and she was overjoyed. The quality of the materials and the stunning design made it a truly unforgettable present. It's a piece she'll cherish forever.</p>
-          </div>
-
-          <div>
-            <div class="img"><img
-                alt=""></div>
-            <h2>Harry Morgan</h2>
-            <p>I've gifted jewelry from The Divine for birthdays, anniversaries, and holidays, and it's always a hit. The elegant packaging and personalized touch make it a truly special gift.</p>
-          </div>
-
-          <div>
-            <div class="img"><img
-                alt=""></div>
-            <h2>Emily Davis</h2>
-            <p>I recently purchased a ring from The Divine and I'm absolutely smitten. The craftsmanship is impeccable, and the design is both classic and contemporary. It's the perfect piece to elevate any outfit.</p>
-          </div>
-
-          <div>
-            <div class="img"><img
-                alt=""></div>
-            <h2>Debra McKay</h2>
-            <p>I chose The Divine for my engagement ring, and it was the best decision I ever made. The ring is absolutely stunning, and it symbolizes our love perfectly. It's a piece we'll cherish forever.</p>
-          </div>
-
-        </div>
-
-      </div>
-      <!--         </div> -->
-    </div>
-  </section>
-
-  <section class="featured_products_sec" style="padding:20px 20px 60px 20px;">
-    <div class="featured-container">
-      <h2 style="text-align: center;"> <span style="color:#f49418;">Popular </span> Items</h2>
-      <div class="cards">
-        
-        <div class="card">
-          <img src="{{ url_for('static', filename='images/crystal ring 1.jpg') }}" alt="Item 1" onclick="openPopup(this)">
-          <h3>Crystal ring</h3>
-          <p class="price">£1110</p>
-        </div>
-
-        <div class="card">
-          <img src="{{ url_for('static', filename='images/Watch5.jpg') }}" alt="Item 1" onclick="openPopup(this)">
-          <h3>Titanium Horizon</h3>
-          <p class="price">£7500</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script src="{{ url_for('static', filename='js/scriptaboutandcontact.js') }}"></script>
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/scriptaboutandcontact.js') }}"></script>
+{% endblock %}

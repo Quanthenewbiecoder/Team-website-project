@@ -155,3 +155,44 @@ window.onload = function() {
 			
 		})
 }
+
+function openPopup(img) {
+  const popupOverlay = document.getElementById('popup-overlay');
+  const popupImage = document.getElementById('popup-image');
+  
+  if (popupOverlay && popupImage) {
+      popupImage.src = img.src;
+      popupOverlay.style.display = 'flex';
+      
+      document.body.style.overflow = 'hidden';
+  }
+}
+
+function closePopup() {
+  const popupOverlay = document.getElementById('popup-overlay');
+  
+  if (popupOverlay) {
+      popupOverlay.style.display = 'none';
+      
+      document.body.style.overflow = 'auto';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const popupOverlay = document.getElementById('popup-overlay');
+  
+  if (popupOverlay) {
+      popupOverlay.addEventListener('click', function(event) {
+          if (event.target === popupOverlay) {
+              closePopup();
+          }
+      });
+  }
+  
+  const cardImages = document.querySelectorAll('.card img');
+  cardImages.forEach(img => {
+      img.addEventListener('click', function() {
+          openPopup(this);
+      });
+  });
+});

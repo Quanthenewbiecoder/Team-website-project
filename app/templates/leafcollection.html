@@ -4,7 +4,37 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/leafStyle.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/collections.css') }}">
+<style>
+    /* Leaf-specific colors */
+    :root {
+        --collection-primary: #03470c;
+        --collection-secondary: #37ad66;
+        --collection-accent: #037a14;
+        --collection-text: #03470c;
+        --collection-background: linear-gradient(to right, #f0fff0, #e6ffe6);
+    }
+    
+    header {
+        background-image: url('../static/images/leafheader.webp');
+    }
+    
+    .hero-section {
+        background-image: url('../static/images/leaf-background.jpg');
+    }
+    
+    .collection-item button {
+        background-color: var(--collection-primary);
+    }
+    
+    .collection-item button:hover {
+        background-color: var(--collection-accent);
+    }
+    
+    .collection-item h3, .collection-item .price {
+        color: var(--collection-primary);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -16,66 +46,82 @@
 </header>
 
 <section class="hero-section">
-    <h1>The Leaf Jewelry Collection draws inspiration from the delicate beauty of nature, transforming the intricate shapes and veins of leaves into stunning pieces of jewelry. Each design celebrates the elegance of the natural world, blending organic forms with refined craftsmanship.</h1>
+    <div class="hero-content">
+        <p>The Leaf Jewelry Collection draws inspiration from the delicate beauty of nature, transforming the intricate shapes and veins of leaves into stunning pieces of jewelry. Each design celebrates the elegance of the natural world, blending organic forms with refined craftsmanship.</p>
+    </div>
 </section>
 
 <section class="collection-section">
-    <h2>Discover Our Leaf Collection</h2>
-    <div class="collection-grid">
-        <div class="collection-item">
-            <div class="slideshow-container">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 1`.webp') }}" alt="Leaf Ring">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 3.jpg') }}" alt="Leaf Ring">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf ring 4.jpg') }}" alt="Leaf Ring">
-                <button class="prev" onclick="changeSlide(0, -1)">❮</button>
-                <button class="next" onclick="changeSlide(0, 1)">❯</button>
+    <div class="container">
+        <h2>Discover Our Leaf Collection</h2>
+        <div class="collection-grid">
+            <!-- Leaf Ring -->
+            <div class="collection-item">
+                <div class="slideshow-container">
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/leaf_ring_1.webp') }}" alt="Leaf Ring 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_ring_3.jpg') }}" alt="Leaf Ring 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_ring_4.jpg') }}" alt="Leaf Ring 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
+                </div>
+                <h3>Leaf Ring</h3>
+                <p>Elegant leaf design to enhance your style. Crafted with precision and care.</p>
+                <div class="price">$150.00</div>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f2') }}'">Shop Now</button>
             </div>
-            <h3>Leaf Ring</h3>
-            <p>Elegant leaf design to enhance your style. Crafted with precision and care.</p>
-            <div class="price">$150.00</div>
-            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=4) }}'">Shop Now</button>
-        </div>
 
-        <div class="collection-item">
-            <div class="slideshow-container">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 1.jpg') }}" alt="Leaf Necklace">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 2.webp') }}" alt="Leaf Necklace">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf necklace 3.webp') }}" alt="Leaf Necklace">
-                <button class="prev" onclick="changeSlide(1, -1)">❮</button>
-                <button class="next" onclick="changeSlide(1, 1)">❯</button>
+            <!-- Leaf Necklace -->
+            <div class="collection-item">
+                <div class="slideshow-container">
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/leaf_necklace_1.jpg') }}" alt="Leaf Necklace 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_necklace_2.webp') }}" alt="Leaf Necklace 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_necklace_3.webp') }}" alt="Leaf Necklace 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
+                </div>
+                <h3>Leaf Necklace</h3>
+                <p>Delicate leaf pendant necklace, a symbol of nature's grace.</p>
+                <div class="price">$120.00</div>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f3') }}'">Shop Now</button>
             </div>
-            <h3>Leaf Necklace</h3>
-            <p>Delicate leaf pendant necklace, a symbol of nature's grace.</p>
-            <div class="price">$120.00</div>
-            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=5) }}'">Shop Now</button>
-        </div>
 
-        <div class="collection-item">
-            <div class="slideshow-container">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 1.jpg') }}" alt="Leaf Earrings">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 2.jpg') }}" alt="Leaf Earrings">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf earring 3.avif') }}" alt="Leaf Earrings">
-                <button class="prev" onclick="changeSlide(2, -1)">❮</button>
-                <button class="next" onclick="changeSlide(2, 1)">❯</button>
+            <!-- Leaf Earrings -->
+            <div class="collection-item">
+                <div class="slideshow-container">
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/leaf_earring_1.jpg') }}" alt="Leaf Earrings 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_earring_2.jpg') }}" alt="Leaf Earrings 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_earring_3.avif') }}" alt="Leaf Earrings 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
+                </div>
+                <h3>Leaf Earrings</h3>
+                <p>Chic earrings featuring the elegant shape of leaves, perfect for any occasion.</p>
+                <div class="price">$85.00</div>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f4') }}'">Shop Now</button>
             </div>
-            <h3>Leaf Earrings</h3>
-            <p>Chic earrings featuring the elegant shape of leaves, perfect for any occasion.</p>
-            <div class="price">$85.00</div>
-            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=6) }}'">Shop Now</button>
-        </div>
 
-        <div class="collection-item">
-            <div class="slideshow-container">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 1.webp') }}" alt="Leaf Bracelet">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 2.webp') }}" alt="Leaf Bracelet">
-                <img class="slide-images" src="{{ url_for('static', filename='images/leaf bracelet 3.webp') }}" alt="Leaf Bracelet">
-                <button class="prev" onclick="changeSlide(3, -1)">❮</button>
-                <button class="next" onclick="changeSlide(3, 1)">❯</button>
+            <!-- Leaf Bracelet -->
+            <div class="collection-item">
+                <div class="slideshow-container">
+                    <div class="slides">
+                        <img src="{{ url_for('static', filename='images/leaf_bracelet_1.webp') }}" alt="Leaf Bracelet 1" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_bracelet_2.webp') }}" alt="Leaf Bracelet 2" class="slide-image">
+                        <img src="{{ url_for('static', filename='images/leaf_bracelet_3.webp') }}" alt="Leaf Bracelet 3" class="slide-image">
+                    </div>
+                    <a href="javascript:void(0)" class="prev" onclick="changeSlide(0, -1)">&#10094;</a>
+                    <a href="javascript:void(0)" class="next" onclick="changeSlide(0, 1)">&#10095;</a>
+                </div>
+                <h3>Leaf Bracelet</h3>
+                <p>Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.</p>
+                <div class="price">$135.00</div>
+                <button onclick="window.location.href='{{ url_for('routes.products', product_id='6b2a4b50b0b2c3a9aec429f5') }}'">Shop Now</button>
             </div>
-            <h3>Leaf Bracelet</h3>
-            <p>Beautiful bracelet designed with a delicate leaf motif to add elegance to your wrist.</p>
-            <div class="price">$135.00</div>
-            <button onclick="window.location.href='{{ url_for('routes.product_detail', product_id=7) }}'">Shop Now</button>
         </div>
     </div>
 </section>
@@ -83,38 +129,42 @@
 
 {% block scripts %}
 <script>
-    let slideIndex = [0, 0, 0, 0];
-    let slideContainers = document.getElementsByClassName("slideshow-container");
-
-    function showSlides(productIndex) {
-        let slides = slideContainers[productIndex].getElementsByClassName("slide-images");
-        if (slideIndex[productIndex] >= slides.length) {
-            slideIndex[productIndex] = 0;
-        }
-        if (slideIndex[productIndex] < 0) {
-            slideIndex[productIndex] = slides.length - 1;
-        }
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";
-        }
-        slides[slideIndex[productIndex]].style.display = "block";
+    let slideIndices = [0, 0, 0, 0];
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        
+        slideshowContainers.forEach((container, productIndex) => {
+            showSlide(productIndex);
+        });
+        
+        setInterval(function() {
+            slideshowContainers.forEach((container, productIndex) => {
+                changeSlide(productIndex, 1);
+            });
+        }, 5000);
+    });
+    
+    function changeSlide(productIndex, direction) {
+        slideIndices[productIndex] += direction;
+        showSlide(productIndex);
     }
-
-    function changeSlide(productIndex, n) {
-        slideIndex[productIndex] += n;
-        showSlides(productIndex);
-    }
-
-    // Initialize all slideshows
-    for (let i = 0; i < slideContainers.length; i++) {
-        showSlides(i);
-    }
-
-    // Auto-advance slides every 5 seconds
-    setInterval(function() {
-        for (let i = 0; i < slideContainers.length; i++) {
-            changeSlide(i, 1);
+    
+    function showSlide(productIndex) {
+        const slideshowContainers = document.querySelectorAll('.slideshow-container');
+        const slides = slideshowContainers[productIndex].querySelectorAll('.slide-image');
+        
+        if (slideIndices[productIndex] >= slides.length) {
+            slideIndices[productIndex] = 0;
+        } else if (slideIndices[productIndex] < 0) {
+            slideIndices[productIndex] = slides.length - 1;
         }
-    }, 5000);
+        
+        slides.forEach(slide => {
+            slide.style.display = 'none';
+        });
+        
+        slides[slideIndices[productIndex]].style.display = 'block';
+    }
 </script>
 {% endblock %}
