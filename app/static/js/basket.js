@@ -227,7 +227,7 @@ function applyPromoCode() {
     } else if (promoCodeInput === "Mother's Day") {
         discountAmount = cartTotal * 0.32;
         discountApplied = true;
-        showSuccess("Welcome discount of 10% applied!");
+        showSuccess("Welcome discount of 32% applied!");
     } else {
         showError("Invalid promo code. Please try again.");
         return;
