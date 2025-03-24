@@ -1,53 +1,41 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const editBtn = document.getElementById("toggle-edit-btn");
-    const editForm = document.getElementById("edit-form-container");
+    const toggleBtn = document.getElementById("toggle-edit-btn");
+    const editFormContainer = document.getElementById("edit-form-container");
     const viewDiv = document.getElementById("view-product-info");
+    const basketBtn = document.getElementById("add-to-basket");
 
-    if (editBtn) {
-        editBtn.addEventListener("click", function () {
-            const isVisible = editForm.style.display === "block";
-            editForm.style.display = isVisible ? "none" : "block";
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", function () {
+            const isVisible = editFormContainer.style.display === "block";
+            editFormContainer.style.display = isVisible ? "none" : "block";
             viewDiv.style.display = isVisible ? "block" : "none";
-            editBtn.textContent = isVisible ? "Edit Product" : "Cancel Edit";
+            toggleBtn.textContent = isVisible ? "Edit Product" : "Cancel Edit";
         });
     }
 
-    const editFormElem = document.getElementById("edit-product-form");
-    if (editFormElem) {
-        editFormElem.addEventListener("submit", async function (e) {
+    const editForm = document.getElementById("edit-product-form");
+    if (editForm) {
+        editForm.addEventListener("submit", async function (e) {
             e.preventDefault();
-
-            const productId = document.getElementById("product-id").value;
-
-            const updatedData = {
-                name: document.getElementById("product-name").value,
-                type: document.getElementById("product-type").value,
-                price: parseFloat(document.getElementById("product-price").value),
-                collection: document.getElementById("product-collection").value,
-                description: document.getElementById("product-description").value,
-                in_stock: document.getElementById("product-stock").checked,
-            };
+            const formData = new FormData(editForm);
+            const productId = formData.get("id");
 
             try {
                 const response = await fetch(`/api/products/${productId}`, {
                     method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                     credentials: "include",
-                    body: JSON.stringify(updatedData),
+                    body: formData
                 });
 
                 const data = await response.json();
-
-                if (response.ok && data.success) {
+                if (data.success) {
                     alert("Product updated successfully!");
                     location.reload();
                 } else {
                     alert("Update failed: " + data.error);
                 }
-            } catch (err) {
-                console.error("Error updating product:", err);
+            } catch (error) {
+                console.error("Error updating product:", error);
                 alert("An error occurred while updating the product.");
             }
         });

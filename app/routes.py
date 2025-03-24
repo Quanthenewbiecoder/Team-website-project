@@ -1295,35 +1295,41 @@ def add_product():
 @login_required
 @role_required('admin', 'staff')
 def update_product(product_id):
-    """Update an existing product."""
     try:
-        data = request.json
         if not ObjectId.is_valid(product_id):
             return jsonify({"success": False, "error": "Invalid product ID"}), 400
 
-        # Lấy sản phẩm cũ để giữ lại image_url nếu không được gửi từ form
-        existing = mongo.db.products.find_one({"_id": ObjectId(product_id)})
-        if not existing:
+        product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+        if not product:
             return jsonify({"success": False, "error": "Product not found"}), 404
 
+        name = request.form.get("name")
+        type_ = request.form.get("type", "")
+        price = float(request.form.get("price", 0))
+        collection = request.form.get("collection", "")
+        description = request.form.get("description", "")
+        in_stock = request.form.get("in_stock") == "on"
+
         update_data = {
-            "name": data.get("name", existing["name"]),
-            "type": data.get("type", existing.get("type", "")),
-            "price": float(data.get("price", existing.get("price", 0))),
-            "description": data.get("description", existing.get("description", "")),
-            "in_stock": data.get("in_stock", existing.get("in_stock", True)),
-            "collection": data.get("collection", existing.get("collection", ""))
+            "name": name,
+            "type": type_,
+            "price": price,
+            "collection": collection,
+            "description": description,
+            "in_stock": in_stock
         }
 
-        # Giữ lại image_url nếu không có image_url mới gửi đến
-        if "image_url" in data and data["image_url"]:
-            update_data["image_url"] = data["image_url"]
-        else:
-            update_data["image_url"] = existing.get("image_url", "")
+        # Handle image upload if file is included
+        if 'image' in request.files:
+            image = request.files['image']
+            if image and image.filename != "":
+                filename = secure_filename(image.filename)
+                save_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                image.save(save_path)
+                update_data["image_url"] = f"images/{filename}"
 
-        result = mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": update_data})
-
-        return jsonify({"success": True, "message": "Product updated successfully."}), 200
+        mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": update_data})
+        return jsonify({"success": True, "message": "Product updated successfully"}), 200
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500

@@ -35,27 +35,30 @@
         <!-- Edit Form (Ẩn mặc định) -->
         {% if current_user.role in ['admin', 'staff'] %}
         <div id="edit-form-container" style="display: none;">
-            <form id="edit-product-form">
-                <input type="hidden" id="product-id" value="{{ product._id }}">
-
-                <label for="product-name">Name:</label>
-                <input type="text" id="product-name" value="{{ product.name }}" required>
-
-                <label for="product-price">Price:</label>
-                <input type="number" id="product-price" value="{{ product.price }}" required>
-
-                <label for="product-type">Type:</label>
-                <input type="text" id="product-type" value="{{ product.type }}">
-
-                <label for="product-collection">Collection:</label>
-                <input type="text" id="product-collection" value="{{ product.collection }}">
-
-                <label for="product-description">Description:</label>
-                <textarea id="product-description">{{ product.description }}</textarea>
-
-                <label for="product-stock">In Stock:</label>
-                <input type="checkbox" id="product-stock" {% if product.in_stock %}checked{% endif %}>
-
+            <form id="edit-product-form" enctype="multipart/form-data">
+                <input type="hidden" name="id" value="{{ product._id }}">
+        
+                <label for="name">Name:</label>
+                <input type="text" name="name" value="{{ product.name }}" required>
+        
+                <label for="price">Price:</label>
+                <input type="number" step="0.01" name="price" value="{{ product.price }}" required>
+        
+                <label for="type">Type:</label>
+                <input type="text" name="type" value="{{ product.type }}">
+        
+                <label for="collection">Collection:</label>
+                <input type="text" name="collection" value="{{ product.collection }}">
+        
+                <label for="description">Description:</label>
+                <textarea name="description">{{ product.description }}</textarea>
+        
+                <label for="in_stock">In Stock:</label>
+                <input type="checkbox" name="in_stock" {% if product.in_stock %}checked{% endif %}>
+        
+                <label for="image">Upload New Image (optional):</label>
+                <input type="file" name="image">
+        
                 <button type="submit">Update Product</button>
             </form>
         </div>
