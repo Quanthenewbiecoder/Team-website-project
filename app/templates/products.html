@@ -12,19 +12,55 @@
         <img src="{{ url_for('static', filename=product.image_url) }}" alt="{{ product.name }}">
     </div>
     <div class="product-info">
-        <h1>{{ product.name }}</h1>
-        <p class="price">Price: £{{ "%.2f"|format(product.price) }}</p>
-        <p class="collection">Collection: {{ product.collection if product.collection else "None" }}</p>
-        <p class="availability">
-            Availability: 
-            {% if product.in_stock %}
-                <span class="in-stock">In Stock</span>
-            {% else %}
-                <span class="out-of-stock">Out of Stock</span>
-            {% endif %}
-        </p>
-        <p class="description">{{ product.description }}</p>
-        
+        {% if current_user.role in ['admin', 'staff'] %}
+            <button id="toggle-edit-btn" style="margin-bottom: 1rem;">Edit Product</button>
+        {% endif %}
+
+        <!-- View-Only Product Info (Hiện mặc định) -->
+        <div id="view-product-info">
+            <h1>{{ product.name }}</h1>
+            <p class="price">Price: £{{ "%.2f"|format(product.price) }}</p>
+            <p class="collection">Collection: {{ product.collection if product.collection else "None" }}</p>
+            <p class="availability">
+                Availability:
+                {% if product.in_stock %}
+                    <span class="in-stock">In Stock</span>
+                {% else %}
+                    <span class="out-of-stock">Out of Stock</span>
+                {% endif %}
+            </p>
+            <p class="description">{{ product.description }}</p>
+        </div>
+
+        <!-- Edit Form (Ẩn mặc định) -->
+        {% if current_user.role in ['admin', 'staff'] %}
+        <div id="edit-form-container" style="display: none;">
+            <form id="edit-product-form">
+                <input type="hidden" id="product-id" value="{{ product._id }}">
+
+                <label for="product-name">Name:</label>
+                <input type="text" id="product-name" value="{{ product.name }}" required>
+
+                <label for="product-price">Price:</label>
+                <input type="number" id="product-price" value="{{ product.price }}" required>
+
+                <label for="product-type">Type:</label>
+                <input type="text" id="product-type" value="{{ product.type }}">
+
+                <label for="product-collection">Collection:</label>
+                <input type="text" id="product-collection" value="{{ product.collection }}">
+
+                <label for="product-description">Description:</label>
+                <textarea id="product-description">{{ product.description }}</textarea>
+
+                <label for="product-stock">In Stock:</label>
+                <input type="checkbox" id="product-stock" {% if product.in_stock %}checked{% endif %}>
+
+                <button type="submit">Update Product</button>
+            </form>
+        </div>
+        {% endif %}
+
         <div class="product-actions">
             {% if current_user.is_authenticated %}
             <button id="add-to-wishlist" 

@@ -1,5 +1,57 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const basketBtn = document.getElementById("add-to-basket");
+    const editBtn = document.getElementById("toggle-edit-btn");
+    const editForm = document.getElementById("edit-form-container");
+    const viewDiv = document.getElementById("view-product-info");
+
+    if (editBtn) {
+        editBtn.addEventListener("click", function () {
+            const isVisible = editForm.style.display === "block";
+            editForm.style.display = isVisible ? "none" : "block";
+            viewDiv.style.display = isVisible ? "block" : "none";
+            editBtn.textContent = isVisible ? "Edit Product" : "Cancel Edit";
+        });
+    }
+
+    const editFormElem = document.getElementById("edit-product-form");
+    if (editFormElem) {
+        editFormElem.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const productId = document.getElementById("product-id").value;
+
+            const updatedData = {
+                name: document.getElementById("product-name").value,
+                type: document.getElementById("product-type").value,
+                price: parseFloat(document.getElementById("product-price").value),
+                collection: document.getElementById("product-collection").value,
+                description: document.getElementById("product-description").value,
+                in_stock: document.getElementById("product-stock").checked,
+            };
+
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                    body: JSON.stringify(updatedData),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert("Product updated successfully!");
+                    location.reload();
+                } else {
+                    alert("Update failed: " + data.error);
+                }
+            } catch (err) {
+                console.error("Error updating product:", err);
+                alert("An error occurred while updating the product.");
+            }
+        });
+    }
 
     if (basketBtn) {
         basketBtn.addEventListener("click", function () {

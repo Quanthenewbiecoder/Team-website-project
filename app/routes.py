@@ -313,7 +313,7 @@ def all_products():
     for product in all_products:
         product['id'] = str(product['_id'])  # Add id if used in template
         product['in_stock'] = bool(product.get('in_stock') in [True, 'True', 'true', 1])
-        
+
     return render_template('all_products.html', products=all_products)
 
 
@@ -369,10 +369,6 @@ def api_products():
 @login_required
 def add_review(product_id):
     """Handles adding/updating a review for a product"""
-    print(f"🚀 Review submitted for product: {product_id}")
-    print(f"🔍 Request Method: {request.method}")
-    print(f"📝 Form Data: {request.form}")
-
     if not ObjectId.is_valid(product_id):
         return jsonify({"error": "Invalid Product ID"}), 400
 
@@ -699,7 +695,6 @@ def order_confirmation(order_id):
             return redirect(url_for('routes.home'))
 
     return render_template('order_confirmation.html', order=order, order_items=order_items)
-
 
 @routes_bp.route('/history')
 @login_required
@@ -1303,18 +1298,32 @@ def update_product(product_id):
     """Update an existing product."""
     try:
         data = request.json
-        update_data = {
-            "name": data.get("name"),
-            "type": data.get("type", ""),
-            "price": float(data.get("price", 0)),
-            "description": data.get("description", ""),
-            "image_url": data.get("image_url", ""),
-            "in_stock": data.get("in_stock", True)
-        }
-        result = mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": update_data})
-        if result.matched_count == 0:
+        if not ObjectId.is_valid(product_id):
+            return jsonify({"success": False, "error": "Invalid product ID"}), 400
+
+        # Lấy sản phẩm cũ để giữ lại image_url nếu không được gửi từ form
+        existing = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+        if not existing:
             return jsonify({"success": False, "error": "Product not found"}), 404
-        return jsonify({"success": True, "message": "Product updated"}), 200
+
+        update_data = {
+            "name": data.get("name", existing["name"]),
+            "type": data.get("type", existing.get("type", "")),
+            "price": float(data.get("price", existing.get("price", 0))),
+            "description": data.get("description", existing.get("description", "")),
+            "in_stock": data.get("in_stock", existing.get("in_stock", True)),
+            "collection": data.get("collection", existing.get("collection", ""))
+        }
+
+        # Giữ lại image_url nếu không có image_url mới gửi đến
+        if "image_url" in data and data["image_url"]:
+            update_data["image_url"] = data["image_url"]
+        else:
+            update_data["image_url"] = existing.get("image_url", "")
+
+        result = mongo.db.products.update_one({"_id": ObjectId(product_id)}, {"$set": update_data})
+
+        return jsonify({"success": True, "message": "Product updated successfully."}), 200
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
